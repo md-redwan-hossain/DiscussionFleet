@@ -1,45 +1,52 @@
-using DiscussionFleet.Infrastructure.Membership;
+using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.BindAndValidateOptions<AppOptions>(AppOptions.SectionName);
+builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
+
+var dbUrl = builder
+    .Configuration.GetSection(AppOptions.SectionName)
+    .GetValue<string>("DatabaseUrl");
+
 builder.Services.AddDbContext<ApplicationDbContext>
-    (opts => opts.UseSqlServer("connectionString"));
+    (opts => opts.UseSqlServer(dbUrl));
 
-builder.Services
-    .AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddUserManager<ApplicationUserManager>()
-    .AddRoleManager<ApplicationRoleManager>()
-    .AddSignInManager<ApplicationSignInManager>()
-    .AddDefaultTokenProviders();
+builder.Services.AddJwtAuth(builder.Configuration);
+builder.Services.AddIdentityConfiguration();
+builder.Services.AddCookieAuthentication();
 
-
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/home/error");
     // The default HSTS value is 30 days.
     // You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-app.UseRouting();
+app
+    .UseStaticFiles()
+    .UseRouting()
+    .UseAuthentication()
+    .UseAuthorization()
+    .UseSession();
 
-app.UseAuthorization();
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();
