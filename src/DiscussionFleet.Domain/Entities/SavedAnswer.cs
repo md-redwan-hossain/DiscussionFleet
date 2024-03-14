@@ -5,5 +5,5 @@ namespace DiscussionFleet.Domain.Entities;
 public class SavedAnswer : Timestamp
 {
     public Guid AnswerId { get; set; }
-    public Guid UserId { get; set; }
+    public Guid MemberId { get; set; }
 }

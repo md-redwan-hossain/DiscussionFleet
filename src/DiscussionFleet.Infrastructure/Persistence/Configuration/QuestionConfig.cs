@@ -20,7 +20,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
             .HasMaxLength(EntityConstants.QuestionBodyMaxLength);
 
         builder
-            .HasMany(x => x.QuestionComments)
+            .HasMany(x => x.Comments)
             .WithOne()
             .HasForeignKey(x => x.QuestionId)
             .IsRequired()

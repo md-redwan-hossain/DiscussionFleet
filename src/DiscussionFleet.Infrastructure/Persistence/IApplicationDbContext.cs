@@ -5,5 +5,5 @@ namespace DiscussionFleet.Infrastructure.Persistence;
 
 public interface IApplicationDbContext
 {
-    public DbSet<UserProfile> UserProfiles { get; }
+    public DbSet<Member> UserProfiles { get; }
 }

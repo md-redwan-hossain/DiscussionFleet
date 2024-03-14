@@ -16,7 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<
     {
     }
 
-    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Member> UserProfiles => Set<Member>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

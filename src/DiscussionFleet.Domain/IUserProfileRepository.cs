@@ -3,6 +3,6 @@ using DiscussionFleet.Domain.Repositories;
 
 namespace DiscussionFleet.Domain;
 
-public interface IUserProfileRepository : IRepositoryBase<UserProfile, Guid>
+public interface IUserProfileRepository : IRepositoryBase<Member, Guid>
 {
 }

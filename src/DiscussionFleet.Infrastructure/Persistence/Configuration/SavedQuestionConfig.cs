@@ -8,7 +8,7 @@ public class SavedQuestionConfig : IEntityTypeConfiguration<SavedQuestion>
 {
     public void Configure(EntityTypeBuilder<SavedQuestion> builder)
     {
-        builder.HasKey(x => new { x.QuestionId, x.UserId });
+        builder.HasKey(x => new { x.QuestionId, x.MemberId });
 
         builder
             .HasOne<Question>()
@@ -18,9 +18,9 @@ public class SavedQuestionConfig : IEntityTypeConfiguration<SavedQuestion>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne<UserProfile>()
+            .HasOne<Member>()
             .WithMany(x => x.SavedQuestions)
-            .HasForeignKey(x => x.UserId)
+            .HasForeignKey(x => x.MemberId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }

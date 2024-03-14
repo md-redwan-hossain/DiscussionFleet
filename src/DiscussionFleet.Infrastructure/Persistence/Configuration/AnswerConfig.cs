@@ -14,7 +14,7 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
             .HasMaxLength(EntityConstants.AnswerBodyMaxLength);
 
         builder
-            .HasMany(x => x.AnswerComments)
+            .HasMany(x => x.Comments)
             .WithOne()
             .HasForeignKey(x => x.AnswerId)
             .IsRequired()

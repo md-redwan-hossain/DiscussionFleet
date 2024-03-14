@@ -11,7 +11,7 @@ public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>
         builder.HasKey(x => new { x.QuestionId, x.CommenterId });
 
         builder
-            .HasOne<UserProfile>()
+            .HasOne<Member>()
             .WithMany()
             .HasForeignKey(x => x.CommenterId)
             .IsRequired()

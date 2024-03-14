@@ -12,7 +12,7 @@ public class QuestionTagConfig : IEntityTypeConfiguration<QuestionTag>
 
         builder
             .HasOne<Question>()
-            .WithMany(x => x.QuestionTags)
+            .WithMany(x => x.Tags)
             .HasForeignKey(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);

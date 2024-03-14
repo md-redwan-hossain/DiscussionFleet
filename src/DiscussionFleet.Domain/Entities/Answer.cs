@@ -9,5 +9,5 @@ public class Answer : Entity<Guid>
     public string Body { get; set; }
     public int VoteCount { get; set; }
     public AcceptedAnswer? AcceptedAnswer { get; set; }
-    public ICollection<AnswerComment> AnswerComments { get; set; }
+    public ICollection<AnswerComment> Comments { get; set; }
 }

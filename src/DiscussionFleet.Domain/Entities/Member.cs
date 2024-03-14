@@ -2,9 +2,9 @@ using DiscussionFleet.Domain.Entities.Abstracts;
 
 namespace DiscussionFleet.Domain.Entities;
 
-public class UserProfile : Entity<Guid>
+public class Member : Entity<Guid>
 {
-    public Guid UserId { get; set; }
+    public Guid ApplicationUserId { get; set; }
     public int ReputationCount { get; set; } = 1;
     public string? DisplayName { get; set; }
     public string? FullName { get; set; }

@@ -12,7 +12,7 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
 
 
         builder
-            .HasOne<UserProfile>()
+            .HasOne<Member>()
             .WithMany()
             .HasForeignKey(x => x.CommenterId)
             .IsRequired()

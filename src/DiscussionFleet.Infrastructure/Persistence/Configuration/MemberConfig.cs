@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Configuration;
 
-public class UserProfileConfig : IEntityTypeConfiguration<UserProfile>
+public class MemberConfig : IEntityTypeConfiguration<Member>
 {
-    public void Configure(EntityTypeBuilder<UserProfile> builder)
+    public void Configure(EntityTypeBuilder<Member> builder)
     {
         builder
             .HasOne<ApplicationUser>()
             .WithOne()
-            .HasForeignKey<UserProfile>(x => x.UserId)
+            .HasForeignKey<Member>(x => x.ApplicationUserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }
