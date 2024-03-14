@@ -12,5 +12,12 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
         builder
             .Property(c => c.Body)
             .HasMaxLength(EntityConstants.AnswerBodyMaxLength);
+
+        builder
+            .HasMany(x => x.AnswerComments)
+            .WithOne()
+            .HasForeignKey(x => x.AnswerId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

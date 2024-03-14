@@ -18,5 +18,12 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
         builder
             .Property(c => c.Body)
             .HasMaxLength(EntityConstants.QuestionBodyMaxLength);
+
+        builder
+            .HasMany(x => x.QuestionComments)
+            .WithOne()
+            .HasForeignKey(x => x.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

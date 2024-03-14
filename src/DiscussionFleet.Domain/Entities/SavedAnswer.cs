@@ -4,6 +4,6 @@ namespace DiscussionFleet.Domain.Entities;
 
 public class SavedAnswer : Timestamp
 {
-    public long AnswerId { get; set; }
-    public long UserId { get; set; }
+    public Guid AnswerId { get; set; }
+    public Guid UserId { get; set; }
 }

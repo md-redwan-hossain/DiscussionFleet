@@ -4,8 +4,8 @@ namespace DiscussionFleet.Domain.Entities;
 
 public class Answer : Entity<Guid>
 {
-    public long QuestionId { get; set; }
-    public long AnswerGiverId { get; set; }
+    public Guid QuestionId { get; set; }
+    public Guid AnswerGiverId { get; set; }
     public string Body { get; set; }
     public int VoteCount { get; set; }
     public AcceptedAnswer? AcceptedAnswer { get; set; }
