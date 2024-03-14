@@ -30,6 +30,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     );
 
     Task UpdateAsync(TEntity entityToUpdate);
+    Task UpdateAsync(IEnumerable<TEntity> entitiesToUpdate);
     Task<bool> RemoveAsync(TKey id);
     Task RemoveAsync(TEntity entityToDelete);
 

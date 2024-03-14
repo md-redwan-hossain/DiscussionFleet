@@ -1,8 +1,9 @@
+using DiscussionFleet.Domain.Entities.Abstracts;
+
 namespace DiscussionFleet.Domain.Entities;
 
-public class UserProfile
+public class UserProfile : Entity<Guid>
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public int ReputationCount { get; set; } = 1;
     public string? DisplayName { get; set; }
@@ -13,4 +14,6 @@ public class UserProfile
     public string? TwitterHandle { get; set; }
     public string? GitHubHandle { get; set; }
     public string? ProfileImageUrl { get; set; }
+    public ICollection<SavedQuestion> SavedQuestions { get; set; }
+    public ICollection<SavedAnswer> SavedAnswers { get; set; }
 }

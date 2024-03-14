@@ -60,6 +60,11 @@ public abstract class Repository<TEntity, TKey>
         return await data.ToListAsync(cancellationToken);
     }
 
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entitiesToUpdate)
+    {
+        return Task.Run(() => { _dbContext.UpdateRange(entitiesToUpdate); });
+    }
+
     public virtual Task UpdateAsync(TEntity entityToUpdate)
     {
         return Task.Run(() =>
