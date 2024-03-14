@@ -1,5 +1,6 @@
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Infrastructure.Membership;
+using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,11 @@ public class ApplicationDbContext : IdentityDbContext<
     }
 
     public DbSet<Member> Members => Set<Member>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseExceptionProcessor();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
