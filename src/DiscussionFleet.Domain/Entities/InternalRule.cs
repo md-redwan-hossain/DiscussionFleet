@@ -2,7 +2,7 @@ using DiscussionFleet.Domain.Entities.Abstracts;
 
 namespace DiscussionFleet.Domain.Entities;
 
-public class InternalRules : Entity<Guid>
+public class InternalRule : Entity<Guid>
 {
     public int MinimumReputationForVote { get; set; }
     public int QuestionVotedUp { get; set; }

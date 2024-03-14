@@ -1,5 +1,4 @@
 using DiscussionFleet.Domain.Entities.Contracts;
-using DiscussionFleet.Domain.Entities.Helpers;
 
 namespace DiscussionFleet.Domain.Entities.Abstracts;
 

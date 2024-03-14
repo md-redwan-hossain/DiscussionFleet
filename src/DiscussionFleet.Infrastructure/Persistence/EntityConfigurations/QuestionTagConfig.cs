@@ -1,13 +1,16 @@
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DiscussionFleet.Infrastructure.Persistence.Configuration;
+namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
 public class QuestionTagConfig : IEntityTypeConfiguration<QuestionTag>
 {
     public void Configure(EntityTypeBuilder<QuestionTag> builder)
     {
+        builder.ToTable(EntityDbTableNames.QuestionTag);
+        
         builder.HasKey(x => new { x.QuestionId, x.TagId });
 
         builder

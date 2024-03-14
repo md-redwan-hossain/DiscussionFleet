@@ -1,13 +1,16 @@
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DiscussionFleet.Infrastructure.Persistence.Configuration;
+namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
 public class SavedQuestionConfig : IEntityTypeConfiguration<SavedQuestion>
 {
     public void Configure(EntityTypeBuilder<SavedQuestion> builder)
     {
+        builder.ToTable(EntityDbTableNames.SavedQuestion);
+
         builder.HasKey(x => new { x.QuestionId, x.MemberId });
 
         builder

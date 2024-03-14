@@ -1,14 +1,17 @@
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Infrastructure.Membership;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DiscussionFleet.Infrastructure.Persistence.Configuration;
+namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
 public class MemberConfig : IEntityTypeConfiguration<Member>
 {
     public void Configure(EntityTypeBuilder<Member> builder)
     {
+        builder.ToTable(EntityDbTableNames.Member);
+        
         builder
             .HasOne<ApplicationUser>()
             .WithOne()

@@ -9,5 +9,5 @@ public class BlogPost : Entity<Guid>
     public Guid? CoverImageId { get; set; }
     public string CoverImageFileExtension { get; set; }
     public string Details { get; set; }
-    public ICollection<BlogPostCategories> Categories { get; set; }
+    public ICollection<BlogPostCategory> Categories { get; set; }
 }
