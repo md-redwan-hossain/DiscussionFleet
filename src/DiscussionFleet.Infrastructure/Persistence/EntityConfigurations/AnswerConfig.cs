@@ -2,6 +2,8 @@ using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using StringMate.Generators;
+using StringMate.Enums;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
@@ -15,12 +17,17 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
             .Property(c => c.Body)
             .HasMaxLength(EntityConstants.AnswerBodyMaxLength);
 
-        builder
-            .HasOne(x => x.AcceptedAnswer)
-            .WithOne()
-            .HasForeignKey<AcceptedAnswer>(x => x.AnswerId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+
+        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+
+        builder.ToTable(b =>
+            b.HasCheckConstraint(EntityConstants.AnswerBodyMinLengthConstraint,
+                cc.GreaterThanOrEqual(
+                    builder.Property(x => x.Body).Metadata.Name,
+                    EntityConstants.AnswerBodyMinLength
+                )
+            ));
+
 
         builder
             .HasMany(x => x.Comments)

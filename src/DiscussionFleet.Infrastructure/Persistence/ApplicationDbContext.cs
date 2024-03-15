@@ -18,6 +18,11 @@ public class ApplicationDbContext : IdentityDbContext<
     }
 
     public DbSet<Member> Members => Set<Member>();
+    public DbSet<Answer> Answers => Set<Answer>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<BlogCategory> BlogCategories => Set<BlogCategory>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

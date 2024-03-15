@@ -11,7 +11,9 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
     public void Configure(EntityTypeBuilder<Member> builder)
     {
         builder.ToTable(EntityDbTableNames.Member);
-        
+
+        builder.Property(x => x.ReputationCount).HasDefaultValue(1);
+
         builder
             .HasOne<ApplicationUser>()
             .WithOne()

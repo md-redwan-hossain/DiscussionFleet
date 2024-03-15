@@ -10,6 +10,8 @@ public class Question : Entity<Guid>
     public long ViewCount { get; set; }
     public int VoteCount { get; set; }
     public long AuthorId { get; set; }
+    public AcceptedAnswer? AcceptedAnswer { get; set; }
     public ICollection<QuestionTag> Tags { get; set; }
+    public ICollection<QuestionVote> Votes { get; set; }
     public ICollection<QuestionComment> Comments { get; set; }
 }

@@ -7,23 +7,23 @@ using StringMate.Generators;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
-public class TagConfig : IEntityTypeConfiguration<Tag>
+public class BadgeConfig : IEntityTypeConfiguration<Badge>
 {
-    public void Configure(EntityTypeBuilder<Tag> builder)
+    public void Configure(EntityTypeBuilder<Badge> builder)
     {
-        builder.ToTable(EntityDbTableNames.Tag);
+        builder.ToTable(EntityDbTableNames.Badge);
 
         builder
             .Property(c => c.Title)
-            .HasMaxLength(EntityConstants.TagTitleMaxLength);
+            .HasMaxLength(EntityConstants.BadgeTitleMaxLength);
 
         var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.TagTitleMinLengthConstraint,
+            b.HasCheckConstraint(EntityConstants.BadgeTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     builder.Property(x => x.Title).Metadata.Name,
-                    EntityConstants.TagTitleMinLength
+                    EntityConstants.BadgeTitleMinLength
                 )
             ));
     }
