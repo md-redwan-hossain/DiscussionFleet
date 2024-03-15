@@ -22,7 +22,7 @@ public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>
         var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.CommentBodyMinLengthConstraint,
+            b.HasCheckConstraint(EntityConstants.QuestionCommentBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     builder.Property(x => x.Body).Metadata.Name,
                     EntityConstants.CommentBodyMinLength

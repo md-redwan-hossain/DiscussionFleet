@@ -2,6 +2,17 @@ namespace DiscussionFleet.Domain.Entities.Helpers;
 
 public static class EntityConstants
 {
+    // Member
+    public const string MemberMinReputationConstraint = "MinMemberReputation";
+    public const int MemberLocationMaxLength = 100;
+    public const int MemberDisplayNameMaxLength = 100;
+    public const int MemberFullNameMaxLength = 100;
+    public const int MemberBioMaxLength = 1000;
+    public const int MemberPersonalWebsiteMaxLength = 200;
+    public const int MemberTwitterMaxLength = 200;
+    public const int MemberGithubMaxLength = 200;
+
+
     // Question
     public const int QuestionTitleMinLength = 15;
     public const int QuestionTitleMaxLength = 150;
@@ -16,7 +27,8 @@ public static class EntityConstants
     public const int AnswerBodyMaxLength = 30000;
 
     // Comment
-    public const string CommentBodyMinLengthConstraint = "MinCommentBodyLength";
+    public const string AnswerCommentBodyMinLengthConstraint = "MinAnswerCommentBodyLength";
+    public const string QuestionCommentBodyMinLengthConstraint = "MinQuestionCommentBodyLength";
     public const int CommentBodyMinLength = 15;
     public const int CommentBodyMaxLength = 600;
 
@@ -38,4 +50,8 @@ public static class EntityConstants
     public const int BlogTitleMinLength = 1;
     public const int BlogBodyMinLength = 30;
     public const int BlogBodyMaxLength = 50000;
+
+    // MultimediaImage
+    public const int MultimediaImageCaptionMaxLength = 200;
+    public const int MultimediaImageFileExtensionMaxLength = 10;
 };

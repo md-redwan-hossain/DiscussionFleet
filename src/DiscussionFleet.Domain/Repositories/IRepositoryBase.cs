@@ -1,9 +1,10 @@
 using System.Linq.Expressions;
+using DiscussionFleet.Domain.Entities.Contracts;
 
 namespace DiscussionFleet.Domain.Repositories;
 
 public interface IRepositoryBase<TEntity, in TKey>
-    where TEntity : class
+    where TEntity : class, IEntity<TKey>
     where TKey : IEquatable<TKey>
 {
     Task CreateAsync(TEntity entity);

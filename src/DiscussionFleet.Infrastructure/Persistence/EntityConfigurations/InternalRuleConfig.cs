@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
-public class InternalRuleConfig : IEntityTypeConfiguration<InternalRule>
+public class ForumRuleConfig : IEntityTypeConfiguration<ForumRule>
 {
-    public void Configure(EntityTypeBuilder<InternalRule> builder)
+    public void Configure(EntityTypeBuilder<ForumRule> builder)
     {
-        builder.ToTable(EntityDbTableNames.InternalRule);
+        builder.ToTable(EntityDbTableNames.ForumRule);
     }
 }

@@ -12,7 +12,7 @@ public static class EntityDbTableNames
     public const string SavedQuestion = "SavedQuestions";
     public const string AcceptedAnswer = "AcceptedAnswers";
     public const string AnswerComment = "AnswerComments";
-    public const string InternalRule = "InternalRules";
+    public const string ForumRule = "ForumRules";
     public const string Badge = "Badges";
     public const string MemberBadge = "MemberBadges";
     public const string QuestionVote = "QuestionVotes";

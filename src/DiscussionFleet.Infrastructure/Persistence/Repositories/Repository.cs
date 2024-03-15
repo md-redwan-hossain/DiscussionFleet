@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using DiscussionFleet.Domain.Entities.Contracts;
 using DiscussionFleet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
 public abstract class Repository<TEntity, TKey>
     : IRepositoryBase<TEntity, TKey>
-    where TEntity : class
+    where TEntity : class, IEntity<TKey>
     where TKey : IEquatable<TKey>
 {
     private readonly DbContext _dbContext;

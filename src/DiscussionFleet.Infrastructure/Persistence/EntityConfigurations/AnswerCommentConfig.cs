@@ -12,7 +12,7 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
     public void Configure(EntityTypeBuilder<AnswerComment> builder)
     {
         builder.ToTable(EntityDbTableNames.AnswerComment);
-        
+
         builder
             .Property(c => c.Body)
             .HasMaxLength(EntityConstants.CommentBodyMaxLength);
@@ -21,7 +21,7 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
         var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.CommentBodyMinLengthConstraint,
+            b.HasCheckConstraint(EntityConstants.AnswerCommentBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     builder.Property(x => x.Body).Metadata.Name,
                     EntityConstants.CommentBodyMinLength

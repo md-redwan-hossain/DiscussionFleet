@@ -21,8 +21,11 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
-    public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<BlogCategory> BlogCategories => Set<BlogCategory>();
+    public DbSet<MultimediaImage> MultimediaImages => Set<MultimediaImage>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<Badge> Badges => Set<Badge>();
+    public DbSet<ForumRule> ForumRules => Set<ForumRule>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

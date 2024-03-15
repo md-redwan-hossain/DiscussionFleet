@@ -14,6 +14,7 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
       <PackageReference Include="SharpOutcome" Version="0.0.4" />
       <PackageReference Include="StringMate" Version="0.0.8" />
+      <PackageReference Include="Ulid" Version="1.3.3" />
     </ItemGroup>
 
     <ItemGroup>
