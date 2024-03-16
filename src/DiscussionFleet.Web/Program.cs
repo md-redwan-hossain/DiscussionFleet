@@ -1,6 +1,7 @@
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Persistence;
+using DiscussionFleet.Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,15 @@ builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddCookieAuthentication();
 
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
+    options.AppendTrailingSlash = false;
+});
+
+
+builder.Services.AddRouting(options => { options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer); });
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -36,16 +46,18 @@ app
     .UseStaticFiles()
     .UseRouting()
     .UseAuthentication()
-    .UseAuthorization()
-    .UseSession();
+    .UseAuthorization();
+// .UseSession();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists:slugify}/{controller:slugify=Home}/{action:slugify=Inde}/{id?}");
+
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id?}");
+
 
 app.MapRazorPages();
 

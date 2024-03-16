@@ -23,7 +23,7 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.AnswerCommentBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Body).Metadata.Name,
+                    nameof(AnswerComment.Body),
                     EntityConstants.CommentBodyMinLength
                 )
             ));

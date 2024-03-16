@@ -1,4 +1,5 @@
 using Autofac;
+using DiscussionFleet.Web.Models;
 
 namespace DiscussionFleet.Web;
 
@@ -6,6 +7,6 @@ public class WebModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        base.Load(builder);
+        builder.RegisterType<RegistrationModel>().AsSelf();
     }
 }

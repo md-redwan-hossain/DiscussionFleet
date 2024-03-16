@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DiscussionFleet.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
-namespace DiscussionFleet.Infrastructure.Membership;
+namespace DiscussionFleet.Infrastructure.Identity;
 
 public class ApplicationRole : IdentityRole<Guid>
 {

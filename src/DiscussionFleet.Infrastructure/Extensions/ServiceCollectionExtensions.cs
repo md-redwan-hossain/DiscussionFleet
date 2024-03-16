@@ -1,6 +1,6 @@
 using System.Text;
 using DiscussionFleet.Application.Common.Options;
-using DiscussionFleet.Infrastructure.Membership;
+using DiscussionFleet.Infrastructure.Identity;
 using DiscussionFleet.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
 
     public static void AddIdentityConfiguration(this IServiceCollection services)
     {
+        
         services
             .AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()

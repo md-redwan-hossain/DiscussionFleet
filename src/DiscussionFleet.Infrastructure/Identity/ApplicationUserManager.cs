@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DiscussionFleet.Infrastructure.Membership;
+namespace DiscussionFleet.Infrastructure.Identity;
 
 public class ApplicationUserManager
     : UserManager<ApplicationUser>

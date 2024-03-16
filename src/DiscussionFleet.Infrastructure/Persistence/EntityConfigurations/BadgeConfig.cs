@@ -22,7 +22,7 @@ public class BadgeConfig : IEntityTypeConfiguration<Badge>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.BadgeTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Title).Metadata.Name,
+                    nameof(Badge.Title),
                     EntityConstants.BadgeTitleMinLength
                 )
             ));

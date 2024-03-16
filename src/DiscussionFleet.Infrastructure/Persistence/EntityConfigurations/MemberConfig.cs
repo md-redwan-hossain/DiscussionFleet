@@ -1,6 +1,6 @@
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
-using DiscussionFleet.Infrastructure.Membership;
+using DiscussionFleet.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -17,12 +17,10 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
         builder.Property(x => x.ReputationCount).HasDefaultValue(1);
 
         var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
-        
+
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.MemberMinReputationConstraint,
-                cc.GreaterThanOrEqual(
-                    builder.Property(x => x.ReputationCount).Metadata.Name, 1
-                )
+                cc.GreaterThanOrEqual(nameof(Member.ReputationCount), 1)
             ));
 
 

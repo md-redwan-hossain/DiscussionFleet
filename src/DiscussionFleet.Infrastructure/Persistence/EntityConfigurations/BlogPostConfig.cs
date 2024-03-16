@@ -27,7 +27,7 @@ public class BlogPostConfig : IEntityTypeConfiguration<BlogPost>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.BlogTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Title).Metadata.Name,
+                    nameof(BlogPost.Title),
                     EntityConstants.BlogTitleMinLength
                 )
             ));
@@ -36,7 +36,7 @@ public class BlogPostConfig : IEntityTypeConfiguration<BlogPost>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.BlogBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Body).Metadata.Name,
+                    nameof(BlogPost.Body),
                     EntityConstants.BlogBodyMinLength
                 )
             ));

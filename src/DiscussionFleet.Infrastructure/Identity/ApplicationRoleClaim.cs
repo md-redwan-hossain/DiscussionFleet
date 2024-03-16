@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DiscussionFleet.Infrastructure.Membership;
+namespace DiscussionFleet.Infrastructure.Identity;
 
 public class ApplicationRoleClaim : IdentityRoleClaim<Guid>;

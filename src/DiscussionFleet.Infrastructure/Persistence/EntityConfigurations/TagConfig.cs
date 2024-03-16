@@ -22,7 +22,7 @@ public class TagConfig : IEntityTypeConfiguration<Tag>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.TagTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Title).Metadata.Name,
+                    nameof(Tag.Title),
                     EntityConstants.TagTitleMinLength
                 )
             ));

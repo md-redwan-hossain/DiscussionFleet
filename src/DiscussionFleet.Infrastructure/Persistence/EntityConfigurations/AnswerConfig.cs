@@ -23,7 +23,7 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.AnswerBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Body).Metadata.Name,
+                    nameof(Answer.Body),
                     EntityConstants.AnswerBodyMinLength
                 )
             ));

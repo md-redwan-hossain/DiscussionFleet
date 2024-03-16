@@ -12,7 +12,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
     public void Configure(EntityTypeBuilder<Question> builder)
     {
         builder.ToTable(EntityDbTableNames.Question);
-        
+
         builder
             .Property(c => c.Title)
             .HasMaxLength(EntityConstants.QuestionTitleMaxLength);
@@ -27,7 +27,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.QuestionBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Body).Metadata.Name,
+                    nameof(Question.Body),
                     EntityConstants.QuestionBodyMinLength
                 )
             ));
@@ -36,7 +36,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.QuestionTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Title).Metadata.Name,
+                    nameof(Question.Title),
                     EntityConstants.QuestionTitleMinLength
                 )
             ));

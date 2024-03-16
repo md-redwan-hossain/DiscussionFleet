@@ -1,5 +1,5 @@
 using DiscussionFleet.Domain.Entities;
-using DiscussionFleet.Infrastructure.Membership;
+using DiscussionFleet.Infrastructure.Identity;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

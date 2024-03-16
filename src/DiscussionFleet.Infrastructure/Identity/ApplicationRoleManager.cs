@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-namespace DiscussionFleet.Infrastructure.Membership;
+namespace DiscussionFleet.Infrastructure.Identity;
 
 public class ApplicationRoleManager
     : RoleManager<ApplicationRole>

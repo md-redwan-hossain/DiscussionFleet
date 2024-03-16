@@ -24,7 +24,7 @@ public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>
         builder.ToTable(b =>
             b.HasCheckConstraint(EntityConstants.QuestionCommentBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
-                    builder.Property(x => x.Body).Metadata.Name,
+                    nameof(QuestionComment.Body),
                     EntityConstants.CommentBodyMinLength
                 )
             ));
