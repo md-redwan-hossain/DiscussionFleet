@@ -7,6 +7,6 @@ public class WebModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterType<RegistrationModel>().AsSelf();
+        builder.RegisterType<RegistrationViewModel>().AsSelf();
     }
 }

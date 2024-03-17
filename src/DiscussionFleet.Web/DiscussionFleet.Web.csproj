@@ -26,4 +26,8 @@
       <Folder Include="Areas\Member\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="wwwroot\css\auth.css" />
+    </ItemGroup>
+
 </Project>

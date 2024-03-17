@@ -16,19 +16,19 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Registration()
     {
-        var model = _scope.Resolve<RegistrationModel>();
-        return View(model);
+        // var model = _scope.Resolve<RegistrationViewModel>();
+        return View();
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Registration(RegistrationModel model)
+    public IActionResult Registration(RegistrationViewModel viewModel)
     {
         if (ModelState.IsValid)
         {
-            model.Resolve(_scope);
-            model.Act();
+            viewModel.Resolve(_scope);
+            viewModel.Act();
         }
 
-        return View(model);
+        return View(viewModel);
     }
 }

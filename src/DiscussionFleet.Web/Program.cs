@@ -1,7 +1,12 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Utils;
+using DiscussionFleet.Web;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +35,16 @@ builder.Services.Configure<RouteOptions>(options =>
 builder.Services.AddRouting(options => { options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer); });
 
 builder.Services.AddControllersWithViews();
+
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterModule(new ApplicationModule());
+    containerBuilder.RegisterModule(new InfrastructureModule());
+    containerBuilder.RegisterModule(new WebModule());
+});
+
 
 var app = builder.Build();
 

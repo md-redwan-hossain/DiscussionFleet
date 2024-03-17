@@ -1,18 +1,54 @@
-@model DiscussionFleet.Web.Models.RegistrationModel
+@model RegistrationViewModel
 
-@{
-    Layout = null;
-}
+<section class="d-flex w-100">
+    <div class="container d-flex flex-column">
+        <div class="row vh-100">
+            <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto d-table h-100">
+                <div class="d-table-cell align-middle">
 
-<!DOCTYPE html>
+                    <div class="text-center mt-4">
+                        <h1 class="h2">Get started!</h1>
+                        <p class="lead">Create your account</p>
+                    </div>
 
-<html lang="en">
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="m-sm-3">
+                                <form asp-controller="Account" asp-action="Registration" asp-antiforgery="true">
+                                    <div class="mb-3">
+                                        <label asp-for="FullName" class="form-label">Full name</label>
+                                        <input asp-for="FullName" class="form-control form-control-lg" type="text" name="name"
+                                               placeholder="Enter your name"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label">Email</label>
+                                        <input asp-for="Email" class="form-control form-control-lg" type="email" name="email"
+                                               placeholder="Enter your email"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="Password" class="form-label">Password</label>
+                                        <input asp-for="Password" class="form-control form-control-lg" type="password" name="password"
+                                               placeholder="Enter password"/>
+                                    </div>
 
-</div>
-</body>
-</html>
+                                    <div class="mb-3">
+                                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                                        <input asp-for="ConfirmPassword" class="form-control form-control-lg" type="password" name="password"
+                                               placeholder="Enter the same password"/>
+                                    </div>
+
+                                    <div class="d-grid gap-2 mt-3">
+                                        <a href="index.html" class="btn btn-lg btn-primary">Sign up</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mb-3">
+                        Already have account? <a href="pages-sign-in.html">Log In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
