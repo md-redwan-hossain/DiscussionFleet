@@ -32,8 +32,6 @@ builder.Services.Configure<RouteOptions>(options =>
 });
 
 
-builder.Services.AddRouting(options => { options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer); });
-
 builder.Services.AddControllersWithViews();
 
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiscussionFleet.Infrastructure.Persistence;
 
-public class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
+public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
 {
     public ApplicationUnitOfWork(IApplicationDbContext dbContext,
         IMemberRepository memberRepository, IBadgeRepository badgeRepository,

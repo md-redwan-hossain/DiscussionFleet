@@ -1,7 +1,10 @@
+using System.Data;
 using System.Linq.Expressions;
 using DiscussionFleet.Domain.Entities.Contracts;
 using DiscussionFleet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
@@ -12,11 +15,13 @@ public abstract class Repository<TEntity, TKey>
 {
     private readonly DbContext _dbContext;
     protected readonly DbSet<TEntity> EntityDbSet;
+    protected readonly DatabaseFacade DbFacade;
 
     protected Repository(DbContext context)
     {
         _dbContext = context;
         EntityDbSet = _dbContext.Set<TEntity>();
+        DbFacade = context.Database;
     }
 
     public virtual async Task CreateAsync(TEntity entity)

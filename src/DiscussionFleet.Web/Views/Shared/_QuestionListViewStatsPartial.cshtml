@@ -1,0 +1,14 @@
+@model QuestionListViewStatsViewModel;
+
+@{
+    var voteTextClass = Model.VoteCount > 0 ? "text-dark" : "text-muted";
+    var answerTextClass = Model.AnswerCount > 0 ? "text-green" : "text-muted";
+    var viewTextClass = Model.ViewCount > 0 ? "text-dark" : "text-muted";
+    var acceptedAnswerClass = Model.HasAcceptedAnswer ? "bg-teal text-teal-fg" : "badge-outline";
+}
+
+<div class="d-flex flex-md-column gap-2">
+    <span class="@voteTextClass badge badge-outline">@Model.VoteCount</span>
+    <span class="@answerTextClass badge @acceptedAnswerClass">@Model.AnswerCount</span>
+    <span class="@viewTextClass badge badge-outline">@Model.ViewCount</span>
+</div>
