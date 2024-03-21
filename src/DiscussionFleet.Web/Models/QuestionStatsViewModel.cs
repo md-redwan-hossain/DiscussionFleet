@@ -1,6 +1,6 @@
 namespace DiscussionFleet.Web.Models;
 
-public class QuestionListViewStatsViewModel
+public class QuestionStatsViewModel
 {
     public int VoteCount { get; set; }
     public int AnswerCount { get; set; }

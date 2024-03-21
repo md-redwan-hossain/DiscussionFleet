@@ -8,5 +8,6 @@ public class WebModule : Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterType<RegistrationViewModel>().AsSelf();
+        builder.RegisterType<QuestionSearchViewModel>().AsSelf();
     }
 }

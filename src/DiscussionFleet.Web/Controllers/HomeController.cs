@@ -4,11 +4,11 @@ using DiscussionFleet.Web.Models;
 
 namespace DiscussionFleet.Web.Controllers;
 
-public class HomePageController : Controller
+public class HomeController : Controller
 {
-    private readonly ILogger<HomePageController> _logger;
+    private readonly ILogger<HomeController> _logger;
 
-    public HomePageController(ILogger<HomePageController> logger)
+    public HomeController(ILogger<HomeController> logger)
     {
         _logger = logger;
     }

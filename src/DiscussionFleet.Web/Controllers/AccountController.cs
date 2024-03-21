@@ -16,7 +16,6 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Registration()
     {
-        // var model = _scope.Resolve<RegistrationViewModel>();
         return View();
     }
 

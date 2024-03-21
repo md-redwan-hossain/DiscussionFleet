@@ -1,0 +1,179 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model QuestionSearchViewModel;
+@* @model QuestionSearchFilterViewModel; *@
+
+@section StyleSheets
+{
+    <link href="~/tabler/dist-files/css/tabler-vendors.min.css?1684106062" rel="stylesheet"/>
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 d-flex align-items-center justify-content-between">
+                <div class="col-auto">
+                    <button class="btn btn-primary d-md-none" id="filter-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-horizontal">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                            <path d="M4 6l8 0"/>
+                            <path d="M16 6l4 0"/>
+                            <path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                            <path d="M4 12l2 0"/>
+                            <path d="M10 12l10 0"/>
+                            <path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                            <path d="M4 18l11 0"/>
+                            <path d="M19 18l1 0"/>
+                        </svg>
+                        Filter
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <a href="#" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 5l0 14"/>
+                            <path d="M5 12l14 0"/>
+                        </svg>
+                        Ask Question
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-4">
+                <div class="col-md-3 d-none d-md-block" id="filter-area">
+                    @* asp-antiforgery="true" *@
+                    <form autocomplete="off" novalidate>
+                        <div class="form-label"> Filter by</div>
+                        <div class="mb-4">
+                            <label class="form-check">
+                                <input asp-for="FilterData.QuestionFilterCriteria.NoAnswer" type="checkbox" class="form-check-input" name="form-type">
+                                <span class="form-check-label">No answers</span>
+                            </label>
+                            <label class="form-check">
+                                <input asp-for="FilterData.QuestionFilterCriteria.NoAcceptedAnswer" type="checkbox" class="form-check-input" name="form-type">
+                                <span class="form-check-label">No accepted answer</span>
+                            </label>
+                        </div>
+                        <div class="form-label">Sort by</div>
+                        <div class="mb-4">
+                            <label class="form-check">
+                                <input asp-for="FilterData.QuestionSortCriteria.Newest" type="radio" class="form-check-input" name="form-salary" value="true" checked>
+                                <span class="form-check-label">Newest</span>
+                            </label>
+                            <label class="form-check">
+                                <input asp-for="FilterData.QuestionSortCriteria.RecentActivity" type="radio" class="form-check-input" value="true" name="form-salary">
+                                <span class="form-check-label">Recent activity</span>
+                            </label>
+                            <label class="form-check">
+                                <input asp-for="FilterData.QuestionSortCriteria.HighestScore" type="radio" class="form-check-input" value="true" name="form-salary">
+                                <span class="form-check-label">Highest score</span>
+                            </label>
+                        </div>
+                        <div class="form-label">Sort Order</div>
+                        <div class="mb-4">
+                            <label asp-for="FilterData.SortOrder" class="form-check form-check-inline">
+                                <input asp-for="FilterData.SortOrder.Asc" class="form-check-input" type="radio" value="true" name="radios-inline" checked>
+                                <span class="form-check-label">Asc</span>
+                            </label>
+                            <label asp-for="FilterData.SortOrder" class="form-check form-check-inline">
+                                <input asp-for="FilterData.SortOrder.Desc" class="form-check-input" type="radio" value="true" name="radios-inline">
+                                <span class="form-check-label">Desc</span>
+                            </label>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Data Per Page</label>
+                            <div class="btn-group w-100" role="group">
+                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="15" id="btn-radio-basic-1"
+                                       autocomplete="off">
+                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">15</label>
+                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="30" id="btn-radio-basic-2"
+                                       autocomplete="off">
+                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">30</label>
+                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="50" id="btn-radio-basic-3"
+                                       autocomplete="off">
+                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">50</label>
+                            </div>
+                        </div>
+
+                        <div class="form-label" asp-for="SelectedTags">Tags</div>
+                        <div class="mb-4">
+
+                            @{
+                                var fetchTags = await Model.FetchTagsAsync();
+                            }
+
+                            <select asp-for="FilterData.SelectedTags"
+                                    multiple
+                                    id="selected-tags"
+                                    type="text"
+                                    class="form-control"
+                                    asp-items="@fetchTags.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Title }).ToArray()">
+                            </select>
+                        </div>
+
+                        <div class="mt-5">
+                            <button type="submit" class="btn btn-primary w-100">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-9">
+
+                    @foreach (var question in Model.Questions)
+                    {
+                        <partial name="_QuestionAtSearchResulPartial" model="question"/>
+                    }
+                    <partial name="_PaginationPartial" model="Model.FilterData.PaginationData"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_FooterPartial"/>
+
+@section Scripts
+{
+    <script>
+          const filterBtn = document.getElementById("filter-button")
+          const filterArea = document.getElementById("filter-area")
+          filterBtn.addEventListener("click", () => {
+            console.log("clicked")
+            filterArea.classList.toggle("d-none");
+          })
+    </script>
+
+    <script src="~/tabler/dist-files/libs/tom-select/dist/js/tom-select.base.min.js?1684106062" defer></script>
+
+    <script>
+          document.addEventListener("DOMContentLoaded", function () {           
+            window.TomSelect && (new TomSelect(document.getElementById('selected-tags'), {
+              copyClassesToDropdown: false,
+              dropdownParent: 'body',
+              controlInput: '<input>',
+              render: {
+                item: function (data, escape) {
+                  if (data.customProperties) {
+                    return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
+                  }
+                  return '<div>' + escape(data.text) + '</div>';
+                },
+                option: function (data, escape) {
+                  if (data.customProperties) {
+                    return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
+                  }
+                  return '<div>' + escape(data.text) + '</div>';
+                },
+              },
+            }));
+          });
+        </script>
+}
