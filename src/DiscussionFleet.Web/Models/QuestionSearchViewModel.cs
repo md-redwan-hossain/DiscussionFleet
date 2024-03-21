@@ -1,12 +1,15 @@
-using DiscussionFleet.Application.Common.Utils;
-using DiscussionFleet.Application.QuestionFeatures;
 using DiscussionFleet.Domain.Entities;
 
 namespace DiscussionFleet.Web.Models;
 
 public class QuestionSearchViewModel
 {
-    public QuestionSearchFilterViewModel FilterData { get; set; }
+    public byte DataPerPage { get; set; }
+    public string SortOrder { get; set; }
+    public string QuestionFilterCriteria { get; set; }
+    public string QuestionSortCriteria { get; set; }
+    public PaginationViewModel PaginationData { get; set; } = new();
+    public IList<Guid> SelectedTags { get; set; } = [];
     public IList<QuestionAtSearchResultViewModel> Questions { get; set; } = [];
 
     public async Task<IList<Tag>> FetchTagsAsync()

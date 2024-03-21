@@ -1,5 +1,4 @@
-﻿using DiscussionFleet.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace DiscussionFleet.Infrastructure.Identity;
 

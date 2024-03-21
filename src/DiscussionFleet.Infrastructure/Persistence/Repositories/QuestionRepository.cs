@@ -1,7 +1,6 @@
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 

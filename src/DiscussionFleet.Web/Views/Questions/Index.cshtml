@@ -1,6 +1,6 @@
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using DiscussionFleet.Application.QuestionFeatures;
+@using DiscussionFleet.Application.Common.Utils
 @model QuestionSearchViewModel;
-@* @model QuestionSearchFilterViewModel; *@
 
 @section StyleSheets
 {
@@ -48,42 +48,41 @@
         <div class="container-xl">
             <div class="row g-4">
                 <div class="col-md-3 d-none d-md-block" id="filter-area">
-                    @* asp-antiforgery="true" *@
-                    <form autocomplete="off" novalidate>
+                    <form asp-controller="Questions" asp-action="Index" autocomplete="off" asp-antiforgery="true">
                         <div class="form-label"> Filter by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="FilterData.QuestionFilterCriteria.NoAnswer" type="checkbox" class="form-check-input" name="form-type">
+                                <input asp-for="QuestionFilterCriteria" type="checkbox" value="@QuestionFilterCriteria.NoAnswer" class="form-check-input" name="form-type">
                                 <span class="form-check-label">No answers</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="FilterData.QuestionFilterCriteria.NoAcceptedAnswer" type="checkbox" class="form-check-input" name="form-type">
+                                <input asp-for="QuestionFilterCriteria" type="checkbox" value="@QuestionFilterCriteria.NoAcceptedAnswer" class="form-check-input" name="form-type">
                                 <span class="form-check-label">No accepted answer</span>
                             </label>
                         </div>
                         <div class="form-label">Sort by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="FilterData.QuestionSortCriteria.Newest" type="radio" class="form-check-input" name="form-salary" value="true" checked>
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.Newest" checked>
                                 <span class="form-check-label">Newest</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="FilterData.QuestionSortCriteria.RecentActivity" type="radio" class="form-check-input" value="true" name="form-salary">
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.RecentActivity">
                                 <span class="form-check-label">Recent activity</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="FilterData.QuestionSortCriteria.HighestScore" type="radio" class="form-check-input" value="true" name="form-salary">
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.HighestScore">
                                 <span class="form-check-label">Highest score</span>
                             </label>
                         </div>
                         <div class="form-label">Sort Order</div>
                         <div class="mb-4">
-                            <label asp-for="FilterData.SortOrder" class="form-check form-check-inline">
-                                <input asp-for="FilterData.SortOrder.Asc" class="form-check-input" type="radio" value="true" name="radios-inline" checked>
+                            <label asp-for="SortOrder" class="form-check form-check-inline">
+                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Asc" checked>
                                 <span class="form-check-label">Asc</span>
                             </label>
-                            <label asp-for="FilterData.SortOrder" class="form-check form-check-inline">
-                                <input asp-for="FilterData.SortOrder.Desc" class="form-check-input" type="radio" value="true" name="radios-inline">
+                            <label asp-for="SortOrder" class="form-check form-check-inline">
+                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Desc">
                                 <span class="form-check-label">Desc</span>
                             </label>
                         </div>
@@ -91,15 +90,15 @@
                         <div class="mb-4">
                             <label class="form-label">Data Per Page</label>
                             <div class="btn-group w-100" role="group">
-                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="15" id="btn-radio-basic-1"
+                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="15" id="btn-radio-basic-1"
                                        autocomplete="off">
-                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">15</label>
-                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="30" id="btn-radio-basic-2"
+                                <label asp-for="DataPerPage" type="button" class="btn">15</label>
+                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="30" id="btn-radio-basic-2"
                                        autocomplete="off">
-                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">30</label>
-                                <input asp-for="FilterData.DataPerPage" type="radio" class="btn-check" name="btn-radio-basic" value="50" id="btn-radio-basic-3"
+                                <label asp-for="DataPerPage" type="button" class="btn">30</label>
+                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="50" id="btn-radio-basic-3"
                                        autocomplete="off">
-                                <label asp-for="FilterData.DataPerPage" type="button" class="btn">50</label>
+                                <label asp-for="DataPerPage" type="button" class="btn">50</label>
                             </div>
                         </div>
 
@@ -110,7 +109,7 @@
                                 var fetchTags = await Model.FetchTagsAsync();
                             }
 
-                            <select asp-for="FilterData.SelectedTags"
+                            <select asp-for="SelectedTags"
                                     multiple
                                     id="selected-tags"
                                     type="text"
@@ -131,7 +130,7 @@
                     {
                         <partial name="_QuestionAtSearchResulPartial" model="question"/>
                     }
-                    <partial name="_PaginationPartial" model="Model.FilterData.PaginationData"/>
+                    <partial name="_PaginationPartial" model="Model.PaginationData"/>
                 </div>
             </div>
         </div>

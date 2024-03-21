@@ -22,16 +22,16 @@ public class QuestionsController : Controller
     }
 
 
-    // [HttpPost, ValidateAntiForgeryToken]
     // [HttpGet]
-    // public IActionResult Index(QuestionSearchFilterViewModel model)
-    // {
-    //     Console.WriteLine();
-    //     if (ModelState.IsValid)
-    //     {
-    //         return RedirectToAction(nameof(Index));
-    //     }
-    //
-    //     return RedirectToAction(nameof(Index));
-    // }
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult Index(QuestionSearchViewModel model)
+    {
+        Console.WriteLine();
+        if (ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
 }

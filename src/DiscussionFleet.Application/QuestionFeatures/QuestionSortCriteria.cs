@@ -1,8 +1,8 @@
 namespace DiscussionFleet.Application.QuestionFeatures;
 
-public class QuestionSortCriteria
+public static class QuestionSortCriteria
 {
-    public bool Newest { get; set; }
-    public bool RecentActivity { get; set; }
-    public bool HighestScore { get; set; }
+    public const string Newest = "Newest";
+    public const string RecentActivity = "RecentActivity";
+    public const string HighestScore = "HighestScore";
 }
