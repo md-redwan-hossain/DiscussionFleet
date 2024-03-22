@@ -1,8 +1,8 @@
 namespace DiscussionFleet.Application.QuestionFeatures;
 
-public class QuestionSortCriteria
+public enum QuestionSortCriteria : byte
 {
-    public bool Newest { get; set; }
-    public bool RecentActivity { get; set; }
-    public bool HighestScore { get; set; }
+    Newest = 1,
+    RecentActivity,
+    HighestScore
 }

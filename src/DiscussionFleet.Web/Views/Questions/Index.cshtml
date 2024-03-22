@@ -52,53 +52,56 @@
                         <div class="form-label"> Filter by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="FilterCriteria.NoAnswer" type="checkbox" value="true" class="form-check-input">
+                                <input asp-for="QuestionFilterCriteria.NoAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No answers</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="FilterCriteria.NoAcceptedAnswer" type="checkbox" value="true" class="form-check-input">
+                                <input asp-for="QuestionFilterCriteria.NoAcceptedAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No accepted answer</span>
                             </label>
                         </div>
                         <div class="form-label">Sort by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="SortCriteria.Newest" type="radio" class="form-check-input" value="true" checked>
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.Newest" checked>
                                 <span class="form-check-label">Newest</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="SortCriteria.RecentActivity" type="radio" class="form-check-input" value="true">
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.RecentActivity">
                                 <span class="form-check-label">Recent activity</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="SortCriteria.HighestScore" type="radio" class="form-check-input" value="true">
+                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.HighestScore">
                                 <span class="form-check-label">Highest score</span>
                             </label>
                         </div>
+
+
                         <div class="form-label">Sort Order</div>
                         <div class="mb-4">
-                            <label asp-for="SortOrder.Asc" class="form-check form-check-inline">
-                                <input asp-for="SortOrder.Asc" class="form-check-input" type="radio" value="true" checked>
+                            <label asp-for="SortOrder" class="form-check form-check-inline">
+                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Asc" checked>
                                 <span class="form-check-label">Asc</span>
                             </label>
-                            <label asp-for="SortOrder.Desc" class="form-check form-check-inline">
-                                <input asp-for="SortOrder.Desc" class="form-check-input" type="radio" value="true" checked>
+                            <label asp-for="SortOrder" class="form-check form-check-inline">
+                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Desc">
                                 <span class="form-check-label">Desc</span>
                             </label>
                         </div>
 
+
+                        <label class="form-label">Data Per Page</label>
                         <div class="mb-4">
-                            <label class="form-label">Data Per Page</label>
                             <div class="btn-group w-100" role="group">
-                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="15" id="btn-radio-basic-1"
+                                <input type="radio" asp-for="DataPerPage" value="15" class="btn-check" id="btn-radio-basic-1"
+                                       autocomplete="off" checked>
+                                <label for="btn-radio-basic-1" type="button" class="btn">15</label>
+                                <input type="radio" asp-for="DataPerPage" value="30" class="btn-check" id="btn-radio-basic-2"
                                        autocomplete="off">
-                                <label asp-for="DataPerPage" type="button" class="btn">15</label>
-                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="30" id="btn-radio-basic-2"
+                                <label for="btn-radio-basic-2" type="button" class="btn">30</label>
+                                <input type="radio" asp-for="DataPerPage" value="50" class="btn-check" id="btn-radio-basic-3"
                                        autocomplete="off">
-                                <label asp-for="DataPerPage" type="button" class="btn">30</label>
-                                <input asp-for="DataPerPage" type="radio" class="btn-check" value="50" id="btn-radio-basic-3"
-                                       autocomplete="off">
-                                <label asp-for="DataPerPage" type="button" class="btn">50</label>
+                                <label for="btn-radio-basic-3" type="button" class="btn">50</label>
                             </div>
                         </div>
 
@@ -149,8 +152,7 @@
     <script>
           const filterBtn = document.getElementById("filter-button")
           const filterArea = document.getElementById("filter-area")
-          filterBtn.addEventListener("click", () => {
-            console.log("clicked")
+          filterBtn.addEventListener("click", () => {            
             filterArea.classList.toggle("d-none");
           })
     </script>

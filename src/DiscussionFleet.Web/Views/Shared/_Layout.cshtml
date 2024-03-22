@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using DiscussionFleet.Infrastructure.Identity
+@inject ApplicationSignInManager SignInManager
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -29,6 +31,16 @@
 
 <body>
 <div class="page">
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <partial name="_LoggedInNavBarPartial"/>
+    }
+    else
+    {
+        <partial name="_LoggedOutNavBarPartial"/>
+    }
+
     @RenderBody()
 </div>
 

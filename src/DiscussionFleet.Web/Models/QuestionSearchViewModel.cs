@@ -7,9 +7,11 @@ namespace DiscussionFleet.Web.Models;
 public class QuestionSearchViewModel
 {
     public byte DataPerPage { get; set; }
-    public DataSortOrder SortOrder { get; set; } = new() { Asc = true };
-    public QuestionFilterCriteria FilterCriteria { get; set; } = new();
-    public QuestionSortCriteria SortCriteria { get; set; } = new() { Newest = true };
+
+    // public string SortOrder { get; set; }
+    public DataSortOrder SortOrder { get; set; }
+    public QuestionFilterCriteria QuestionFilterCriteria { get; set; } = new();
+    public QuestionSortCriteria QuestionSortCriteria { get; set; }
     public PaginationViewModel PaginationData { get; set; } = new();
     public HashSet<Guid> SelectedTags { get; set; } = [];
     public IList<QuestionAtSearchResultViewModel> Questions { get; set; } = [];

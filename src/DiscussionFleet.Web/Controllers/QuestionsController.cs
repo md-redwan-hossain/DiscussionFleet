@@ -21,8 +21,6 @@ public class QuestionsController : Controller
         return View(model);
     }
 
-
-    // [HttpGet]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Index(QuestionSearchViewModel model)
     {
@@ -32,6 +30,19 @@ public class QuestionsController : Controller
             return View(model);
             // return RedirectToAction(nameof(Index));
         }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult Search(string text)
+    {
+        Console.WriteLine();
+        // if (ModelState.IsValid)
+        // {
+        //     return View(model);
+        // }
 
         return RedirectToAction(nameof(Index));
     }
