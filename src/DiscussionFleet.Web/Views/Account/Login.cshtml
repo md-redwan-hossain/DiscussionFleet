@@ -36,7 +36,7 @@
                 <div class="mb-2">
                     <label class="form-check">
                         <input asp-for="RememberMe" type="checkbox" value="true" class="form-check-input"/>
-                        <span class="form-check-label">Remember me on this device</span>
+                        <span class="form-check-label">Remember me</span>
                     </label>
                 </div>
                 <div class="form-footer">
@@ -72,11 +72,12 @@
     <partial name="_AuthPageJsInjectorPartial"/>
     <partial name="_ValidationScriptsPartial"/>
 
-    
+
     <script>
          
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById('togglePasswordVisibility').addEventListener('click', function () {
+        document.getElementById('togglePasswordVisibility').addEventListener('click', function (event) {
+            event.preventDefault();
             const passwordInput = document.getElementById('passwordInput');
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
