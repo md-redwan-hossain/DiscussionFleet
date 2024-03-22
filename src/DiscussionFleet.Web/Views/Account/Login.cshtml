@@ -6,11 +6,12 @@
             <h2 class="h2 text-center mb-4">Login to your account</h2>
             <form asp-controller="Account" asp-action="Login" asp-antiforgery="true" autocomplete="off">
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email address</label>
+                    <label asp-for="Email" class="form-label required">Email address</label>
                     <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-2">
-                    <label asp-for="Password" class="form-label">
+                    <label asp-for="Password" class="form-label required">
                         Password
                         <span class="form-label-description">
                             <a asp-controller="Account" asp-action="ForgotPassword">I forgot my password</a>
@@ -32,6 +33,7 @@
                             </button>
                         </span>
                     </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="mb-2">
                     <label class="form-check">
@@ -70,8 +72,6 @@
 
 @section Scripts{
     <partial name="_AuthPageJsInjectorPartial"/>
-    <partial name="_ValidationScriptsPartial"/>
-
 
     <script>
          

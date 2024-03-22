@@ -127,7 +127,7 @@
                             </select>
                         </div>
                         <div class="mt-5">
-                            <button type="submit" class="btn btn-primary w-100">Submit</button>
+                            <button type="submit" class="btn btn-primary w-100">Apply</button>
                         </div>
                     </form>
                 </div>
@@ -150,14 +150,16 @@
 @section Scripts
 {
     <script>
-          const filterBtn = document.getElementById("filter-button")
-          const filterArea = document.getElementById("filter-area")
-          filterBtn.addEventListener("click", () => {            
-            filterArea.classList.toggle("d-none");
-          })
+    document.addEventListener("DOMContentLoaded", function () {    
+      const filterBtn = document.getElementById("filter-button");
+      const filterArea = document.getElementById("filter-area");
+      filterBtn.addEventListener("click", () => {            
+        filterArea.classList.toggle("d-none");
+      });
+    });
     </script>
 
-    <script src="~/tabler/dist-files/libs/tom-select/dist/js/tom-select.base.min.js?1684106062" defer></script>
+    <script src="~/tabler/dist-files/libs/tom-select/dist/js/tom-select.base.min.js" defer asp-append-version="true"></script>
 
     <script>
           document.addEventListener("DOMContentLoaded", function () {           
