@@ -1,5 +1,5 @@
 @using DiscussionFleet.Application.QuestionFeatures;
-@using DiscussionFleet.Application.Common.Utils
+@using DiscussionFleet.Application.Common.Utils;
 @model QuestionSearchViewModel;
 
 @section StyleSheets
@@ -52,37 +52,37 @@
                         <div class="form-label"> Filter by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="QuestionFilterCriteria" type="checkbox" value="@QuestionFilterCriteria.NoAnswer" class="form-check-input" name="form-type">
+                                <input asp-for="FilterCriteria.NoAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No answers</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionFilterCriteria" type="checkbox" value="@QuestionFilterCriteria.NoAcceptedAnswer" class="form-check-input" name="form-type">
+                                <input asp-for="FilterCriteria.NoAcceptedAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No accepted answer</span>
                             </label>
                         </div>
                         <div class="form-label">Sort by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.Newest" checked>
+                                <input asp-for="SortCriteria.Newest" type="radio" class="form-check-input" value="true" checked>
                                 <span class="form-check-label">Newest</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.RecentActivity">
+                                <input asp-for="SortCriteria.RecentActivity" type="radio" class="form-check-input" value="true">
                                 <span class="form-check-label">Recent activity</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.HighestScore">
+                                <input asp-for="SortCriteria.HighestScore" type="radio" class="form-check-input" value="true">
                                 <span class="form-check-label">Highest score</span>
                             </label>
                         </div>
                         <div class="form-label">Sort Order</div>
                         <div class="mb-4">
-                            <label asp-for="SortOrder" class="form-check form-check-inline">
-                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Asc" checked>
+                            <label asp-for="SortOrder.Asc" class="form-check form-check-inline">
+                                <input asp-for="SortOrder.Asc" class="form-check-input" type="radio" value="true" checked>
                                 <span class="form-check-label">Asc</span>
                             </label>
-                            <label asp-for="SortOrder" class="form-check form-check-inline">
-                                <input asp-for="SortOrder" class="form-check-input" type="radio" value="@DataSortOrder.Desc">
+                            <label asp-for="SortOrder.Desc" class="form-check form-check-inline">
+                                <input asp-for="SortOrder.Desc" class="form-check-input" type="radio" value="true" checked>
                                 <span class="form-check-label">Desc</span>
                             </label>
                         </div>
@@ -102,22 +102,27 @@
                             </div>
                         </div>
 
+
                         <div class="form-label" asp-for="SelectedTags">Tags</div>
                         <div class="mb-4">
-
-                            @{
-                                var fetchTags = await Model.FetchTagsAsync();
-                            }
-
                             <select asp-for="SelectedTags"
                                     multiple
                                     id="selected-tags"
                                     type="text"
-                                    class="form-control"
-                                    asp-items="@fetchTags.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Title }).ToArray()">
+                                    class="form-control">
+                                @foreach (var tag in await Model.FetchTagsAsync())
+                                {
+                                    if (Model.SelectedTags.Contains(tag.Id))
+                                    {
+                                        <option value="@tag.Id" selected>@tag.Title</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@tag.Id">@tag.Title</option>
+                                    }
+                                }
                             </select>
                         </div>
-
                         <div class="mt-5">
                             <button type="submit" class="btn btn-primary w-100">Submit</button>
                         </div>

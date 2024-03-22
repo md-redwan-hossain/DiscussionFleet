@@ -29,7 +29,8 @@ public class QuestionsController : Controller
         Console.WriteLine();
         if (ModelState.IsValid)
         {
-            return RedirectToAction(nameof(Index));
+            return View(model);
+            // return RedirectToAction(nameof(Index));
         }
 
         return RedirectToAction(nameof(Index));

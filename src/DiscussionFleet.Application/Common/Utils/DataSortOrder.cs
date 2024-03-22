@@ -1,7 +1,7 @@
 namespace DiscussionFleet.Application.Common.Utils;
 
-public static class DataSortOrder
+public class DataSortOrder
 {
-    public const string Asc = "Asc";
-    public const string Desc = "Desc";
+    public bool Asc { get; set; }
+    public bool Desc { get; set; }
 }

@@ -1,7 +1,7 @@
 namespace DiscussionFleet.Application.QuestionFeatures;
 
-public static class QuestionFilterCriteria
+public class QuestionFilterCriteria
 {
-    public const string NoAnswer = "NoAnswer";
-    public const string NoAcceptedAnswer = "NoAcceptedAnswer";
+    public bool NoAnswer { get; set; }
+    public bool NoAcceptedAnswer { get; set; }
 }
