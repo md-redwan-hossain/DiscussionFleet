@@ -9,10 +9,10 @@ namespace DiscussionFleet.Web.Controllers;
 public class AccountController : Controller
 {
     private readonly ILifetimeScope _scope;
-    private readonly SignInManager<ApplicationSignInManager> _signInManager;
+    private readonly ApplicationSignInManager _signInManager;
 
     public AccountController(ILifetimeScope scope,
-        SignInManager<ApplicationSignInManager> signInManager)
+        ApplicationSignInManager signInManager)
     {
         _scope = scope;
         _signInManager = signInManager;
@@ -34,6 +34,19 @@ public class AccountController : Controller
         }
 
         return View(viewModel);
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> Login()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ForgotPassword()
+    {
+        return View();
     }
 
 

@@ -26,10 +26,11 @@
 
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("StyleSheets", required: false)
+    @await RenderSectionAsync("ScriptsOnHead", required: false)
 </head>
 
 
-<body>
+<body id="page-body">
 <div class="page">
 
     @if (SignInManager.IsSignedIn(User))

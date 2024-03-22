@@ -1,25 +1,91 @@
-@* @model LoginViewModel *@
-@* <div class="col-md-12"> *@
-@*     <div class="card card-primary"> *@
-@*         <div class="card-header"> *@
-@*             <h3 class="card-title">Login</h3> *@
-@*         </div> *@
-@*         <form asp-controller="Account" asp-action="Login"  *@
-@*               asp-antiforgery="true"> *@
-@*             <div class="card-body"> *@
-@*                 <div class="form-group"> *@
-@*                     <label asp-for="Email">Email</label> *@
-@*                     <input type="email" class="form-control" asp-for="Email"> *@
-@*                 </div> *@
-@* *@
-@*                 <div class="form-group"> *@
-@*                     <label asp-for="Password">Password</label> *@
-@*                     <input type="password" class="form-control" asp-for="Password"> *@
-@*                 </div> *@
-@*             </div> *@
-@*             <div class="card-footer"> *@
-@*                 <button type="submit" class="btn btn-primary">Submit</button> *@
-@*             </div> *@
-@*         </form> *@
-@*     </div> *@
-@* </div> *@
+@model LoginViewModel;
+
+<div class="container container-tight py-4">
+    <div class="card card-md">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Login to your account</h2>
+            <form asp-controller="Account" asp-action="Login" asp-antiforgery="true" autocomplete="off">
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email address</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+                </div>
+                <div class="mb-2">
+                    <label asp-for="Password" class="form-label">
+                        Password
+                        <span class="form-label-description">
+                            <a asp-controller="Account" asp-action="ForgotPassword">I forgot my password</a>
+                        </span>
+                    </label>
+                    <div class="input-group input-group-flat">
+                        <input asp-for="Password" id="passwordInput" type="password" class="form-control" placeholder="Your password" autocomplete="off">
+                        <span class="input-group-text">
+                            <button id="togglePasswordVisibility" style="background: none; border: none; padding: 0; cursor: pointer;">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-check">
+                        <input asp-for="RememberMe" type="checkbox" value="true" class="form-check-input"/>
+                        <span class="form-check-label">Remember me on this device</span>
+                    </label>
+                </div>
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                </div>
+            </form>
+        </div>
+        <div class="hr-text">or</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <a href="#" class="btn bg-red text-white w-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                             class="icon icon-tabler icons-tabler-outline icon-tabler-brand-google">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path
+                                d="M20.945 11a9 9 0 1 1 -3.284 -5.997l-2.655 2.392a5.5 5.5 0 1 0 2.119 6.605h-4.125v-3h7.945z"/>
+                        </svg>
+                        Login with Google
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center text-muted mt-3">
+        Don't have account yet? <a asp-controller="Account" asp-action="Registration" tabindex="-1">Sign up</a>
+    </div>
+</div>
+
+
+@section Scripts{
+    <partial name="_AuthPageJsInjectorPartial"/>
+    <partial name="_ValidationScriptsPartial"/>
+
+    
+    <script>
+         
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById('togglePasswordVisibility').addEventListener('click', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        });
+      });
+      
+    </script>
+
+}
