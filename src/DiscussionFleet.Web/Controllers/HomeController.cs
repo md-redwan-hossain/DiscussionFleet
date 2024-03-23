@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using DiscussionFleet.Web.Models;
 
 namespace DiscussionFleet.Web.Controllers;
 
@@ -29,8 +27,6 @@ public class HomeController : Controller
     {
         ViewData["IsException"] = true;
         ViewData["ErrorCode"] = id;
-        if (id == 404) return View("NotFound");
-
         return View("StatusCodeError");
     }
 }

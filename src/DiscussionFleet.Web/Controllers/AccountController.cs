@@ -1,7 +1,6 @@
 using Autofac;
 using DiscussionFleet.Infrastructure.Identity;
 using DiscussionFleet.Web.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionFleet.Web.Controllers;
