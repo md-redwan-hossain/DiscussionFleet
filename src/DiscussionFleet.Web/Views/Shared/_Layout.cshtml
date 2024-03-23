@@ -20,13 +20,17 @@
 
 <body id="page-body">
 <div class="page">
-    @if (SignInManager.IsSignedIn(User))
+
+    @if (!(bool)(ViewData["IsException"] ?? false))
     {
-        <partial name="_LoggedInNavBarPartial"/>
-    }
-    else
-    {
-        <partial name="_LoggedOutNavBarPartial"/>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <partial name="_LoggedInNavBarPartial"/>
+        }
+        else
+        {
+            <partial name="_LoggedOutNavBarPartial"/>
+        }
     }
     @RenderBody()
 </div>

@@ -46,9 +46,12 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 
 var app = builder.Build();
 
+app.UseStatusCodePagesWithReExecute("/home/error/{0}");
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/home/error");
+    // app.UseStatusCodePagesWithReExecute("/home/error/{0}");
     // The default HSTS value is 30 days.
     // You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
