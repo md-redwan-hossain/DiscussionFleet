@@ -74,19 +74,7 @@
     <partial name="_AuthPageJsInjectorPartial"/>
 
     <script>
-         
-      document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById('togglePasswordVisibility').addEventListener('click', function (event) {
-            event.preventDefault();
-            const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-            } else {
-                passwordInput.type = "password";
-            }
-        });
-      });
-      
+         addTogglePasswordVisibilityHandler('togglePasswordVisibility', 'passwordInput');     
     </script>
 
 }
