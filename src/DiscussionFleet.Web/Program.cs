@@ -7,7 +7,12 @@ using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,7 +72,7 @@ app
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists:slugify}/{controller:slugify=Home}/{action:slugify=Inde}/{id?}");
+    pattern: "{area:exists:slugify}/{controller:slugify=Home}/{action:slugify=Index}/{id?}");
 
 
 app.MapControllerRoute(

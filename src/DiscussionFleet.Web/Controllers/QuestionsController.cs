@@ -16,6 +16,13 @@ public class QuestionsController : Controller
     [HttpGet]
     public IActionResult Index()
     {
+        // public IActionResult Index(int page = 1, int limit = 15)
+        // {
+        //     var pager = new Paginator(totalItems: 200, dataPerPage: limit, currentPage: page);
+        //     return View(pager);
+        // }
+
+
         ViewData["Title"] = "Questions";
         var model = _scope.Resolve<QuestionSearchViewModel>();
         return View(model);

@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using DiscussionFleet.Domain.Entities.Contracts;
 using DiscussionFleet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
@@ -13,19 +12,29 @@ public abstract class Repository<TEntity, TKey>
 {
     private readonly DbContext _dbContext;
     protected readonly DbSet<TEntity> EntityDbSet;
-    protected readonly DatabaseFacade DbFacade;
 
     protected Repository(DbContext context)
     {
         _dbContext = context;
         EntityDbSet = _dbContext.Set<TEntity>();
-        DbFacade = context.Database;
+    }
+
+    protected Task<bool> ConnectableAsync()
+    {
+        return _dbContext.Database.CanConnectAsync();
     }
 
     public virtual async Task CreateAsync(TEntity entity)
     {
         await EntityDbSet.AddAsync(entity);
     }
+
+
+    public virtual async Task CreateAsync(IEnumerable<TEntity> entities)
+    {
+        await EntityDbSet.AddRangeAsync(entities);
+    }
+
 
     public virtual async Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
@@ -66,7 +75,7 @@ public abstract class Repository<TEntity, TKey>
 
     public virtual Task UpdateAsync(IEnumerable<TEntity> entitiesToUpdate)
     {
-        return Task.Run(() => { _dbContext.UpdateRange(entitiesToUpdate); });
+        return Task.Run(() => _dbContext.UpdateRange(entitiesToUpdate));
     }
 
     public virtual Task UpdateAsync(TEntity entityToUpdate)
@@ -97,6 +106,11 @@ public abstract class Repository<TEntity, TKey>
 
             EntityDbSet.Remove(entityToDelete);
         });
+    }
+
+    public Task RemoveAsync(IEnumerable<TEntity> entitiesToDelete)
+    {
+        return Task.Run(() => EntityDbSet.RemoveRange(entitiesToDelete));
     }
 
     public virtual async Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? filter = null,
