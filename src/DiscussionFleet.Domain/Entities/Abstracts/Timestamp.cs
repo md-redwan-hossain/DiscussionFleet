@@ -3,13 +3,13 @@ namespace DiscussionFleet.Domain.Entities.Abstracts;
 public abstract class Timestamp
 {
     private bool _createdAtAssigned;
-    public DateTime CreatedAt { get; private set; }
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime CreatedAtUtc { get; private set; }
+    public DateTime? UpdatedAtUtc { get; set; }
 
     public void SetCreatedAt(DateTime dateTime)
     {
-        if (_createdAtAssigned || CreatedAt != default) return;
-        CreatedAt = dateTime;
+        if (_createdAtAssigned || CreatedAtUtc != default) return;
+        CreatedAtUtc = dateTime;
         _createdAtAssigned = true;
     }
 }

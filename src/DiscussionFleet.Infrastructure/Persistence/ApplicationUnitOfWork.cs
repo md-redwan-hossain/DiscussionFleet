@@ -10,7 +10,8 @@ public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
         IMemberRepository memberRepository, IBadgeRepository badgeRepository,
         IBlogCategoryRepository blogCategoryRepository, IBlogPostRepository blogPostRepository,
         IForumRuleRepository forumRuleRepository, IMultimediaImageRepository multimediaImageRepository,
-        IQuestionRepository questionRepository, ITagRepository tagRepository)
+        IQuestionRepository questionRepository, ITagRepository tagRepository,
+        IResourceNotificationRepository resourceNotificationRepository)
         : base((DbContext)dbContext)
     {
         MemberRepository = memberRepository;
@@ -21,6 +22,7 @@ public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
         MultimediaImageRepository = multimediaImageRepository;
         QuestionRepository = questionRepository;
         TagRepository = tagRepository;
+        ResourceNotificationRepository = resourceNotificationRepository;
     }
 
     public IMemberRepository MemberRepository { get; }
@@ -31,4 +33,5 @@ public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
     public IMultimediaImageRepository MultimediaImageRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
     public ITagRepository TagRepository { get; }
+    public IResourceNotificationRepository ResourceNotificationRepository { get; }
 }

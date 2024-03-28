@@ -12,4 +12,5 @@ public interface IApplicationUnitOfWork
     public IMultimediaImageRepository MultimediaImageRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
     public ITagRepository TagRepository { get; }
+    public IResourceNotificationRepository ResourceNotificationRepository { get; }
 }

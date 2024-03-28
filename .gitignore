@@ -1,3 +1,9 @@
+# compiled output
+/dist/
+!/**/dist/
+**/node_modules
+
+# Cross branch files
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
@@ -5,15 +11,31 @@ riderModule.iml
 **/bin
 **/obj
 **/*.user
-**/Logs/
+**/Logs/*
 **/.idea
-**/.vscode
-**/.env
-node_modules
-**/app.db-shm
-**/app.db-wal
-**/secrets**.json
-**/PublishProfiles
-**/.fuse*
-**/mssql_data
+**/Migrations
 
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace

@@ -23,4 +23,5 @@ public static class EntityDbTableNames
     public const string BlogCategory = "BlogCategories";
     public const string BlogPostCategory = "BlogPostCategories";
     public const string BlogPostImage = "BlogPostImages";
+    public const string ResourceNotification = "ResourceNotifications";
 }
