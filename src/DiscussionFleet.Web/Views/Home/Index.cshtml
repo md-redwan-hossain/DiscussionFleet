@@ -1,10 +1,17 @@
-﻿@{
+﻿@using DiscussionFleet.Application.Common.Providers
+@inject IQrCodeProvider Qr
+@{
     ViewData["Title"] = "Home Page";
+    var qr = await Qr.GenerateSvgStringAsync("Hello World", 300);
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <div class="text-center">
+        @Html.Raw(qr)
+    </div>
+
 </div>
 
 <partial name="_FooterPartial"/>

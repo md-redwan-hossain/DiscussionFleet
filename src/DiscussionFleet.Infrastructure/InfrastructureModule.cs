@@ -23,7 +23,12 @@ public class InfrastructureModule : Module
         builder.RegisterType<GuidProvider>()
             .As<IGuidProvider>()
             .SingleInstance();
-        
+
+
+        builder.RegisterType<QrCodeProvider>()
+            .As<IQrCodeProvider>()
+            .SingleInstance();
+
         builder.RegisterType<ApplicationDbContext>()
             .As<IApplicationDbContext>()
             .InstancePerLifetimeScope();
