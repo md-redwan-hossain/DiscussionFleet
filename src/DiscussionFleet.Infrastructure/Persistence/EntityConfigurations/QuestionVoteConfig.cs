@@ -9,7 +9,7 @@ public class QuestionVoteConfig : IEntityTypeConfiguration<QuestionVote>
 {
     public void Configure(EntityTypeBuilder<QuestionVote> builder)
     {
-        builder.ToTable(EntityDbTableNames.QuestionVote);
+        builder.ToTable(DomainEntityDbTableNames.QuestionVote);
 
         builder.HasKey(x => new { x.QuestionId, x.VoteGiverId });
 

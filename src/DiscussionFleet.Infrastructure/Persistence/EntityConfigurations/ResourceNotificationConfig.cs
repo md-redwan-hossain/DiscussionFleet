@@ -9,10 +9,10 @@ public class ResourceNotificationConfig : IEntityTypeConfiguration<ResourceNotif
 {
     public void Configure(EntityTypeBuilder<ResourceNotification> builder)
     {
-        builder.ToTable(EntityDbTableNames.ResourceNotification);
+        builder.ToTable(DomainEntityDbTableNames.ResourceNotification);
 
         builder
             .Property(c => c.SourceTitle)
-            .HasMaxLength(EntityConstants.QuestionTitleMaxLength);
+            .HasMaxLength(DomainEntityConstants.QuestionTitleMaxLength);
     }
 }

@@ -11,20 +11,21 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
 {
     public void Configure(EntityTypeBuilder<AnswerComment> builder)
     {
-        builder.ToTable(EntityDbTableNames.AnswerComment);
+        builder.ToTable(DomainEntityDbTableNames.AnswerComment);
 
         builder
             .Property(c => c.Body)
-            .HasMaxLength(EntityConstants.CommentBodyMaxLength);
+            .HasMaxLength(DomainEntityConstants.CommentBodyMaxLength);
 
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.AnswerCommentBodyMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.AnswerCommentBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(AnswerComment.Body),
-                    EntityConstants.CommentBodyMinLength
+                    DomainEntityConstants.CommentBodyMinLength,
+                    SqlDataType.VarChar
                 )
             ));
 

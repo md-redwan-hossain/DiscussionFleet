@@ -9,6 +9,6 @@ public class ForumRuleConfig : IEntityTypeConfiguration<ForumRule>
 {
     public void Configure(EntityTypeBuilder<ForumRule> builder)
     {
-        builder.ToTable(EntityDbTableNames.ForumRule);
+        builder.ToTable(DomainEntityDbTableNames.ForumRule);
     }
 }

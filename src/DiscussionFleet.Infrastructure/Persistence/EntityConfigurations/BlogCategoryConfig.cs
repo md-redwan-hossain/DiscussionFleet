@@ -9,6 +9,6 @@ public class BlogCategoryConfig : IEntityTypeConfiguration<BlogCategory>
 {
     public void Configure(EntityTypeBuilder<BlogCategory> builder)
     {
-        builder.ToTable(EntityDbTableNames.BlogCategory);
+        builder.ToTable(DomainEntityDbTableNames.BlogCategory);
     }
 }

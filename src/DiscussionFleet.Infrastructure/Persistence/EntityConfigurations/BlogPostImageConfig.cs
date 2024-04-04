@@ -9,7 +9,7 @@ public class BlogPostImageConfig : IEntityTypeConfiguration<BlogPostImage>
 {
     public void Configure(EntityTypeBuilder<BlogPostImage> builder)
     {
-        builder.ToTable(EntityDbTableNames.BlogPostImage);
+        builder.ToTable(DomainEntityDbTableNames.BlogPostImage);
 
         builder.HasKey(x => new { x.BlogPostId, x.ImageId });
 

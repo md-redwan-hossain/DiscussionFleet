@@ -9,14 +9,14 @@ public class MultimediaImageConfig : IEntityTypeConfiguration<MultimediaImage>
 {
     public void Configure(EntityTypeBuilder<MultimediaImage> builder)
     {
-        builder.ToTable(EntityDbTableNames.MultimediaImage);
+        builder.ToTable(DomainEntityDbTableNames.MultimediaImage);
 
         builder
             .Property(x => x.Caption)
-            .HasMaxLength(EntityConstants.MultimediaImageCaptionMaxLength);
+            .HasMaxLength(DomainEntityConstants.MultimediaImageCaptionMaxLength);
 
         builder
             .Property(x => x.FileExtension)
-            .HasMaxLength(EntityConstants.MultimediaImageFileExtensionMaxLength);
+            .HasMaxLength(DomainEntityConstants.MultimediaImageFileExtensionMaxLength);
     }
 }

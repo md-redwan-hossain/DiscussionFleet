@@ -11,19 +11,20 @@ public class TagConfig : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> builder)
     {
-        builder.ToTable(EntityDbTableNames.Tag);
+        builder.ToTable(DomainEntityDbTableNames.Tag);
 
         builder
             .Property(c => c.Title)
-            .HasMaxLength(EntityConstants.TagTitleMaxLength);
+            .HasMaxLength(DomainEntityConstants.TagTitleMaxLength);
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.TagTitleMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.TagTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(Tag.Title),
-                    EntityConstants.TagTitleMinLength
+                    DomainEntityConstants.TagTitleMinLength,
+                    SqlDataType.VarChar
                 )
             ));
     }

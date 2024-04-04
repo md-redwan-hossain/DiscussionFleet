@@ -9,7 +9,7 @@ public class BlogPostCategoryConfig : IEntityTypeConfiguration<BlogPostCategory>
 {
     public void Configure(EntityTypeBuilder<BlogPostCategory> builder)
     {
-        builder.ToTable(EntityDbTableNames.BlogPostCategory);
+        builder.ToTable(DomainEntityDbTableNames.BlogPostCategory);
         
         builder.HasKey(x => new { x.BlogPostId, x.BlogCategoryId });
 

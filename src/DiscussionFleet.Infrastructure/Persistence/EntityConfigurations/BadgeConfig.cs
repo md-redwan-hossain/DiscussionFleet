@@ -11,19 +11,20 @@ public class BadgeConfig : IEntityTypeConfiguration<Badge>
 {
     public void Configure(EntityTypeBuilder<Badge> builder)
     {
-        builder.ToTable(EntityDbTableNames.Badge);
+        builder.ToTable(DomainEntityDbTableNames.Badge);
 
         builder
             .Property(c => c.Title)
-            .HasMaxLength(EntityConstants.BadgeTitleMaxLength);
+            .HasMaxLength(DomainEntityConstants.BadgeTitleMaxLength);
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.BadgeTitleMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.BadgeTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(Badge.Title),
-                    EntityConstants.BadgeTitleMinLength
+                    DomainEntityConstants.BadgeTitleMinLength,
+                    SqlDataType.VarChar
                 )
             ));
     }

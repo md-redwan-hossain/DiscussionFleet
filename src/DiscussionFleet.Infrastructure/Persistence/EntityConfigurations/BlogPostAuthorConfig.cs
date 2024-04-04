@@ -9,7 +9,7 @@ public class BlogPostAuthorConfig : IEntityTypeConfiguration<BlogPostAuthor>
 {
     public void Configure(EntityTypeBuilder<BlogPostAuthor> builder)
     {
-        builder.ToTable(EntityDbTableNames.BlogPostAuthor);
+        builder.ToTable(DomainEntityDbTableNames.BlogPostAuthor);
         
         builder.HasKey(x => new { x.BlogPostId, x.BlogAuthorId });
 

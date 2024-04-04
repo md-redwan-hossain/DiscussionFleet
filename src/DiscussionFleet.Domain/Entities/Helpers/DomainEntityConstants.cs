@@ -1,6 +1,6 @@
 namespace DiscussionFleet.Domain.Entities.Helpers;
 
-public static class EntityConstants
+public static class DomainEntityConstants
 {
     // Member
     public const string MemberMinReputationConstraint = "MinMemberReputation";

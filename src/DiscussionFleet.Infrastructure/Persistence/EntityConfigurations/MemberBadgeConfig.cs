@@ -9,7 +9,7 @@ public class MemberBadgeConfig : IEntityTypeConfiguration<MemberBadge>
 {
     public void Configure(EntityTypeBuilder<MemberBadge> builder)
     {
-        builder.ToTable(EntityDbTableNames.MemberBadge);
+        builder.ToTable(DomainEntityDbTableNames.MemberBadge);
 
         builder.HasKey(x => new { x.MemberId, x.BadgeId });
 

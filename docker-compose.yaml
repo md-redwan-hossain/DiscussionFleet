@@ -1,0 +1,33 @@
+services:
+  mssql_db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Strong-Password@1234"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Strong-Password@1234 -Q \"SELECT 'ping' AS [Health];\" || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./mssql_data:/var/opt/mssql/data
+#  mssql_db_creator:
+#    image: fabiang/sqlcmd:latest
+#    restart: unless-stopped
+#    depends_on:
+#      mssql_db:
+#        condition: service_healthy
+#    command: >
+#      -S mssql_db:1433 -U sa -P Strong-Password@1234 -Q "
+#        IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'MyDatabase')
+#        BEGIN
+#          CREATE DATABASE [MyDatabase];
+#          CREATE LOGIN [MyLogin] WITH PASSWORD = 'MyPassword';
+#          USE [MyDatabase];
+#          CREATE USER [MyUser] FOR LOGIN [MyLogin];
+#          EXEC sp_addrolemember 'db_owner', 'MyUser';
+#        END;"

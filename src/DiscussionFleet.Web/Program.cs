@@ -14,13 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.BindAndValidateOptions<AppOptions>(AppOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
 
-var dbUrl = builder
-    .Configuration.GetSection(AppOptions.SectionName)
-    .GetValue<string>("DatabaseUrl");
-
-builder.Services.AddDbContext<ApplicationDbContext>
-    (opts => opts.UseSqlServer(dbUrl));
-
+await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
 builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddCookieAuthentication();

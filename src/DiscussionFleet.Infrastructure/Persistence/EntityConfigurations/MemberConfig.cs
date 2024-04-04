@@ -12,45 +12,46 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
 {
     public void Configure(EntityTypeBuilder<Member> builder)
     {
-        builder.ToTable(EntityDbTableNames.Member);
+        builder.ToTable(DomainEntityDbTableNames.Member);
 
         builder.Property(x => x.ReputationCount).HasDefaultValue(1);
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.MemberMinReputationConstraint,
-                cc.GreaterThanOrEqual(nameof(Member.ReputationCount), 1)
+            b.HasCheckConstraint(DomainEntityConstants.MemberMinReputationConstraint,
+                cc.GreaterThanOrEqual(nameof(Member.ReputationCount), 1,
+                    SqlDataType.Int)
             ));
 
 
         builder
             .Property(x => x.FullName)
-            .HasMaxLength(EntityConstants.MemberFullNameMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberFullNameMaxLength);
 
         builder
             .Property(x => x.Bio)
-            .HasMaxLength(EntityConstants.MemberBioMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberBioMaxLength);
 
         builder
             .Property(x => x.Location)
-            .HasMaxLength(EntityConstants.MemberLocationMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberLocationMaxLength);
 
         builder
             .Property(x => x.TwitterHandle)
-            .HasMaxLength(EntityConstants.MemberTwitterMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberTwitterMaxLength);
 
         builder
             .Property(x => x.GitHubHandle)
-            .HasMaxLength(EntityConstants.MemberGithubMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberGithubMaxLength);
 
         builder
             .Property(x => x.DisplayName)
-            .HasMaxLength(EntityConstants.MemberDisplayNameMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberDisplayNameMaxLength);
 
         builder
             .Property(x => x.PersonalWebsiteUrl)
-            .HasMaxLength(EntityConstants.MemberPersonalWebsiteMaxLength);
+            .HasMaxLength(DomainEntityConstants.MemberPersonalWebsiteMaxLength);
 
         builder
             .HasOne<ApplicationUser>()

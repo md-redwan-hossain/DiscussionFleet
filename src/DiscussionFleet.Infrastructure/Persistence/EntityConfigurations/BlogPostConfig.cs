@@ -11,33 +11,35 @@ public class BlogPostConfig : IEntityTypeConfiguration<BlogPost>
 {
     public void Configure(EntityTypeBuilder<BlogPost> builder)
     {
-        builder.ToTable(EntityDbTableNames.BlogPost);
+        builder.ToTable(DomainEntityDbTableNames.BlogPost);
 
         builder
             .Property(x => x.Title)
-            .HasMaxLength(EntityConstants.BlogTitleMaxLength);
+            .HasMaxLength(DomainEntityConstants.BlogTitleMaxLength);
 
         builder
             .Property(x => x.Body)
-            .HasMaxLength(EntityConstants.BlogBodyMaxLength);
+            .HasMaxLength(DomainEntityConstants.BlogBodyMaxLength);
 
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.BlogTitleMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.BlogTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(BlogPost.Title),
-                    EntityConstants.BlogTitleMinLength
+                    DomainEntityConstants.BlogTitleMinLength,
+                    SqlDataType.VarChar
                 )
             ));
 
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.BlogBodyMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.BlogBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(BlogPost.Body),
-                    EntityConstants.BlogBodyMinLength
+                    DomainEntityConstants.BlogBodyMinLength,
+                    SqlDataType.VarChar
                 )
             ));
     }

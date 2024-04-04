@@ -9,7 +9,7 @@ public class SavedAnswerConfig : IEntityTypeConfiguration<SavedAnswer>
 {
     public void Configure(EntityTypeBuilder<SavedAnswer> builder)
     {
-        builder.ToTable(EntityDbTableNames.SavedAnswer);
+        builder.ToTable(DomainEntityDbTableNames.SavedAnswer);
 
         builder.HasKey(x => new { x.AnswerId, x.MemberId });
 

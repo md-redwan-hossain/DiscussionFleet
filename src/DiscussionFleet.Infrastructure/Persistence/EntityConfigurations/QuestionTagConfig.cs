@@ -9,7 +9,7 @@ public class QuestionTagConfig : IEntityTypeConfiguration<QuestionTag>
 {
     public void Configure(EntityTypeBuilder<QuestionTag> builder)
     {
-        builder.ToTable(EntityDbTableNames.QuestionTag);
+        builder.ToTable(DomainEntityDbTableNames.QuestionTag);
         
         builder.HasKey(x => new { x.QuestionId, x.TagId });
 

@@ -1,6 +1,6 @@
 namespace DiscussionFleet.Domain.Entities.Helpers;
 
-public static class EntityDbTableNames
+public static class DomainEntityDbTableNames
 {
     public const string Member = "Members";
     public const string Question = "Questions";

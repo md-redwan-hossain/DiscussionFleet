@@ -11,20 +11,21 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
 {
     public void Configure(EntityTypeBuilder<Answer> builder)
     {
-        builder.ToTable(EntityDbTableNames.Answer);
+        builder.ToTable(DomainEntityDbTableNames.Answer);
 
         builder
             .Property(c => c.Body)
-            .HasMaxLength(EntityConstants.AnswerBodyMaxLength);
+            .HasMaxLength(DomainEntityConstants.AnswerBodyMaxLength);
 
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.AnswerBodyMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.AnswerBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(Answer.Body),
-                    EntityConstants.AnswerBodyMinLength
+                    DomainEntityConstants.AnswerBodyMinLength,
+                    SqlDataType.VarChar
                 )
             ));
 

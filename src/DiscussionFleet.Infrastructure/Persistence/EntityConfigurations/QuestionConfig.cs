@@ -11,33 +11,35 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
 {
     public void Configure(EntityTypeBuilder<Question> builder)
     {
-        builder.ToTable(EntityDbTableNames.Question);
+        builder.ToTable(DomainEntityDbTableNames.Question);
 
         builder
             .Property(c => c.Title)
-            .HasMaxLength(EntityConstants.QuestionTitleMaxLength);
+            .HasMaxLength(DomainEntityConstants.QuestionTitleMaxLength);
 
         builder
             .Property(c => c.Body)
-            .HasMaxLength(EntityConstants.QuestionBodyMaxLength);
+            .HasMaxLength(DomainEntityConstants.QuestionBodyMaxLength);
 
 
-        var cc = new SqlCheckConstrainGenerator(RDBMS.SqlServer);
+        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.QuestionBodyMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.QuestionBodyMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(Question.Body),
-                    EntityConstants.QuestionBodyMinLength
+                    DomainEntityConstants.QuestionBodyMinLength,
+                    SqlDataType.VarChar
                 )
             ));
 
 
         builder.ToTable(b =>
-            b.HasCheckConstraint(EntityConstants.QuestionTitleMinLengthConstraint,
+            b.HasCheckConstraint(DomainEntityConstants.QuestionTitleMinLengthConstraint,
                 cc.GreaterThanOrEqual(
                     nameof(Question.Title),
-                    EntityConstants.QuestionTitleMinLength
+                    DomainEntityConstants.QuestionTitleMinLength,
+                    SqlDataType.VarChar
                 )
             ));
 
