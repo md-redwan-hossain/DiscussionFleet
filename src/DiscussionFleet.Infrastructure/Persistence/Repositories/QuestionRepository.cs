@@ -8,8 +8,4 @@ public class QuestionRepository : Repository<Question, Guid>, IQuestionRepositor
     public QuestionRepository(ApplicationDbContext context) : base(context)
     {
     }
-
-    public void Test()
-    {
-    }
 }
