@@ -32,7 +32,7 @@ public class InfrastructureModule : Module
             .SingleInstance();
 
 
-        builder.RegisterType<ApplicationDbContext>()
+        builder.Register(c => c.Resolve<ApplicationDbContext>())
             .As<IApplicationDbContext>()
             .InstancePerLifetimeScope();
 
