@@ -10,7 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<
     ApplicationUser, ApplicationRole, Guid,
     ApplicationUserClaim, ApplicationUserRole,
     ApplicationUserLogin, ApplicationRoleClaim,
-    ApplicationUserToken>, IApplicationDbContext
+    ApplicationUserToken>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

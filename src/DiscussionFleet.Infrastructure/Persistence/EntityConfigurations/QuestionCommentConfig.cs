@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
 using StringMate.Generators;
 
-
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
 public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>

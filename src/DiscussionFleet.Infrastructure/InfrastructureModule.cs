@@ -31,10 +31,9 @@ public class InfrastructureModule : Module
             .As<IQrCodeProvider>()
             .SingleInstance();
 
-
-        builder.RegisterType<ApplicationDbContext>()
-            .As<IApplicationDbContext>()
-            .InstancePerLifetimeScope();
+        // builder.RegisterType<ApplicationDbContext>()
+        //     .As<IApplicationDbContext>()
+        //     .InstancePerLifetimeScope();
 
 
         builder.RegisterType<AnswerRepository>()

@@ -2,8 +2,8 @@ using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StringMate.Generators;
 using StringMate.Enums;
+using StringMate.Generators;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 

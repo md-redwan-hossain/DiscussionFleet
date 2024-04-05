@@ -4,8 +4,6 @@ using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Infrastructure.Identity.Managers;
-using Mapster;
-using Microsoft.AspNetCore.Identity;
 using SharpOutcome;
 
 namespace DiscussionFleet.Infrastructure.Identity.Services;

@@ -1,18 +1,17 @@
 using DiscussionFleet.Application;
 using DiscussionFleet.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace DiscussionFleet.Infrastructure.Persistence;
 
 public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
 {
-    public ApplicationUnitOfWork(IApplicationDbContext dbContext,
+    public ApplicationUnitOfWork(ApplicationDbContext dbContext,
         IMemberRepository memberRepository, IBadgeRepository badgeRepository,
         IBlogCategoryRepository blogCategoryRepository, IBlogPostRepository blogPostRepository,
         IForumRuleRepository forumRuleRepository, IMultimediaImageRepository multimediaImageRepository,
         IQuestionRepository questionRepository, ITagRepository tagRepository,
         IResourceNotificationRepository resourceNotificationRepository)
-        : base((DbContext)dbContext)
+        : base(dbContext)
     {
         MemberRepository = memberRepository;
         BadgeRepository = badgeRepository;

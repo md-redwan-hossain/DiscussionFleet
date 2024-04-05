@@ -54,4 +54,4 @@ public static class DomainEntityConstants
     // MultimediaImage
     public const int MultimediaImageCaptionMaxLength = 200;
     public const int MultimediaImageFileExtensionMaxLength = 10;
-};
+}
