@@ -13,7 +13,7 @@ builder.Services.BindAndValidateOptions<AppOptions>(AppOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
 
 await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
-builder.Services.AddJwtAuth(builder.Configuration);
+// builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddCookieAuthentication();
 
@@ -66,7 +66,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id?}");
 
-
-app.MapRazorPages();
 
 app.Run();

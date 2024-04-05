@@ -6,5 +6,5 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     void Save();
     Task SaveAsync();
-    DbTransaction BeginTransaction();
+    Task<DbTransaction> BeginTransactionAsync();
 }

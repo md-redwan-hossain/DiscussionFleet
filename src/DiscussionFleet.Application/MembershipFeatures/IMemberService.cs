@@ -6,5 +6,5 @@ namespace DiscussionFleet.Application.MembershipFeatures;
 
 public interface IMemberService
 {
-    Task<Outcome<Member, IBadOutcome>> CreateAsync(MemberRegistrationRequest dto, CancellationToken token);
+    Task<Outcome<Member, IMembershipError>> CreateAsync(MemberRegistrationRequest dto);
 }

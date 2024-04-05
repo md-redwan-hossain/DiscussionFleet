@@ -1,4 +1,6 @@
 using Autofac;
+using DiscussionFleet.Application.MembershipFeatures;
+using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Web.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +11,14 @@ public class AccountController : Controller
 {
     private readonly ILifetimeScope _scope;
     private readonly ApplicationSignInManager _signInManager;
+    private readonly IMemberService _memberService;
 
-    public AccountController(ILifetimeScope scope,
-        ApplicationSignInManager signInManager)
+    public AccountController(ILifetimeScope scope, ApplicationSignInManager signInManager,
+        IMemberService memberService)
     {
         _scope = scope;
         _signInManager = signInManager;
+        _memberService = memberService;
     }
 
     [HttpGet]
@@ -24,12 +28,25 @@ public class AccountController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Registration(RegistrationViewModel viewModel)
+    public async Task<IActionResult> Registration(RegistrationViewModel viewModel)
     {
         if (ModelState.IsValid)
         {
-            viewModel.Resolve(_scope);
-            viewModel.Act();
+            var dto = new MemberRegistrationRequest(viewModel.FullName, viewModel.Email, viewModel.Password);
+            var result = await _memberService.CreateAsync(dto);
+
+            return result.Match(
+                _ => View(),
+                err =>
+                {
+                    foreach (var e in err.Errors)
+                    {
+                        ModelState.AddModelError(e.Key, e.Value);
+                    }
+
+                    return View();
+                });
+
         }
 
         return View(viewModel);

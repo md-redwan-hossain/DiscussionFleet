@@ -2,6 +2,7 @@ using System.Text;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +27,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    
+
     public static async Task<IServiceCollection> AddDatabaseConfigAsync(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -52,9 +53,8 @@ public static class ServiceCollectionExtensions
         );
         return services;
     }
-    
-    
-    
+
+
     public static IServiceCollection AddRedisConfig(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddStackExchangeRedisCache(opts =>
@@ -107,31 +107,34 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCookieAuthentication(this IServiceCollection services)
     {
-        services.AddAuthentication(o => { o.DefaultScheme = IdentityConstants.ApplicationScheme; })
-            .AddIdentityCookies(o =>
-            {
-                o.ApplicationCookie?.Configure(options =>
-                {
-                    options.Cookie.HttpOnly = true;
-                    options.LoginPath = new PathString("/account/login");
-                    options.AccessDeniedPath = new PathString("/account/login");
-                    options.LogoutPath = new PathString("/account/logout");
-                    options.Cookie.Name = "Identity";
-                    options.SlidingExpiration = true;
-                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
-                });
-            });
-        return services;
-        // services.AddAuthentication()
-        //     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        // services.AddAuthentication(o => { o.DefaultScheme = IdentityConstants.ApplicationScheme; })
+        //     .AddIdentityCookies(o =>
         //     {
-        // options.LoginPath = new PathString("/account/login");
-        // options.AccessDeniedPath = new PathString("/account/login");
-        // options.LogoutPath = new PathString("/account/logout");
-        // options.Cookie.Name = "Identity";
-        // options.SlidingExpiration = true;
-        // options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        //         o.ApplicationCookie?.Configure(options =>
+        //         {
+        //             options.Cookie.HttpOnly = true;
+        //             options.LoginPath = new PathString("/account/login");
+        //             options.AccessDeniedPath = new PathString("/account/login");
+        //             options.LogoutPath = new PathString("/account/logout");
+        //             options.Cookie.Name = "Identity";
+        //             options.SlidingExpiration = true;
+        //             options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        //         });
         //     });
+        // return services;
+
+        services.AddAuthentication()
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.LoginPath = new PathString("/account/login");
+                options.AccessDeniedPath = new PathString("/account/login");
+                options.LogoutPath = new PathString("/account/logout");
+                options.Cookie.Name = "Identity";
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
+            });
+
+        return services;
     }
 
     public static IServiceCollection AddJwtAuth(this IServiceCollection services, IConfiguration configuration)

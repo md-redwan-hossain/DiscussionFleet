@@ -19,8 +19,9 @@ public abstract class UnitOfWork : IUnitOfWork
 
     public virtual async Task SaveAsync() => await _dbContext.SaveChangesAsync();
 
-    public DbTransaction BeginTransaction()
+    public async Task<DbTransaction> BeginTransactionAsync()
     {
-        return _dbContext.Database.BeginTransaction().GetDbTransaction();
+        var trx = await _dbContext.Database.BeginTransactionAsync().ConfigureAwait(false);
+        return trx.GetDbTransaction();
     }
 }
