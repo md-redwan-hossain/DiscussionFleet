@@ -1,5 +1,5 @@
 using DiscussionFleet.Domain.Repositories;
-using DiscussionFleet.Infrastructure.Identity;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,9 +19,11 @@ public class MemberInfoForNavBar : ViewComponent
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var id = _userManager.GetUserId(UserClaimsPrincipal);
-        var entity = await _memberRepository.GetOneAsync(x => x.ApplicationUserId.ToString() == id);
-        if (entity is null) return View();
+        if (id is null) return View();
 
+        var entity = await _memberRepository.GetOneAsync(x => x.Id == Guid.Parse(id));
+        if (entity is null) return View();
+        
         var data = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.DisplayName };
         return View(data);
     }

@@ -8,10 +8,11 @@
 
     <ItemGroup>
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
-      <PackageReference Include="SharpOutcome" Version="0.0.4" />
+      <PackageReference Include="SharpOutcome" Version="0.0.5" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\DiscussionFleet.Contracts\DiscussionFleet.Contracts.csproj" />
       <ProjectReference Include="..\DiscussionFleet.Domain\DiscussionFleet.Domain.csproj" />
     </ItemGroup>
 

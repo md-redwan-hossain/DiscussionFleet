@@ -18,14 +18,6 @@ public class AcceptedAnswerConfig : IEntityTypeConfiguration<AcceptedAnswer>
             .WithOne()
             .HasForeignKey<AcceptedAnswer>(x => x.AnswerId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
-
-
-        builder
-            .HasOne<Question>()
-            .WithOne()
-            .HasForeignKey<AcceptedAnswer>(x => x.QuestionId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

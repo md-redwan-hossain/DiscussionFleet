@@ -1,6 +1,6 @@
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
-using DiscussionFleet.Infrastructure.Identity;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -56,7 +56,7 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
         builder
             .HasOne<ApplicationUser>()
             .WithOne()
-            .HasForeignKey<Member>(x => x.ApplicationUserId)
+            .HasForeignKey<Member>(x => x.Id)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 

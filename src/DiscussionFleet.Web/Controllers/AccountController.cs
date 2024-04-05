@@ -1,5 +1,5 @@
 using Autofac;
-using DiscussionFleet.Infrastructure.Identity;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 

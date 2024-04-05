@@ -29,7 +29,13 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
                 )
             ));
 
-
+        builder
+            .HasOne<Question>()
+            .WithMany()
+            .HasForeignKey(x => x.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder
             .HasMany(x => x.Comments)
             .WithOne()

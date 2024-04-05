@@ -12,6 +12,7 @@ public class Question : Entity<Guid>
     public int CommentCount { get; set; }
     public long AuthorId { get; set; }
     public AcceptedAnswer? AcceptedAnswer { get; set; }
+    // public Guid? AcceptedAnswerId { get; set; }
     public ICollection<QuestionTag> Tags { get; set; }
     public ICollection<QuestionVote> Votes { get; set; }
     public ICollection<QuestionComment> Comments { get; set; }

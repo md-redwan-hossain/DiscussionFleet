@@ -1,8 +1,7 @@
 using System.Text;
 using DiscussionFleet.Application.Common.Options;
-using DiscussionFleet.Infrastructure.Identity;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +34,7 @@ public static class ServiceCollectionExtensions
             .GetValue<string>(nameof(AppOptions.DatabaseUrl));
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseNpgsql(dbUrl);
+        optionsBuilder.UseSqlServer(dbUrl);
 
         await using (var dbContext = new ApplicationDbContext(optionsBuilder.Options))
         {
@@ -45,7 +44,7 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<ApplicationDbContext>(
             dbContextOptions => dbContextOptions
-                .UseNpgsql(dbUrl)
+                .UseSqlServer(dbUrl)
                 // .UseEnumCheckConstraints()
                 .LogTo(Console.WriteLine, LogLevel.Error)
                 .EnableSensitiveDataLogging()

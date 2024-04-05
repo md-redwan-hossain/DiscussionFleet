@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DiscussionFleet.Infrastructure.Identity;
+namespace DiscussionFleet.Infrastructure.Identity.Managers;
 
 public class ApplicationUserLogin : IdentityUserLogin<Guid>;

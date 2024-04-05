@@ -1,5 +1,7 @@
+using System.Data.Common;
 using DiscussionFleet.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DiscussionFleet.Infrastructure.Persistence;
 
@@ -16,4 +18,9 @@ public abstract class UnitOfWork : IUnitOfWork
     public virtual void Save() => _dbContext.SaveChanges();
 
     public virtual async Task SaveAsync() => await _dbContext.SaveChangesAsync();
+
+    public DbTransaction BeginTransaction()
+    {
+        return _dbContext.Database.BeginTransaction().GetDbTransaction();
+    }
 }

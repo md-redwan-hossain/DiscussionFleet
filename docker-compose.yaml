@@ -1,12 +1,17 @@
 services:
   mssql_db:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
     restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Strong-Password@1234"
+      MSSQL_SA_PASSWORD: "${DB_MASTER_PASSWORD}"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Strong-Password@1234 -Q \"SELECT 'ping' AS [Health];\" || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q "SELECT ''ping'' AS [Health];" || exit 1',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -14,20 +19,22 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - ./mssql_data:/var/opt/mssql/data
-#  mssql_db_creator:
-#    image: fabiang/sqlcmd:latest
-#    restart: unless-stopped
-#    depends_on:
-#      mssql_db:
-#        condition: service_healthy
-#    command: >
-#      -S mssql_db:1433 -U sa -P Strong-Password@1234 -Q "
-#        IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'MyDatabase')
-#        BEGIN
-#          CREATE DATABASE [MyDatabase];
-#          CREATE LOGIN [MyLogin] WITH PASSWORD = 'MyPassword';
-#          USE [MyDatabase];
-#          CREATE USER [MyUser] FOR LOGIN [MyLogin];
-#          EXEC sp_addrolemember 'db_owner', 'MyUser';
-#        END;"
+      - mssql_data:/var/opt/mssql/data
+  mssql_db_creator:
+    image: r3dw4n/go-sqlcmd:latest
+    restart: no
+    depends_on:
+      mssql_db:
+        condition: service_healthy
+    environment:
+      DB_MASTER_PASSWORD: "${DB_MASTER_PASSWORD}"
+      DB_DOCKER_HOST: "${DB_DOCKER_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_NAME: "${DB_NAME}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+    command: bash -c "python3 /db-init.py"
+    volumes:
+      - ./db-init.py:/db-init.py
+volumes:
+  mssql_data:

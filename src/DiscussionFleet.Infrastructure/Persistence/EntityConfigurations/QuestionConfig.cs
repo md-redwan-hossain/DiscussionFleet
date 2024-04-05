@@ -43,10 +43,19 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
                 )
             ));
 
+        // builder
+        //     .HasOne<Answer>()
+        //     .WithOne()
+        //     .HasForeignKey<Question>(x => x.AcceptedAnswerId)
+        //     .IsRequired(false)
+        //     .OnDelete(DeleteBehavior.SetNull);
+        //
+        //
+
         builder
             .HasOne(x => x.AcceptedAnswer)
             .WithOne()
-            .HasForeignKey<AcceptedAnswer>(x => x.AnswerId)
+            .HasForeignKey<AcceptedAnswer>(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 

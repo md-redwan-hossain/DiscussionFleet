@@ -4,10 +4,8 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
-using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

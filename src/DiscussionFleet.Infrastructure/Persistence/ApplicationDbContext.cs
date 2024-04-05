@@ -1,7 +1,5 @@
-using System.Text.Json;
 using DiscussionFleet.Domain.Entities;
-using DiscussionFleet.Infrastructure.Identity;
-using EntityFramework.Exceptions.PostgreSQL;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +27,10 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<Badge> Badges => Set<Badge>();
     public DbSet<ForumRule> ForumRules => Set<ForumRule>();
 
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    // {
-    //     optionsBuilder.UseExceptionProcessor();
-    // }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseExceptionProcessor();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

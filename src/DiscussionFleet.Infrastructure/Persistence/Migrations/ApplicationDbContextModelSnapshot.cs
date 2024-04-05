@@ -3,8 +3,8 @@ using System;
 using DiscussionFleet.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -18,23 +18,17 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>
                 {
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("AnswerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("QuestionId", "AnswerId");
 
@@ -51,63 +45,65 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("AnswerGiverId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasMaxLength(30000)
-                        .HasColumnType("character varying(30000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CommentCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("VoteCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuestionId");
+
                     b.ToTable("Answers", null, t =>
                         {
-                            t.HasCheckConstraint("MinAnswerBodyLength", "length(\"Body\") >= 30");
+                            t.HasCheckConstraint("MinAnswerBodyLength", "LEN([Body]) >= 30");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerComment", b =>
                 {
                     b.Property<Guid>("AnswerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CommenterId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasMaxLength(600)
-                        .HasColumnType("character varying(600)");
+                        .HasColumnType("nvarchar(600)");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EditCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UsefulVoteCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("AnswerId", "CommenterId");
 
@@ -115,26 +111,26 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.ToTable("AnswerComments", null, t =>
                         {
-                            t.HasCheckConstraint("MinAnswerCommentBodyLength", "length(\"Body\") >= 15");
+                            t.HasCheckConstraint("MinAnswerCommentBodyLength", "LEN([Body]) >= 15");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerVote", b =>
                 {
                     b.Property<Guid>("AnswerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsUpvote")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("AnswerId", "VoteGiverId");
 
@@ -147,27 +143,27 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GivenCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(35)
-                        .HasColumnType("character varying(35)");
+                        .HasColumnType("nvarchar(35)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Badges", null, t =>
                         {
-                            t.HasCheckConstraint("MinBadgeTitleLength", "length(\"Title\") >= 1");
+                            t.HasCheckConstraint("MinBadgeTitleLength", "LEN([Title]) >= 1");
                         });
                 });
 
@@ -175,17 +171,17 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -196,58 +192,58 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasMaxLength(50000)
-                        .HasColumnType("character varying(50000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CoverImageFileExtension")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CoverImageId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("BlogPosts", null, t =>
                         {
-                            t.HasCheckConstraint("MinBlogBodyLength", "length(\"Body\") >= 30");
+                            t.HasCheckConstraint("MinBlogBodyLength", "LEN([Body]) >= 30");
 
-                            t.HasCheckConstraint("MinBlogTitleLength", "length(\"Title\") >= 1");
+                            t.HasCheckConstraint("MinBlogTitleLength", "LEN([Title]) >= 1");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostAuthor", b =>
                 {
                     b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BlogAuthorId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BlogPostId", "BlogAuthorId");
 
@@ -259,16 +255,16 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostCategory", b =>
                 {
                     b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BlogCategoryId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BlogPostId", "BlogCategoryId");
 
@@ -280,16 +276,16 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostImage", b =>
                 {
                     b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ImageId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BlogPostId", "ImageId");
 
@@ -302,46 +298,46 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AnswerAcceptor")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("AnswerMarkedAccepted")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("AnswerVotedDown")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("AnswerVotedUp")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("ArticleVotedDown")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("ArticleVotedUp")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("MinimumReputationForVote")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("PostFlagged")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("QuestionVotedDown")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("QuestionVotedUp")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("SuggestedEditAccepted")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -351,82 +347,76 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("GitHubHandle")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Location")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PersonalWebsiteUrl")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<Guid?>("ProfileImageId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReputationCount")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(1);
 
                     b.Property<string>("TwitterHandle")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique();
-
                     b.HasIndex("ProfileImageId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ProfileImageId] IS NOT NULL");
 
                     b.ToTable("Members", null, t =>
                         {
-                            t.HasCheckConstraint("MinMemberReputation", "\"ReputationCount\" >= 1");
+                            t.HasCheckConstraint("MinMemberReputation", "[ReputationCount] >= 1");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberBadge", b =>
                 {
                     b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BadgeId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("MemberId", "BadgeId");
 
@@ -439,25 +429,25 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Caption")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("Location")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -468,7 +458,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
@@ -476,65 +466,65 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasMaxLength(30000)
-                        .HasColumnType("character varying(30000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CommentCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsAnswered")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("ViewCount")
                         .HasColumnType("bigint");
 
                     b.Property<int>("VoteCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.ToTable("Questions", null, t =>
                         {
-                            t.HasCheckConstraint("MinQuestionBodyLength", "length(\"Body\") >= 220");
+                            t.HasCheckConstraint("MinQuestionBodyLength", "LEN([Body]) >= 220");
 
-                            t.HasCheckConstraint("MinQuestionTileLength", "length(\"Title\") >= 15");
+                            t.HasCheckConstraint("MinQuestionTileLength", "LEN([Title]) >= 15");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionComment", b =>
                 {
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CommenterId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasMaxLength(600)
-                        .HasColumnType("character varying(600)");
+                        .HasColumnType("nvarchar(600)");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EditCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UsefulVoteCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("QuestionId", "CommenterId");
 
@@ -542,23 +532,23 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.ToTable("QuestionComments", null, t =>
                         {
-                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "length(\"Body\") >= 15");
+                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
                         });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionTag", b =>
                 {
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TagId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("QuestionId", "TagId");
 
@@ -570,19 +560,19 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionVote", b =>
                 {
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsUpvote")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("QuestionId", "VoteGiverId");
 
@@ -595,30 +585,30 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ConsumerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("DestinationId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsMarkedAsRead")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<byte>("NotificationType")
-                        .HasColumnType("smallint");
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("SourceTitle")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -630,16 +620,16 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedAnswer", b =>
                 {
                     b.Property<Guid>("AnswerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("AnswerId", "MemberId");
 
@@ -651,16 +641,16 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedQuestion", b =>
                 {
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("QuestionId", "MemberId");
 
@@ -673,70 +663,71 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(35)
-                        .HasColumnType("character varying(35)");
+                        .HasColumnType("nvarchar(35)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Tags", null, t =>
                         {
-                            t.HasCheckConstraint("MinTagTitleLength", "length(\"Title\") >= 1");
+                            t.HasCheckConstraint("MinTagTitleLength", "LEN([Title]) >= 1");
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationRole", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationRoleClaim", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationRoleClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -745,58 +736,58 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
@@ -805,27 +796,28 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserClaim", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -834,19 +826,19 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserLogin", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -855,13 +847,13 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserRole", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserRole", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -870,19 +862,19 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserToken", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserToken", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -894,18 +886,21 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
                         .WithOne()
                         .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
                         .WithOne("AcceptedAnswer")
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "AnswerId")
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
+                {
                     b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
-                        .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "QuestionId")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -987,9 +982,9 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.Member", "ApplicationUserId")
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.Member", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1098,51 +1093,51 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationRoleClaim", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationRoleClaim", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationRole", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserClaim", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserClaim", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserLogin", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserLogin", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserRole", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserRole", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationRole", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.ApplicationUserToken", b =>
+            modelBuilder.Entity("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUserToken", b =>
                 {
-                    b.HasOne("DiscussionFleet.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

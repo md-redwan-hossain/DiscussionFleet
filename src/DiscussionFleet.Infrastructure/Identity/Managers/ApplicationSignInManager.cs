@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DiscussionFleet.Infrastructure.Identity;
+namespace DiscussionFleet.Infrastructure.Identity.Managers;
 
 public class ApplicationSignInManager
     : SignInManager<ApplicationUser>

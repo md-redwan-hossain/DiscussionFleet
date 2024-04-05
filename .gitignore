@@ -1,5 +1,6 @@
 #others
 **/mssql_data
+**/.env
 
 # compiled output
 /dist/

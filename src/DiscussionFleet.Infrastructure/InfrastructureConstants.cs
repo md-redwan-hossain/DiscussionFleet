@@ -4,5 +4,5 @@ namespace DiscussionFleet.Infrastructure;
 
 public static class InfrastructureConstants
 {
-    public const RDBMS DatabaseInUse = RDBMS.PostgreSql;
+    public const RDBMS DatabaseInUse = RDBMS.SqlServer;
 }

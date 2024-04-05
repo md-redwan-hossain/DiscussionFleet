@@ -1,8 +1,9 @@
+using DiscussionFleet.Domain;
 using DiscussionFleet.Domain.Repositories;
 
 namespace DiscussionFleet.Application;
 
-public interface IApplicationUnitOfWork
+public interface IApplicationUnitOfWork : IUnitOfWork
 {
     public IMemberRepository MemberRepository { get; }
     public IBadgeRepository BadgeRepository { get; }
