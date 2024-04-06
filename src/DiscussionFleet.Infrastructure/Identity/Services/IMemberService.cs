@@ -15,6 +15,8 @@ public interface IMemberService
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
 
     Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member, string verificationCode);
-    Task SaveVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory);
+    Task CacheVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory);
     Task<bool> ConfirmEmailAsync(ApplicationUser applicationUser, string token);
+    Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);
+    Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
 }

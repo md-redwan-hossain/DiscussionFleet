@@ -84,7 +84,7 @@ public class RegistrationViewModel : IViewModelWithResolve
 
         var history = new VerificationEmailHistory(_dateTimeProvider.CurrentLocalTime, 1, 0, null);
 
-        await _memberService.SaveVerificationEmailHistoryAsync(userData.applicationUser.Id.ToString(), history);
+        await _memberService.CacheVerificationEmailHistoryAsync(userData.applicationUser.Id.ToString(), history);
         await _signInManager.SignInAsync(userData.applicationUser, isPersistent: false);
         return null;
     }

@@ -6,8 +6,6 @@ using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Infrastructure.Identity.Managers;
-using Mapster;
-using Microsoft.AspNetCore.Identity;
 using SharpOutcome;
 using StackExchange.Redis;
 
@@ -128,7 +126,7 @@ public class MemberService : IMemberService
 
     #endregion
 
-    public async Task SaveVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory)
+    public async Task CacheVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory)
     {
         var cache = _redis.GetDatabase();
         var json = _jsonSerializationProvider.Serialize(verificationEmailHistory);
@@ -139,5 +137,20 @@ public class MemberService : IMemberService
     {
         var result = await _userManager.ConfirmEmailAsync(applicationUser, token).ConfigureAwait(false);
         return result.Succeeded;
+    }
+
+    public async Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
+    {
+        var cache = _redis.GetDatabase();
+        var json = _jsonSerializationProvider.Serialize(memberInfo);
+        await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
+    }
+
+    public async Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id)
+    {
+        var cache = _redis.GetDatabase();
+        var json = await cache.HashGetAsync(RedisConstants.MemberInformationHashStore, id).ConfigureAwait(false);
+        if (json.IsNullOrEmpty) return null;
+        return _jsonSerializationProvider.DeSerialize<MemberCachedInformation>(json.ToString());
     }
 }
