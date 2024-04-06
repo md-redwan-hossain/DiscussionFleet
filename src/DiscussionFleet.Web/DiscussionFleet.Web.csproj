@@ -27,7 +27,6 @@
 
     <ItemGroup>
       <Folder Include="Areas\Member\" />
-      <Folder Include="Utils\" />
     </ItemGroup>
 
     <ItemGroup>

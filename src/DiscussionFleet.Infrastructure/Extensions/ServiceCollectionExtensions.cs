@@ -52,11 +52,14 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<ApplicationDbContext>(
             dbContextOptions => dbContextOptions
                 .UseSqlServer(dbUrl)
-                // .UseEnumCheckConstraints()
+                .UseEnumCheckConstraints()
                 .LogTo(Console.WriteLine, LogLevel.Error)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors()
         );
+
+        services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
+
         return services;
     }
 
@@ -76,9 +79,6 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IConnectionMultiplexer>(redis);
 
-        services.AddDataProtection()
-            .PersistKeysToStackExchangeRedis(redis, RedisConstants.DataProtectionKeys);
-
         services.AddHangfire(opt =>
         {
             opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = nameof(Assembly.GetExecutingAssembly) });
@@ -89,7 +89,7 @@ public static class ServiceCollectionExtensions
         services.AddStackExchangeRedisCache(opts =>
         {
             opts.Configuration = distCache;
-            opts.InstanceName = nameof(Assembly.GetExecutingAssembly);
+            opts.InstanceName = RedisConstants.StackExchangeInstance;
         });
 
 
@@ -102,10 +102,10 @@ public static class ServiceCollectionExtensions
         const string allowedCharsInPassword =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
-        services.Configure<DataProtectionTokenProviderOptions>(options =>
-        {
-            options.TokenLifespan = TimeSpan.FromMinutes(15);
-        });
+        // services.Configure<DataProtectionTokenProviderOptions>(options =>
+        // {
+        //     options.TokenLifespan = TimeSpan.FromMinutes(15);
+        // });
 
 
         services.AddIdentity<ApplicationUser, ApplicationRole>(

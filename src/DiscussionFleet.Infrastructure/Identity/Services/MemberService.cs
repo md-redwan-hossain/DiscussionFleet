@@ -128,10 +128,16 @@ public class MemberService : IMemberService
 
     #endregion
 
-    public async Task SaveEmailHistoryAsync(string id, EmailHistory emailHistory)
+    public async Task SaveVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory)
     {
         var cache = _redis.GetDatabase();
-        var json = _jsonSerializationProvider.Serialize(emailHistory);
+        var json = _jsonSerializationProvider.Serialize(verificationEmailHistory);
         await cache.HashSetAsync(RedisConstants.EmailHistoryHashStore, id, json).ConfigureAwait(false);
+    }
+
+    public async Task<bool> ConfirmEmailAsync(ApplicationUser applicationUser, string token)
+    {
+        var result = await _userManager.ConfirmEmailAsync(applicationUser, token).ConfigureAwait(false);
+        return result.Succeeded;
     }
 }

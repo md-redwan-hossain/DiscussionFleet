@@ -610,7 +610,10 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ConsumerId");
 
-                    b.ToTable("ResourceNotifications", (string)null);
+                    b.ToTable("ResourceNotifications", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ResourceNotifications_NotificationType_Enum", "[NotificationType] BETWEEN CAST(1 AS tinyint) AND CAST(3 AS tinyint)");
+                        });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedAnswer", b =>
@@ -875,6 +878,25 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>

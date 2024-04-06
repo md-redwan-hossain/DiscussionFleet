@@ -13,16 +13,19 @@ public class AccountController : Controller
 {
     private readonly ILifetimeScope _scope;
     private readonly ApplicationSignInManager _signInManager;
+    private readonly ApplicationUserManager _userManager;
     private readonly IMemberService _memberService;
     private readonly IEmailService _emailService;
 
     public AccountController(ILifetimeScope scope, ApplicationSignInManager signInManager,
-        IMemberService memberService, IEmailService emailService)
+        IMemberService memberService, IEmailService emailService,
+        ApplicationUserManager userManager)
     {
         _scope = scope;
         _signInManager = signInManager;
         _memberService = memberService;
         _emailService = emailService;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -35,7 +38,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Registration(RegistrationViewModel viewModel)
     {
         if (!ModelState.IsValid) return View(viewModel);
-        
+
         viewModel.Resolve(_scope);
         var response = await viewModel.ConductRegistrationAsync();
 
@@ -79,7 +82,15 @@ public class AccountController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
     {
-        return View();
+        var id = _userManager.GetUserId(HttpContext.User);
+
+        if (id is null)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        await viewModel.ConductConfirmationAsync(id, viewModel.Code);
+        return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).Replace("Controller", ""));
     }
 
 

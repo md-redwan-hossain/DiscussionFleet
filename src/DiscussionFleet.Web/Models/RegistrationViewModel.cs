@@ -5,16 +5,19 @@ using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
+using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
+using DiscussionFleet.Web.Utils;
 using Hangfire;
 
 namespace DiscussionFleet.Web.Models;
 
-public class RegistrationViewModel
+public class RegistrationViewModel : IViewModelWithResolve
 {
     private ILifetimeScope _scope;
     private IMemberService _memberService;
     private IEmailService _emailService;
+    private ApplicationSignInManager _signInManager;
     private IDateTimeProvider _dateTimeProvider;
     private IBackgroundJobClient _backgroundJobClient;
 
@@ -25,13 +28,14 @@ public class RegistrationViewModel
 
     public RegistrationViewModel(ILifetimeScope scope, IMemberService memberService,
         IEmailService emailService, IDateTimeProvider dateTimeProvider,
-        IBackgroundJobClient backgroundJobClient)
+        IBackgroundJobClient backgroundJobClient, ApplicationSignInManager applicationSignInManager)
     {
         _scope = scope;
         _memberService = memberService;
         _emailService = emailService;
         _dateTimeProvider = dateTimeProvider;
         _backgroundJobClient = backgroundJobClient;
+        _signInManager = applicationSignInManager;
     }
 
     #region Properties
@@ -78,11 +82,10 @@ public class RegistrationViewModel
         _backgroundJobClient.Enqueue(() =>
             _memberService.SendVerificationMailAsync(userData.applicationUser, userData.member, token));
 
+        var history = new VerificationEmailHistory(_dateTimeProvider.CurrentLocalTime, 1, 0, null);
 
-        // await _memberService.SendVerificationMailAsync(userData.applicationUser, userData.member, token);
-
-        var history = new EmailHistory(token, _dateTimeProvider.CurrentLocalTime, _dateTimeProvider.CurrentLocalTime);
-        await _memberService.SaveEmailHistoryAsync(userData.applicationUser.Id.ToString(), history);
+        await _memberService.SaveVerificationEmailHistoryAsync(userData.applicationUser.Id.ToString(), history);
+        await _signInManager.SignInAsync(userData.applicationUser, isPersistent: false);
         return null;
     }
 
@@ -93,5 +96,6 @@ public class RegistrationViewModel
         _emailService = _scope.Resolve<IEmailService>();
         _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
         _backgroundJobClient = _scope.Resolve<IBackgroundJobClient>();
+        _signInManager = _scope.Resolve<ApplicationSignInManager>();
     }
 }

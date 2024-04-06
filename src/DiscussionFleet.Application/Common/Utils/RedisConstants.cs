@@ -7,6 +7,7 @@ public static class RedisConstants
     public const string DataProtectionKeys = "DataProtectionKeys";
     public const string EmailHistoryHashStore = "email_history_hs";
     public const string Hangfire = "Hangfire";
+    public const string StackExchangeInstance = "DiscussionFleet";
 
     public static DistributedCacheEntryOptions DefaultRedisOpts(
         TimeSpan? absoluteExpireTime = null, TimeSpan? unusedExpireTime = null

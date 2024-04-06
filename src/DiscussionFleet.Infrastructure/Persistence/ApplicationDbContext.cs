@@ -1,6 +1,7 @@
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using EntityFramework.Exceptions.SqlServer;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +11,14 @@ public class ApplicationDbContext : IdentityDbContext<
     ApplicationUser, ApplicationRole, Guid,
     ApplicationUserClaim, ApplicationUserRole,
     ApplicationUserLogin, ApplicationRoleClaim,
-    ApplicationUserToken>, IApplicationDbContext
+    ApplicationUserToken>, IApplicationDbContext, IDataProtectionKeyContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
     public DbSet<Member> Members => Set<Member>();
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<Question> Questions => Set<Question>();
