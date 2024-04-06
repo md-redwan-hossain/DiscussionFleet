@@ -1,6 +1,7 @@
 <!-- Logged out navbar start-->
 <header class="navbar navbar-expand-md d-print-none">
-    <div class="container-xl d-flex justify-content-between">
+   @* change -lg  *@
+    <div class="container-lg d-flex justify-content-between">
         <div class="d-flex align-items-center gap-2">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
                     aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -8,7 +9,8 @@
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
                 <a asp-controller="Home" asp-action="Index">
-                    <img src="~/tabler/static/logo.svg" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+                    <img src="~/tabler/static/logo-df.svg" width="110" height="32" alt="Tabler" class="navbar-brand-image d-none d-lg-block">
+                    <img src="~/tabler/static/logo-small-df.svg" width="110" height="32" alt="Tabler" class="navbar-brand-image d-block d-lg-none">
                 </a>
             </h1>
         </div>
@@ -41,7 +43,7 @@
         <!-- desktop view -->
         <div class="collapse navbar-collapse d-none d-md-block" id="navbar-menu">
             <div class="navbar">
-                <div class="container-xl">
+                <div class="container">
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">
@@ -111,7 +113,7 @@
 <header class="navbar-expand-md d-md-none">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar">
-            <div class="container-xl">
+            <div class="container">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Home" asp-action="Index">

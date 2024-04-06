@@ -6,17 +6,21 @@ using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.BindAndValidateOptions<AppOptions>(AppOptions.SectionName);
+builder.Configuration.AddJsonFile("secrets.json");
+
+builder.Services.BindAndValidateOptions<AppSecretOptions>(AppSecretOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
+builder.Services.BindAndValidateOptions<SmtpOptions>(SmtpOptions.SectionName);
 
 await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
-// builder.Services.AddJwtAuth(builder.Configuration);
+builder.Services.AddRedisConfig(builder.Configuration);
+
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddCookieAuthentication();
-
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
@@ -66,5 +70,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id?}");
 
-
+app.UseHangfireServer();
 app.Run();

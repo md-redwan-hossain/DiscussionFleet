@@ -1,8 +1,10 @@
 using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Domain.Repositories;
+using DiscussionFleet.Infrastructure.Email;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Persistence.Repositories;
@@ -77,14 +79,20 @@ public class InfrastructureModule : Module
             .As<IResourceNotificationRepository>()
             .InstancePerLifetimeScope();
 
-
         builder.RegisterType<ApplicationUnitOfWork>()
             .As<IApplicationUnitOfWork>()
             .InstancePerLifetimeScope();
 
-
         builder.RegisterType<MemberService>()
             .As<IMemberService>()
             .InstancePerLifetimeScope();
+
+        builder.RegisterType<HtmlEmailService>()
+            .As<IEmailService>()
+            .InstancePerLifetimeScope();
+
+        builder.RegisterType<JsonSerializationProvider>()
+            .As<IJsonSerializationProvider>()
+            .SingleInstance();
     }
 }

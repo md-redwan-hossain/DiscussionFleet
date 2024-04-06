@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <partial name="_Favicons"/>
     @await RenderSectionAsync("HeadMeta", required: false)
     <title>@ViewData["Title"] - DiscussionFleet</title>
     <link href="~/tabler/dist-files/css/tabler.min.css" rel="stylesheet" asp-append-version="true"/>
@@ -38,8 +39,6 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/tabler/dist-files/js/tabler.min.js" defer asp-append-version="true"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-
-
 
 
 @await RenderSectionAsync("Scripts", required: false)

@@ -9,5 +9,6 @@ public class WebModule : Module
     {
         builder.RegisterType<RegistrationViewModel>().AsSelf();
         builder.RegisterType<QuestionSearchViewModel>().AsSelf();
+        builder.RegisterType<ConfirmAccountViewModel>().AsSelf();
     }
 }

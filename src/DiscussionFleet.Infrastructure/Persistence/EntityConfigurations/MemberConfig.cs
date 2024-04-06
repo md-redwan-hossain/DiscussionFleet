@@ -44,10 +44,7 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
         builder
             .Property(x => x.GitHubHandle)
             .HasMaxLength(DomainEntityConstants.MemberGithubMaxLength);
-
-        builder
-            .Property(x => x.DisplayName)
-            .HasMaxLength(DomainEntityConstants.MemberDisplayNameMaxLength);
+        
 
         builder
             .Property(x => x.PersonalWebsiteUrl)

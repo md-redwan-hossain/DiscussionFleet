@@ -24,7 +24,7 @@ public class MemberInfoForNavBar : ViewComponent
         var entity = await _memberRepository.GetOneAsync(x => x.Id == Guid.Parse(id));
         if (entity is null) return View();
         
-        var data = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.DisplayName };
+        var data = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.FullName };
         return View(data);
     }
 }

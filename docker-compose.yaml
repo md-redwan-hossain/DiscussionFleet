@@ -20,6 +20,7 @@ services:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql/data
+
   mssql_db_creator:
     image: r3dw4n/go-sqlcmd:latest
     restart: no
@@ -36,5 +37,22 @@ services:
     command: bash -c "python3 /db-init.py"
     volumes:
       - ./db-init.py:/db-init.py
+
+  redis_db:
+    image: "bitnami/redis:7.2"
+    restart: unless-stopped
+    depends_on:
+      mssql_db_creator:
+        condition: service_completed_successfully
+    ports:
+      - "6377:6379"
+    volumes:
+      - "redis_data_discussion_fleet:/bitnami/redis/data"
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_IO_THREADS: 4
+      REDIS_IO_THREADS_DO_READS: yes
+      REDIS_DISABLE_COMMANDS: FLUSHDB,FLUSHALL
 volumes:
   mssql_data:
+  redis_data_discussion_fleet:

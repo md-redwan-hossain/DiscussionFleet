@@ -1,9 +1,14 @@
+using System.Reflection;
 using System.Text;
 using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Persistence;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 
 namespace DiscussionFleet.Infrastructure.Extensions;
 
@@ -31,8 +37,8 @@ public static class ServiceCollectionExtensions
     public static async Task<IServiceCollection> AddDatabaseConfigAsync(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var dbUrl = configuration.GetSection(AppOptions.SectionName)
-            .GetValue<string>(nameof(AppOptions.DatabaseUrl));
+        var dbUrl = configuration.GetSection(AppSecretOptions.SectionName)
+            .GetValue<string>(nameof(AppSecretOptions.DatabaseUrl));
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         optionsBuilder.UseSqlServer(dbUrl);
@@ -57,12 +63,36 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddRedisConfig(this IServiceCollection services, IConfiguration configuration)
     {
+        var distCache = configuration.GetSection(AppSecretOptions.SectionName)
+            .GetValue<string>(nameof(AppSecretOptions.RedisDistributedCacheUrl));
+
+        var stackExchange = configuration.GetSection(AppSecretOptions.SectionName)
+            .GetValue<string>(nameof(AppSecretOptions.RedisStackExchangeUrl));
+
+        ArgumentNullException.ThrowIfNull(distCache);
+        ArgumentNullException.ThrowIfNull(stackExchange);
+
+        var redis = ConnectionMultiplexer.Connect(stackExchange);
+
+        services.AddSingleton<IConnectionMultiplexer>(redis);
+
+        services.AddDataProtection()
+            .PersistKeysToStackExchangeRedis(redis, RedisConstants.DataProtectionKeys);
+
+        services.AddHangfire(opt =>
+        {
+            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = nameof(Assembly.GetExecutingAssembly) });
+        });
+
+        services.AddHangfireServer();
+
         services.AddStackExchangeRedisCache(opts =>
         {
-            var redisUrl = configuration.GetSection(AppOptions.SectionName)
-                .GetValue<string>(nameof(AppOptions.RedisCacheUrl));
-            opts.Configuration = redisUrl;
+            opts.Configuration = distCache;
+            opts.InstanceName = nameof(Assembly.GetExecutingAssembly);
         });
+
+
         return services;
     }
 
@@ -71,8 +101,20 @@ public static class ServiceCollectionExtensions
     {
         const string allowedCharsInPassword =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        services
-            .AddIdentity<ApplicationUser, ApplicationRole>()
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromMinutes(15);
+        });
+
+
+        services.AddIdentity<ApplicationUser, ApplicationRole>(
+                options =>
+                {
+                    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+                    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+                }
+            )
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddUserManager<ApplicationUserManager>()
             .AddRoleManager<ApplicationRoleManager>()

@@ -19,27 +19,18 @@ public class JsonSerializationProvider : IJsonSerializationProvider
     };
 
 
-    public void Serialize<T>(T complexData, bool isCaseSensitive = true)
+    public string Serialize<T>(T complexData, bool isCaseSensitive = true)
     {
-        JsonSerializer.Serialize(complexData, options: isCaseSensitive ? DefaultOptions : CaseInsensitiveOptions);
+        return JsonSerializer.Serialize(complexData,
+            options: isCaseSensitive ? DefaultOptions : CaseInsensitiveOptions
+        );
     }
 
-    public async Task SerializeAsync<T>(Stream stream, T complexData, bool isCaseSensitive = true,
-        CancellationToken cancellationToken = default)
-    {
-        await JsonSerializer.SerializeAsync(
-            stream, complexData,
-            options: isCaseSensitive ? DefaultOptions : CaseInsensitiveOptions,
-            cancellationToken: cancellationToken);
-    }
 
-    public async Task<T?> DeserializeAsync<T>(Stream simpleData, bool isCaseSensitive = true,
-        CancellationToken cancellationToken = default)
+    public T? DeSerialize<T>(string jsonData, bool isCaseSensitive = true)
     {
-        return await JsonSerializer.DeserializeAsync<T>(
-            simpleData,
-            options: isCaseSensitive ? DefaultOptions : CaseInsensitiveOptions,
-            cancellationToken: cancellationToken
+        return JsonSerializer.Deserialize<T>(jsonData,
+            options: isCaseSensitive ? DefaultOptions : CaseInsensitiveOptions
         );
     }
 }

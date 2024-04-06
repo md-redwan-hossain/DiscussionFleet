@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class addedInitialDomainEntities : Migration
+    public partial class AddedInitialDomainEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -196,8 +196,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ReputationCount = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     PersonalWebsiteUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),

@@ -1,6 +1,7 @@
 #others
 **/mssql_data
 **/.env
+**/secrets.json
 
 # compiled output
 /dist/

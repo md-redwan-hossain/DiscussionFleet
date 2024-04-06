@@ -5,7 +5,6 @@ public static class DomainEntityConstants
     // Member
     public const string MemberMinReputationConstraint = "MinMemberReputation";
     public const int MemberLocationMaxLength = 100;
-    public const int MemberDisplayNameMaxLength = 100;
     public const int MemberFullNameMaxLength = 100;
     public const int MemberBioMaxLength = 1000;
     public const int MemberPersonalWebsiteMaxLength = 200;

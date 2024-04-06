@@ -1,7 +1,9 @@
 using Autofac;
+using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Infrastructure.Identity.Managers;
+using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +14,15 @@ public class AccountController : Controller
     private readonly ILifetimeScope _scope;
     private readonly ApplicationSignInManager _signInManager;
     private readonly IMemberService _memberService;
+    private readonly IEmailService _emailService;
 
     public AccountController(ILifetimeScope scope, ApplicationSignInManager signInManager,
-        IMemberService memberService)
+        IMemberService memberService, IEmailService emailService)
     {
         _scope = scope;
         _signInManager = signInManager;
         _memberService = memberService;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -30,23 +34,21 @@ public class AccountController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Registration(RegistrationViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View(viewModel);
+        
+        viewModel.Resolve(_scope);
+        var response = await viewModel.ConductRegistrationAsync();
+
+        if (response is not null)
         {
-            var dto = new MemberRegistrationRequest(viewModel.FullName, viewModel.Email, viewModel.Password);
-            var result = await _memberService.CreateAsync(dto);
-
-            return result.Match(
-                _ => View(),
-                err =>
-                {
-                    foreach (var e in err.Errors)
-                    {
-                        ModelState.AddModelError(e.Key, e.Value);
-                    }
-
-                    return View();
-                });
-
+            foreach (var e in response.Errors)
+            {
+                ModelState.AddModelError(e.Key, e.Value);
+            }
+        }
+        else
+        {
+            return RedirectToAction(nameof(ConfirmAccount));
         }
 
         return View(viewModel);
@@ -61,6 +63,21 @@ public class AccountController : Controller
 
     [HttpGet]
     public async Task<IActionResult> ForgotPassword()
+    {
+        return View();
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmAccount()
+    {
+        var viewModel = _scope.Resolve<ConfirmAccountViewModel>();
+        return View(viewModel);
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
     {
         return View();
     }
