@@ -113,16 +113,17 @@ public class AccountController : Controller
 
 
     [HttpGet]
-    public IActionResult ConfirmAccount([FromQuery] Guid user)
+    public IActionResult ConfirmAccount()
     {
-        if (user == default)
+        if (TempData.TryGetValue(WebConstants.AppUserId, out var val))
         {
-            return RedirectToAction(nameof(Login));
+            if (val is null) return RedirectToAction(nameof(Login));
+            var viewModel = _scope.Resolve<ConfirmAccountViewModel>();
+            viewModel.UserId = (Guid)val;
+            return View(viewModel);
         }
 
-        var viewModel = _scope.Resolve<ConfirmAccountViewModel>();
-        viewModel.UserId = user;
-        return View(viewModel);
+        return RedirectToAction(nameof(Login));
     }
 
     #region Confirm Account
@@ -169,25 +170,33 @@ public class AccountController : Controller
     #endregion
 
     [HttpGet]
-    public async Task<IActionResult> ResendEmailVerificationToken([FromQuery] Guid user)
+    public async Task<IActionResult> ResendEmailVerificationToken()
     {
-        if (user == default) return RedirectToAction(nameof(Login));
-
-        var result = await _memberService.ResendEmailVerificationToken(user.ToString());
-
-        if (result.TryPickBadOutcome(out var err))
+        if (TempData.TryGetValue(WebConstants.AppUserId, out var val))
         {
-            if (err.Reason is BadOutcomeTag.Rejected)
+            if (val is null) return RedirectToAction(nameof(Login));
+
+            var userId = (Guid)val;
+
+            var result = await _memberService.ResendEmailVerificationToken(userId.ToString());
+
+            if (result.TryPickBadOutcome(out var err))
             {
-                TempData.Add(WebConstants.ResendEmailTokenErr, $"Wait until {err.NextTokenAtUtc} UTC");
+                if (err.Reason is BadOutcomeTag.Rejected)
+                {
+                    TempData.Add(WebConstants.ResendEmailTokenErr, $"Wait until {err.NextTokenAtUtc} UTC");
+                }
+                else if (err.Reason is BadOutcomeTag.NotFound)
+                {
+                    TempData.Add(WebConstants.ResendEmailTokenErr, "User not found.");
+                }
             }
-            else if (err.Reason is BadOutcomeTag.NotFound)
-            {
-                TempData.Add(WebConstants.ResendEmailTokenErr, "User not found.");
-            }
+
+            TempData.Add(WebConstants.AppUserId, val);
+            return RedirectToAction(nameof(ConfirmAccount));
         }
 
-        return RedirectToAction(nameof(ConfirmAccount), new { user });
+        return RedirectToAction(nameof(Login));
     }
 
 
