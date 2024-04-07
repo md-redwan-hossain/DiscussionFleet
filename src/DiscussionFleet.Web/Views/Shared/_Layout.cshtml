@@ -9,11 +9,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <partial name="_Favicons"/>
     @await RenderSectionAsync("HeadMeta", required: false)
-    <title>@ViewData["Title"] - DiscussionFleet</title>
-    <link href="~/tabler/dist-files/css/tabler.min.css" rel="stylesheet" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+
+    @{
+        var titleText = ViewData["Title"] ?? Context.Request.Path.Value?.Split('/').Last();
+        <title>@titleText - DiscussionFleet</title>
+    }
+
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="~/tabler/dist-files/css/tabler.min.css" rel="stylesheet" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("StyleSheets", required: false)
     @await RenderSectionAsync("ScriptsOnHead", required: false)

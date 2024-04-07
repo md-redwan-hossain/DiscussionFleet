@@ -18,7 +18,9 @@
                 }
             </a>
             <a asp-controller="Account" asp-action="Profile" class="dropdown-item">Profile</a>
-            <a asp-controller="Account" asp-action="LogOut" class="dropdown-item">Logout</a>
+            <form asp-controller="Account" asp-action="LogOut" asp-antiforgery="true">
+                <input type="submit" value="Logout" class="dropdown-item"/>
+            </form>
         </div>
     </div>
 </div>

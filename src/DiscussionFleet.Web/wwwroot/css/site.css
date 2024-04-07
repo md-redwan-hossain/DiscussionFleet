@@ -5,3 +5,7 @@
 body {
     font-feature-settings: "cv03", "cv04", "cv11";
 }
+
+.validation-summary-errors ul {
+    margin-bottom: 0;
+}

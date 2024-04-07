@@ -1,3 +1,4 @@
+using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
@@ -15,8 +16,9 @@ public interface IMemberService
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
 
     Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member, string verificationCode);
-    Task CacheVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory);
-    Task<bool> ConfirmEmailAsync(ApplicationUser applicationUser, string token);
+    Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter);
+    Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
     Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);
     Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
+    Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id);
 }

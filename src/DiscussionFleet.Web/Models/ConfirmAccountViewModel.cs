@@ -3,6 +3,7 @@ using Autofac;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
+using SharpOutcome;
 
 namespace DiscussionFleet.Web.Models;
 
@@ -15,6 +16,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
 
     [Required] public Guid UserId { get; set; }
     public uint TryAgainAfterSeconds { get; set; } = 5;
+    public bool HasError { get; set; }
 
     public ConfirmAccountViewModel()
     {
@@ -28,19 +30,23 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
         _userManager = userManager;
     }
 
-    public async Task<bool> ConductConfirmationAsync(string id, string code)
+    public async Task<Outcome<IGoodOutcome, IBadOutcome>> ConductConfirmationAsync(string id, string code)
     {
         var user = await _userManager.FindByIdAsync(id);
-        if (user is null) return false;
+        if (user is null) return new BadOutcome(BadOutcomeTag.NotFound, "User not found");
+
+        if (user.EmailConfirmed) return new BadOutcome(BadOutcomeTag.Repetitive, "Already verified.");
 
         var result = await _memberService.ConfirmEmailAsync(user, code);
-        return result;
+        if (result is false) return new BadOutcome(BadOutcomeTag.Invalid, "Invalid verification code.");
+
+        return new GoodOutcome(GoodOutcomeTag.Matched);
     }
 
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
-        _memberService = scope.Resolve<IMemberService>();
-        _userManager = scope.Resolve<ApplicationUserManager>();
+        _memberService = _scope.Resolve<IMemberService>();
+        _userManager = _scope.Resolve<ApplicationUserManager>();
     }
 }

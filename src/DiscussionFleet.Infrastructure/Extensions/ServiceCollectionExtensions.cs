@@ -132,7 +132,7 @@ public static class ServiceCollectionExtensions
             options.Password.RequiredUniqueChars = 0;
 
             // Lockout settings
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
 
@@ -140,7 +140,6 @@ public static class ServiceCollectionExtensions
             options.User.AllowedUserNameCharacters = allowedCharsInPassword;
             options.User.RequireUniqueEmail = true;
             options.SignIn.RequireConfirmedAccount = true;
-            // options.SignIn.RequireConfirmedEmail = true;
         });
 
         return services;

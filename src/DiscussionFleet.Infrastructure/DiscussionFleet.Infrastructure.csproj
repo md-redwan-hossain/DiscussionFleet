@@ -16,12 +16,11 @@
       <PackageReference Include="Mapster.Async" Version="2.0.1" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.3" />
-      <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.3" />
       <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.5" />
-      <PackageReference Include="SharpOutcome" Version="0.0.5" />
+      <PackageReference Include="SharpOutcome" Version="0.0.6" />
       <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
       <PackageReference Include="StringMate" Version="0.0.11" />
       <PackageReference Include="Ulid" Version="1.3.3" />

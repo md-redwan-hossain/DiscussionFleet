@@ -2,7 +2,6 @@ using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
-using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Domain.Repositories;
 using DiscussionFleet.Infrastructure.Email;
 using DiscussionFleet.Infrastructure.Identity.Services;

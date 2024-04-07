@@ -6,6 +6,7 @@ using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Infrastructure.Identity.Managers;
+using Hangfire;
 using SharpOutcome;
 using StackExchange.Redis;
 
@@ -13,29 +14,29 @@ namespace DiscussionFleet.Infrastructure.Identity.Services;
 
 public class MemberService : IMemberService
 {
-    private readonly IApplicationUnitOfWork _applicationUnitOfWork;
+    private readonly IApplicationUnitOfWork _appUnitOfWork;
     private readonly ApplicationUserManager _userManager;
-    private readonly ApplicationSignInManager _signInManager;
     private readonly IEmailService _emailService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IGuidProvider _guidProvider;
     private readonly IConnectionMultiplexer _redis;
+    private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly IJsonSerializationProvider _jsonSerializationProvider;
 
 
-    public MemberService(IApplicationUnitOfWork applicationUnitOfWork, ApplicationUserManager userManager,
-        ApplicationSignInManager signInManager, IDateTimeProvider dateTimeProvider,
-        IGuidProvider guidProvider, IEmailService emailService,
-        IConnectionMultiplexer redis, IJsonSerializationProvider jsonSerializationProvider)
+    public MemberService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
+        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IEmailService emailService,
+        IConnectionMultiplexer redis, IJsonSerializationProvider jsonSerializationProvider,
+        IBackgroundJobClient backgroundJobClient)
     {
-        _applicationUnitOfWork = applicationUnitOfWork;
+        _appUnitOfWork = appUnitOfWork;
         _userManager = userManager;
-        _signInManager = signInManager;
         _dateTimeProvider = dateTimeProvider;
         _guidProvider = guidProvider;
         _emailService = emailService;
         _redis = redis;
         _jsonSerializationProvider = jsonSerializationProvider;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     #region Create A Member
@@ -43,12 +44,7 @@ public class MemberService : IMemberService
     public async Task<Outcome<(ApplicationUser applicationUser, Member member), IMembershipError>> CreateAsync(
         MemberRegistrationRequest dto)
     {
-        if (await _userManager.FindByNameAsync(dto.Email) is not null)
-        {
-            return new MembershipError(BadOutcomeTag.Conflict);
-        }
-
-        await using var trx = await _applicationUnitOfWork.BeginTransactionAsync();
+        await using var trx = await _appUnitOfWork.BeginTransactionAsync();
         try
         {
             var applicationUser = new ApplicationUser
@@ -62,9 +58,18 @@ public class MemberService : IMemberService
             if (result.Succeeded is false)
             {
                 List<KeyValuePair<string, string>> errors = [];
+                var duplicateEmail = result.Errors.FirstOrDefault(error => error.Code == "DuplicateEmail");
 
-                errors.AddRange(result.Errors.Select(err =>
-                    new KeyValuePair<string, string>(err.Code, err.Description)));
+                if (duplicateEmail is null)
+                {
+                    errors.AddRange(result.Errors.Select(err =>
+                        new KeyValuePair<string, string>(err.Code, err.Description)));
+                }
+
+                else
+                {
+                    errors.Add(new KeyValuePair<string, string>(duplicateEmail.Code, duplicateEmail.Description));
+                }
 
                 await trx.RollbackAsync();
                 return new MembershipError(BadOutcomeTag.Failure, errors);
@@ -73,8 +78,8 @@ public class MemberService : IMemberService
             var member = new Member { Id = applicationUser.Id, FullName = dto.FullName };
             member.SetCreatedAt(_dateTimeProvider.CurrentUtcTime);
 
-            await _applicationUnitOfWork.MemberRepository.CreateAsync(member);
-            await _applicationUnitOfWork.SaveAsync();
+            await _appUnitOfWork.MemberRepository.CreateAsync(member);
+            await _appUnitOfWork.SaveAsync();
 
             await trx.CommitAsync();
             return (applicationUser, member);
@@ -126,17 +131,29 @@ public class MemberService : IMemberService
 
     #endregion
 
-    public async Task CacheVerificationEmailHistoryAsync(string id, VerificationEmailHistory verificationEmailHistory)
+    public async Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter)
     {
         var cache = _redis.GetDatabase();
-        var json = _jsonSerializationProvider.Serialize(verificationEmailHistory);
-        await cache.HashSetAsync(RedisConstants.EmailHistoryHashStore, id, json).ConfigureAwait(false);
+        var json = _jsonSerializationProvider.Serialize(rateLimiter);
+        await cache.HashSetAsync(RedisConstants.VerifyEmailHashStore, id, json).ConfigureAwait(false);
     }
 
-    public async Task<bool> ConfirmEmailAsync(ApplicationUser applicationUser, string token)
+    public async Task<ITokenRateLimiter?> GetCachedEmailVerifyHistoryAsync(string id)
     {
-        var result = await _userManager.ConfirmEmailAsync(applicationUser, token).ConfigureAwait(false);
-        return result.Succeeded;
+        var cache = _redis.GetDatabase();
+        var json = await cache.HashGetAsync(RedisConstants.VerifyEmailHashStore, id).ConfigureAwait(false);
+        if (json.IsNullOrEmpty) return null;
+        return _jsonSerializationProvider.DeSerialize<EmailTokenRateLimiter>(json.ToString());
+    }
+
+    public async Task<bool> ConfirmEmailAsync(ApplicationUser user, string token)
+    {
+        var result = await _userManager.ConfirmEmailAsync(user, token).ConfigureAwait(false);
+        if (result.Succeeded is false) return false;
+
+        var cache = _redis.GetDatabase();
+        await cache.HashDeleteAsync(RedisConstants.VerifyEmailHashStore, user.Id.ToString()).ConfigureAwait(false);
+        return true;
     }
 
     public async Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
@@ -152,5 +169,52 @@ public class MemberService : IMemberService
         var json = await cache.HashGetAsync(RedisConstants.MemberInformationHashStore, id).ConfigureAwait(false);
         if (json.IsNullOrEmpty) return null;
         return _jsonSerializationProvider.DeSerialize<MemberCachedInformation>(json.ToString());
+    }
+
+
+    public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id)
+    {
+        var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
+
+        if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+        {
+            return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+        }
+
+        var result = await IssueEmailToken(id);
+
+        if (result.TryPickBadOutcome(out var err))
+        {
+            return new ResendEmailError(err.Tag);
+        }
+
+        return true;
+    }
+
+
+    private bool IsValidTokenResendRequest(DateTime nextTokenAtUtc) =>
+        nextTokenAtUtc <= _dateTimeProvider.CurrentUtcTime;
+
+    private async Task<Outcome<bool, IBadOutcome>> IssueEmailToken(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null) return new BadOutcome(BadOutcomeTag.NotFound);
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id));
+        if (member is null) return new BadOutcome(BadOutcomeTag.NotFound);
+
+        await _userManager.UpdateSecurityStampAsync(user);
+        var token = await IssueVerificationMailTokenAsync(user);
+        _backgroundJobClient.Enqueue(() => SendVerificationMailAsync(user, member, token));
+        await UpsertEmailVerificationCache(id);
+        return true;
+    }
+
+
+    private async Task UpsertEmailVerificationCache(string id)
+    {
+        var data = await GetCachedEmailVerifyHistoryAsync(id); 
+        if (data is not null) await CacheEmailVerifyHistoryAsync(id, data);
+        var tokenRateLimiter = new EmailTokenRateLimiter(tokenIssueTimeUtc: _dateTimeProvider.CurrentUtcTime);
+        await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter);
     }
 }

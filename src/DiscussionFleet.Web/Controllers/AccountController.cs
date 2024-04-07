@@ -1,11 +1,10 @@
 using Autofac;
-using DiscussionFleet.Application.Common.Services;
-using DiscussionFleet.Application.MembershipFeatures;
-using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
+using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using SharpOutcome;
 
 namespace DiscussionFleet.Web.Controllers;
 
@@ -15,43 +14,55 @@ public class AccountController : Controller
     private readonly ApplicationSignInManager _signInManager;
     private readonly ApplicationUserManager _userManager;
     private readonly IMemberService _memberService;
-    private readonly IEmailService _emailService;
+
 
     public AccountController(ILifetimeScope scope, ApplicationSignInManager signInManager,
-        IMemberService memberService, IEmailService emailService,
-        ApplicationUserManager userManager)
+        ApplicationUserManager userManager, IMemberService memberService)
     {
         _scope = scope;
         _signInManager = signInManager;
-        _memberService = memberService;
-        _emailService = emailService;
         _userManager = userManager;
+        _memberService = memberService;
     }
 
     [HttpGet]
     public IActionResult Registration()
     {
-        return View();
+        var viewModel = _scope.Resolve<RegistrationViewModel>();
+        return View(viewModel);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Registration(RegistrationViewModel viewModel)
     {
-        if (!ModelState.IsValid) return View(viewModel);
+        if (ModelState.IsValid is false)
+        {
+            viewModel.HasError = true;
+            return View(viewModel);
+        }
 
         viewModel.Resolve(_scope);
-        var response = await viewModel.ConductRegistrationAsync();
+        var result = await viewModel.ConductRegistrationAsync();
 
-        if (response is not null)
+        if (result.TryPickGoodOutcome(out var userId))
         {
-            foreach (var e in response.Errors)
-            {
-                ModelState.AddModelError(e.Key, e.Value);
-            }
+            return RedirectToAction(nameof(ConfirmAccount), new { user = userId });
         }
-        else
+
+        if (result.TryPickBadOutcome(out var error))
         {
-            return RedirectToAction(nameof(ConfirmAccount));
+            viewModel.HasError = true;
+            if (error.Reason is not BadOutcomeTag.Unknown)
+            {
+                foreach (var e in error.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, e.Value);
+                }
+
+                return View(viewModel);
+            }
+
+            ModelState.AddModelError(string.Empty, "Something went wrong!");
         }
 
         return View(viewModel);
@@ -59,53 +70,128 @@ public class AccountController : Controller
 
 
     [HttpGet]
-    public async Task<IActionResult> Login()
+    public IActionResult Login()
     {
-        return View();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> ForgotPassword()
-    {
-        return View();
-    }
-
-
-    [HttpGet]
-    public async Task<IActionResult> ConfirmAccount()
-    {
-        var viewModel = _scope.Resolve<ConfirmAccountViewModel>();
+        var viewModel = _scope.Resolve<LoginViewModel>();
         return View(viewModel);
     }
 
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
+    public async Task<IActionResult> Login(LoginViewModel viewModel)
     {
-        var id = _userManager.GetUserId(HttpContext.User);
+        viewModel.ReturnUrl ??= Url.Content("~/");
 
-        if (id is null)
+        if (ModelState.IsValid)
+        {
+            var result = await _signInManager.PasswordSignInAsync(viewModel.Email, viewModel.Password,
+                isPersistent: viewModel.RememberMe, lockoutOnFailure: true);
+            if (result.Succeeded)
+            {
+                return LocalRedirect(viewModel.ReturnUrl);
+            }
+
+            if (result.IsNotAllowed)
+            {
+                var user = await _userManager.FindByEmailAsync(viewModel.Email);
+                return RedirectToAction(nameof(ConfirmAccount), new { user = user?.Id });
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            viewModel.HasError = true;
+        }
+
+        return View(viewModel);
+    }
+
+
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+
+    [HttpGet]
+    public IActionResult ConfirmAccount([FromQuery] Guid user)
+    {
+        if (user == default)
         {
             return RedirectToAction(nameof(Login));
         }
 
-        await viewModel.ConductConfirmationAsync(id, viewModel.Code);
-        return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).Replace("Controller", ""));
+        var viewModel = _scope.Resolve<ConfirmAccountViewModel>();
+        viewModel.UserId = user;
+        return View(viewModel);
     }
 
+    #region Confirm Account
 
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
+    {
+        if (viewModel.UserId == default)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        viewModel.Resolve(_scope);
+        var result = await viewModel.ConductConfirmationAsync(viewModel.UserId.ToString(), viewModel.Code);
+
+
+        if (result.TryPickBadOutcome(out var error))
+        {
+            ModelState.AddModelError(string.Empty, error.Reason ?? "Something went wrong!");
+            viewModel.HasError = true;
+            return View(viewModel);
+        }
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    #endregion
+
+    #region Logout
+
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> LogOut(string? returnUrl = null)
     {
         await _signInManager.SignOutAsync();
 
-        if (returnUrl != null) return LocalRedirect(returnUrl);
+        if (returnUrl != null)
+        {
+            return LocalRedirect(returnUrl);
+        }
 
-        return RedirectToAction(nameof(LogOut));
+        return RedirectToAction("Index", "Home");
+    }
+
+    #endregion
+
+    [HttpGet]
+    public async Task<IActionResult> ResendEmailVerificationToken([FromQuery] Guid user)
+    {
+        if (user == default) return RedirectToAction(nameof(Login));
+
+        var result = await _memberService.ResendEmailVerificationToken(user.ToString());
+
+        if (result.TryPickBadOutcome(out var err))
+        {
+            if (err.Reason is BadOutcomeTag.Rejected)
+            {
+                TempData.Add(WebConstants.ResendEmailTokenErr, $"Wait until {err.NextTokenAtUtc} UTC");
+            }
+            else if (err.Reason is BadOutcomeTag.NotFound)
+            {
+                TempData.Add(WebConstants.ResendEmailTokenErr, "User not found.");
+            }
+        }
+
+        return RedirectToAction(nameof(ConfirmAccount), new { user });
     }
 
 
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Profile()
     {
         return View();

@@ -1,72 +1,79 @@
+@using DiscussionFleet.Infrastructure.Utils
+
 @model ConfirmAccountViewModel;
 
+@{
+    ViewData["Title"] = "Account Confirmation";
+}
+
+
 <div class="container container-tight py-4">
-    <form asp-controller="Account" asp-action="ConfirmAccount" asp-antiforgery="true" class="card card-md" autocomplete="off">
+    <form asp-controller="Account" asp-action="ConfirmAccount" asp-antiforgery="true"
+          class="card card-md" autocomplete="off">
         <div class="card-body">
             <h2 class="card-title text-center mb-4">Confirm Account</h2>
+
+            @if (Model.HasError)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            @if (TempData.Peek(WebConstants.ResendEmailTokenErr) is not null)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div class="text-danger" role="alert">
+                                    <ul class="mb-0">
+                                        <li>@TempData[WebConstants.ResendEmailTokenErr]</li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <p class="text-muted mb-4">Enter the code which was sent to your email address.</p>
             <div class="mb-3">
                 <label asp-for="Code" class="form-label required">Verification Code</label>
                 <input asp-for="Code" type="text" class="form-control" placeholder="Enter code">
                 <span asp-validation-for="Code" class="text-danger"></span>
             </div>
+
+            <input type="hidden" asp-for="UserId"/>
+            
             <div class="form-footer">
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
         </div>
     </form>
 
-    <div class="text-center text-muted mt-3">
-        <span id="countdown-area" style="display: none; transition: opacity 0.5s;">
-            Wait <span id="countdown"></span> to resend code.
-        </span>
 
-        <span id="resend-link-area" style="display: none; transition: opacity 0.5s;">
-            <a asp-controller="Account" asp-action="Login">Resend</a> code.
-        </span>
+    @{
+        var qs = new Dictionary<string, string> { { "user", Model.UserId.ToString() } };
+    }
+
+    <div class="text-center text-muted mt-3">
+        <a asp-controller="Account" asp-action="ResendEmailVerificationToken" asp-all-route-data="qs">Resend</a> code.
     </div>
+
+
 </div>
 
 @section Scripts {
     <partial name="_AuthPageJsInjectorPartial"/>
-
-    <script>        
-        let time = @Model.TryAgainAfterSeconds;
-        let countdownArea = document.getElementById("countdown-area");
-        let resendLinkArea = document.getElementById("resend-link-area");
-        
-        // Update the countdown every second
-        let countdown = setInterval(function () {
-          // Show the countdown area
-          countdownArea.style.opacity = "1";
-          countdownArea.style.display = "block";
-        
-          // Calculate the minutes and seconds from time
-          let minutes = Math.floor(time / 60);
-          let seconds = time % 60;
-        
-          // Pad the minutes and seconds with leading zeros, if required
-          minutes = minutes < 10 ? "0" + minutes : minutes;
-          seconds = seconds < 10 ? "0" + seconds : seconds;
-        
-          // Display the countdown time
-          document.getElementById("countdown").textContent = minutes + ":" + seconds;
-        
-          // Decrease the time
-          time -= 1;
-        
-          // If the time is up, stop the countdown, hide the countdown area, and show the resend link area
-          if (time < 0) {
-            clearInterval(countdown);
-            countdownArea.style.opacity = "0";
-            setTimeout(function () {
-              countdownArea.style.display = "none"; // Hide the countdown area
-            }, 500);
-            resendLinkArea.style.opacity = "1";
-            setTimeout(function () {
-              resendLinkArea.style.display = "block"; // Show the resend link area
-            }, 500);
-          }
-        }, 1000);
-    </script>
 }
