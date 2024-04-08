@@ -2,8 +2,10 @@ using SharpOutcome;
 
 namespace DiscussionFleet.Application.MembershipFeatures;
 
+
+
 public interface IResendEmailError
 {
-    BadOutcomeTag Reason { get; }
+    ResendEmailErrorReason Reason { get; }
     DateTime? NextTokenAtUtc { get; }
 }

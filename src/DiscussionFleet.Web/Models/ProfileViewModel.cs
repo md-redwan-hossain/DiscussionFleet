@@ -11,6 +11,7 @@ public class ProfileViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
 
+    public static readonly string EmptyValue = "none";
 
     #region Properties
 

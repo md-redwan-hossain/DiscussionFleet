@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DiscussionFleet.Web.Models;
 
-public class ResendAccountVerificationCodeViewModel
+public class ResendVerificationCodeViewModel
 {
     [Required]
     [EmailAddress]

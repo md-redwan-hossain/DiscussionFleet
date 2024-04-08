@@ -1,8 +1,11 @@
 using Autofac;
+using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web.Models;
+using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharpOutcome;
 
@@ -178,89 +181,62 @@ public class AccountController : Controller
     #endregion
 
 
-    public IActionResult ResendAccountVerificationCode()
+    public IActionResult ResendVerificationCode()
     {
-        var viewModel = _scope.Resolve<ResendAccountVerificationCodeViewModel>();
+        var viewModel = _scope.Resolve<ResendVerificationCodeViewModel>();
         return View(viewModel);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> ResendAccountVerificationCode(ResendAccountVerificationCodeViewModel viewModel)
+    public async Task<IActionResult> ResendVerificationCode(ResendVerificationCodeViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (ModelState.IsValid is false) return View(viewModel);
+
+        var user = await _memberService.RequestEmailConfirmationAsync(viewModel.Email, viewModel.Password);
+        if (user is not null)
         {
-            var result = await _signInManager.PasswordSignInAsync(viewModel.Email, viewModel.Password,
-                isPersistent: false, lockoutOnFailure: true);
-            if (result.Succeeded)
+            var outcome = await _memberService.ResendEmailVerificationTokenAsync(user);
+
+            if (outcome.IsGoodOutcome)
             {
-                ModelState.AddModelError(string.Empty, "Already verified.");
-                viewModel.HasError = true;
-                return View(viewModel);
-            }
-
-            if (result.IsNotAllowed)
-            {
-                var user = await _userManager.FindByEmailAsync(viewModel.Email);
-
-                if (user is null)
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    viewModel.HasError = true;
-                    return View(viewModel);
-                }
-
-                var outcome = await _memberService.ResendEmailVerificationToken(user);
-
-                if (outcome.TryPickBadOutcome(out var err))
-                {
-                    if (err.Reason is BadOutcomeTag.Rejected)
-                    {
-                        TempData.TryAdd(WebConstants.ResendEmailTokenErr, $"Wait until {err.NextTokenAtUtc} UTC");
-                    }
-                    else if (err.Reason is BadOutcomeTag.NotFound)
-                    {
-                        TempData.TryAdd(WebConstants.ResendEmailTokenErr, "User not found.");
-                    }
-                }
-                
                 TempData.TryAdd(WebConstants.AppUserId, user.Id);
                 return RedirectToAction(nameof(ConfirmAccount));
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            viewModel.HasError = true;
+            if (outcome.TryPickBadOutcome(out var err))
+            {
+                if (err.Reason is ResendEmailErrorReason.TooEarly)
+                {
+                    ModelState.AddModelError(string.Empty, $"Wait until {err.NextTokenAtUtc} UTC");
+                    viewModel.HasError = true;
+                    return View(viewModel);
+                }
+            }
         }
 
-
-        // if (TempData.TryGetValue(WebConstants.AppUserId, out var val))
-        // {
-        //     if (val is null) return RedirectToAction(nameof(Login));
-        //
-        //     var userId = (Guid)val;
-        //
-        //     var result = await _memberService.ResendEmailVerificationToken(userId.ToString());
-        //
-        //     if (result.TryPickBadOutcome(out var err))
-        //     {
-        //         if (err.Reason is BadOutcomeTag.Rejected)
-        //         {
-        //             TempData.TryAdd(WebConstants.ResendEmailTokenErr, $"Wait until {err.NextTokenAtUtc} UTC");
-        //         }
-        //         else if (err.Reason is BadOutcomeTag.NotFound)
-        //         {
-        //             TempData.TryAdd(WebConstants.ResendEmailTokenErr, "User not found.");
-        //         }
-        //     }
-        //
-        //     TempData.TryAdd(WebConstants.AppUserId, val);
-        //     return RedirectToAction(nameof(ConfirmAccount));
-        // }
-
-        return RedirectToAction(nameof(Login));
+        ModelState.AddModelError(string.Empty, "Invalid attempt.");
+        viewModel.HasError = true;
+        return View(viewModel);
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpGet, Authorize]
+    public async Task<IActionResult> Profile(Guid id)
+    {
+        var viewModel = _scope.Resolve<ProfileViewModel>();
+
+        var result = await viewModel.FetchMemberData(id);
+
+        if (result.TryPickGoodOutcome(out var member))
+        {
+            await member.BuildAdapter().AdaptToAsync(viewModel);
+        }
+
+        return View(viewModel);
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize]
     public async Task<IActionResult> Profile(ProfileViewModel viewModel, Guid id)
     {
         var result = await viewModel.FetchMemberData(id);

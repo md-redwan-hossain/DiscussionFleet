@@ -1,10 +1,8 @@
-@model ResendAccountVerificationCodeViewModel;
-
+@model ResendVerificationCodeViewModel;
 
 @{
     ViewData["Title"] = "Resend account verification code";
 }
-
 
 <div class="container container-tight py-4">
     <div class="card card-md">
@@ -25,7 +23,7 @@
                 </div>
             }
 
-            <form asp-controller="Account" asp-action="Login" asp-antiforgery="true" autocomplete="off">
+            <form asp-controller="Account" asp-action="ResendVerificationCode" asp-antiforgery="true" autocomplete="off">
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label required">Email address</label>
                     <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
@@ -34,9 +32,6 @@
                 <div class="mb-2">
                     <label asp-for="Password" class="form-label required">
                         Password
-                        <span class="form-label-description">
-                            <a asp-controller="Account" asp-action="ForgotPassword">I forgot my password</a>
-                        </span>
                     </label>
                     <div class="input-group input-group-flat">
                         <input asp-for="Password" id="passwordInput" type="password" class="form-control" placeholder="Your password" autocomplete="off">
@@ -57,13 +52,10 @@
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                    <button type="submit" class="btn btn-primary w-100">Request Resend</button>
                 </div>
             </form>
         </div>
-    </div>
-    <div class="text-center text-muted mt-3">
-        Don't have account yet? <a asp-controller="Account" asp-action="Registration" tabindex="-1">Sign up</a>
     </div>
 </div>
 

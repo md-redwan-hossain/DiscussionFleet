@@ -10,8 +10,10 @@ public class WebModule : Module
         builder.RegisterType<QuestionSearchViewModel>().AsSelf();
 
         // Account related
-        builder.RegisterType<RegistrationViewModel>().AsSelf();
+        builder.RegisterType<ResendVerificationCodeViewModel>().AsSelf();
         builder.RegisterType<ConfirmAccountViewModel>().AsSelf();
+        builder.RegisterType<RegistrationViewModel>().AsSelf();
         builder.RegisterType<LoginViewModel>().AsSelf();
+        builder.RegisterType<ProfileViewModel>().AsSelf();
     }
 }

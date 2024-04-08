@@ -5,8 +5,10 @@ using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Hangfire;
+using Microsoft.AspNetCore.Identity;
 using SharpOutcome;
 using StackExchange.Redis;
 
@@ -16,6 +18,7 @@ public class MemberService : IMemberService
 {
     private readonly IApplicationUnitOfWork _appUnitOfWork;
     private readonly ApplicationUserManager _userManager;
+    private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
     private readonly IEmailService _emailService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IGuidProvider _guidProvider;
@@ -27,7 +30,7 @@ public class MemberService : IMemberService
     public MemberService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
         IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IEmailService emailService,
         IConnectionMultiplexer redis, IJsonSerializationProvider jsonSerializationProvider,
-        IBackgroundJobClient backgroundJobClient)
+        IBackgroundJobClient backgroundJobClient, IPasswordHasher<ApplicationUser> passwordHasher)
     {
         _appUnitOfWork = appUnitOfWork;
         _userManager = userManager;
@@ -37,6 +40,7 @@ public class MemberService : IMemberService
         _redis = redis;
         _jsonSerializationProvider = jsonSerializationProvider;
         _backgroundJobClient = backgroundJobClient;
+        _passwordHasher = passwordHasher;
     }
 
     #region Create A Member
@@ -131,6 +135,40 @@ public class MemberService : IMemberService
 
     #endregion
 
+
+    public async Task<bool> HasCorrectCredentialsAsync(string userName, string password)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user?.PasswordHash is null) return false;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        return result is PasswordVerificationResult.Success;
+    }
+
+    public async Task<bool> CanRequestEmailConfirmationAsync(string userName, string password)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user?.PasswordHash is null) return false;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        return result is not PasswordVerificationResult.Failed && user.EmailConfirmed;
+    }
+
+    public async Task<ApplicationUser?> RequestEmailConfirmationAsync(string userName, string password)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user?.PasswordHash is null) return null;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        if (result is not PasswordVerificationResult.Failed && user.EmailConfirmed is false)
+        {
+            return user;
+        }
+
+        return null;
+    }
+
+
     public async Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter)
     {
         var cache = _redis.GetDatabase();
@@ -172,103 +210,62 @@ public class MemberService : IMemberService
     }
 
 
-    private Outcome<bool, IResendEmailError> ProcessEmailTokenResult( Outcome<bool,IBadOutcome> result)
-    {
-        if (result.TryPickBadOutcome(out var err))
-        {
-            return new ResendEmailError(err.Tag);
-        }
-
-        return true;
-    }
-
-    public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(ApplicationUser user)
+    public async Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
 
-        if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+        if (cachedData is not null && CanResendToken(cachedData.NextTokenAtUtc) is false)
         {
-            return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+            return new ResendEmailError(ResendEmailErrorReason.TooEarly, cachedData.NextTokenAtUtc);
         }
 
-        var result = await IssueEmailToken(user);
-        return ProcessEmailTokenResult(result);
+        return ProcessResendResult(await IssueEmailToken(user));
     }
 
-    public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id)
+    public async Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(string id)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
 
-        if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+        if (cachedData is not null && CanResendToken(cachedData.NextTokenAtUtc) is false)
         {
-            return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+            return new ResendEmailError(ResendEmailErrorReason.TooEarly, cachedData.NextTokenAtUtc);
         }
 
-        var result = await IssueEmailToken(id);
-        return ProcessEmailTokenResult(result);
+        return ProcessResendResult(await IssueEmailToken(id));
     }
-    
-    // public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(ApplicationUser user)
-    // {
-    //     var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
-    //
-    //     if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
-    //     {
-    //         return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
-    //     }
-    //
-    //     var result = await IssueEmailToken(user);
-    //
-    //     if (result.TryPickBadOutcome(out var err))
-    //     {
-    //         return new ResendEmailError(err.Tag);
-    //     }
-    //
-    //     return true;
-    // }
-    //
-    //
-    // public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id)
-    // {
-    //     var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
-    //
-    //     if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
-    //     {
-    //         return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
-    //     }
-    //
-    //     var result = await IssueEmailToken(id);
-    //
-    //     if (result.TryPickBadOutcome(out var err))
-    //     {
-    //         return new ResendEmailError(err.Tag);
-    //     }
-    //
-    //     return true;
-    // }
 
 
-    private bool IsValidTokenResendRequest(DateTime nextTokenAtUtc) =>
-        nextTokenAtUtc <= _dateTimeProvider.CurrentUtcTime;
+    private static Outcome<Success, IResendEmailError> ProcessResendResult(VerificationEmailOutcome result)
+    {
+        if (result is VerificationEmailOutcome.Ok) return new Success();
+        return new ResendEmailError(ResendEmailErrorReason.EntityNotFound);
+    }
 
-    private async Task<Outcome<bool, IBadOutcome>> IssueEmailToken(string id)
+
+    private bool CanResendToken(DateTime nextTokenAtUtc)
+    {
+        var result = _dateTimeProvider.CurrentUtcTime >= nextTokenAtUtc;
+        return result;
+    }
+
+    private async Task<VerificationEmailOutcome> IssueEmailToken(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
-        if (user is null) return new BadOutcome(BadOutcomeTag.NotFound);
+        if (user is null) return VerificationEmailOutcome.EntityNotFound;
         return await IssueEmailToken(user).ConfigureAwait(false);
     }
 
 
-    private async Task<Outcome<bool, IBadOutcome>> IssueEmailToken(ApplicationUser user)
+    private async Task<VerificationEmailOutcome> IssueEmailToken(ApplicationUser user)
     {
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == user.Id);
-        if (member is null) return new BadOutcome(BadOutcomeTag.NotFound);
+        if (member is null) return VerificationEmailOutcome.EntityNotFound;
 
         await _userManager.UpdateSecurityStampAsync(user);
         var token = await IssueVerificationMailTokenAsync(user);
         _backgroundJobClient.Enqueue(() => SendVerificationMailAsync(user, member, token));
         await UpsertEmailVerificationCache(user.Id.ToString());
-        return true;
+        return VerificationEmailOutcome.Ok;
     }
 
 
