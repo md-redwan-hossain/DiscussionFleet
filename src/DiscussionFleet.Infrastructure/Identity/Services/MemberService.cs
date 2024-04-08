@@ -172,6 +172,29 @@ public class MemberService : IMemberService
     }
 
 
+    private Outcome<bool, IResendEmailError> ProcessEmailTokenResult( Outcome<bool,IBadOutcome> result)
+    {
+        if (result.TryPickBadOutcome(out var err))
+        {
+            return new ResendEmailError(err.Tag);
+        }
+
+        return true;
+    }
+
+    public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(ApplicationUser user)
+    {
+        var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
+
+        if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+        {
+            return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+        }
+
+        var result = await IssueEmailToken(user);
+        return ProcessEmailTokenResult(result);
+    }
+
     public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
@@ -182,14 +205,47 @@ public class MemberService : IMemberService
         }
 
         var result = await IssueEmailToken(id);
-
-        if (result.TryPickBadOutcome(out var err))
-        {
-            return new ResendEmailError(err.Tag);
-        }
-
-        return true;
+        return ProcessEmailTokenResult(result);
     }
+    
+    // public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(ApplicationUser user)
+    // {
+    //     var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
+    //
+    //     if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+    //     {
+    //         return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+    //     }
+    //
+    //     var result = await IssueEmailToken(user);
+    //
+    //     if (result.TryPickBadOutcome(out var err))
+    //     {
+    //         return new ResendEmailError(err.Tag);
+    //     }
+    //
+    //     return true;
+    // }
+    //
+    //
+    // public async Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id)
+    // {
+    //     var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
+    //
+    //     if (cachedData is not null && IsValidTokenResendRequest(cachedData.NextTokenAtUtc) is false)
+    //     {
+    //         return new ResendEmailError(BadOutcomeTag.Rejected, cachedData.NextTokenAtUtc);
+    //     }
+    //
+    //     var result = await IssueEmailToken(id);
+    //
+    //     if (result.TryPickBadOutcome(out var err))
+    //     {
+    //         return new ResendEmailError(err.Tag);
+    //     }
+    //
+    //     return true;
+    // }
 
 
     private bool IsValidTokenResendRequest(DateTime nextTokenAtUtc) =>
@@ -199,13 +255,19 @@ public class MemberService : IMemberService
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user is null) return new BadOutcome(BadOutcomeTag.NotFound);
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id));
+        return await IssueEmailToken(user).ConfigureAwait(false);
+    }
+
+
+    private async Task<Outcome<bool, IBadOutcome>> IssueEmailToken(ApplicationUser user)
+    {
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == user.Id);
         if (member is null) return new BadOutcome(BadOutcomeTag.NotFound);
 
         await _userManager.UpdateSecurityStampAsync(user);
         var token = await IssueVerificationMailTokenAsync(user);
         _backgroundJobClient.Enqueue(() => SendVerificationMailAsync(user, member, token));
-        await UpsertEmailVerificationCache(id);
+        await UpsertEmailVerificationCache(user.Id.ToString());
         return true;
     }
 
@@ -218,8 +280,10 @@ public class MemberService : IMemberService
             tokenData.UpdateToken();
             await CacheEmailVerifyHistoryAsync(id, tokenData);
         }
-
-        var tokenRateLimiter = new EmailTokenRateLimiter(tokenIssueTimeUtc: _dateTimeProvider.CurrentUtcTime);
-        await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter);
+        else
+        {
+            var tokenRateLimiter = new EmailTokenRateLimiter(_dateTimeProvider.CurrentUtcTime);
+            await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter);
+        }
     }
 }

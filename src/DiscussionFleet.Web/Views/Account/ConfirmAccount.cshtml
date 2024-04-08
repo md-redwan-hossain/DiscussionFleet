@@ -55,7 +55,7 @@
             </div>
 
             <input type="hidden" asp-for="UserId"/>
-            
+
             <div class="form-footer">
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
@@ -64,11 +64,11 @@
 
 
     @{
-        var qs = new Dictionary<string, string> { { "user", Model.UserId.ToString() } };
+        TempData.TryAdd(WebConstants.AppUserId, Model.UserId);
     }
 
     <div class="text-center text-muted mt-3">
-        <a asp-controller="Account" asp-action="ResendEmailVerificationToken" asp-all-route-data="qs">Resend</a> code.
+        <a asp-controller="Account" asp-action="ResendAccountVerificationCode">Resend</a> code.
     </div>
 
 

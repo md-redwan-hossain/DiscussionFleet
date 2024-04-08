@@ -14,11 +14,11 @@ public interface IMemberService
         MemberRegistrationRequest dto);
 
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
-
     Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member, string verificationCode);
     Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter);
     Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
     Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);
     Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
     Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(string id);
+    Task<Outcome<bool, IResendEmailError>> ResendEmailVerificationToken(ApplicationUser user);
 }

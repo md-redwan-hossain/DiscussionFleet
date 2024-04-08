@@ -47,8 +47,10 @@ public static class ServiceCollectionExtensions
         {
             var canConnect = await dbContext.Database.CanConnectAsync();
             if (canConnect is false) throw new Exception("Database is not functional");
+            var migrations = await dbContext.Database.GetAppliedMigrationsAsync();
+            if (migrations.Any() is false) await dbContext.Database.MigrateAsync();
         }
-
+        
         services.AddDbContext<ApplicationDbContext>(
             dbContextOptions => dbContextOptions
                 .UseSqlServer(dbUrl)
@@ -81,7 +83,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHangfire(opt =>
         {
-            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = nameof(Assembly.GetExecutingAssembly) });
+            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = RedisConstants.Hangfire });
         });
 
         services.AddHangfireServer();
