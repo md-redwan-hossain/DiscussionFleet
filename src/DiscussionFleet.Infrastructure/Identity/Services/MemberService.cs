@@ -212,8 +212,13 @@ public class MemberService : IMemberService
 
     private async Task UpsertEmailVerificationCache(string id)
     {
-        var data = await GetCachedEmailVerifyHistoryAsync(id); 
-        if (data is not null) await CacheEmailVerifyHistoryAsync(id, data);
+        var tokenData = await GetCachedEmailVerifyHistoryAsync(id);
+        if (tokenData is not null)
+        {
+            tokenData.UpdateToken();
+            await CacheEmailVerifyHistoryAsync(id, tokenData);
+        }
+
         var tokenRateLimiter = new EmailTokenRateLimiter(tokenIssueTimeUtc: _dateTimeProvider.CurrentUtcTime);
         await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter);
     }

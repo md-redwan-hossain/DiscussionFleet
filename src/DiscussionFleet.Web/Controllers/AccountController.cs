@@ -46,7 +46,8 @@ public class AccountController : Controller
 
         if (result.TryPickGoodOutcome(out var userId))
         {
-            return RedirectToAction(nameof(ConfirmAccount), new { user = userId });
+            TempData.Add(WebConstants.AppUserId, userId);
+            return RedirectToAction(nameof(ConfirmAccount));
         }
 
         if (result.TryPickBadOutcome(out var error))
@@ -94,7 +95,8 @@ public class AccountController : Controller
             if (result.IsNotAllowed)
             {
                 var user = await _userManager.FindByEmailAsync(viewModel.Email);
-                return RedirectToAction(nameof(ConfirmAccount), new { user = user?.Id });
+                TempData.Add(WebConstants.AppUserId, user?.Id);
+                return RedirectToAction(nameof(ConfirmAccount));
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
