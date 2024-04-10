@@ -38,7 +38,7 @@ public class MemberInfoForNavBar : ViewComponent
             var user = await _userManager.FindByIdAsync(id);
             if (user is null) return View();
 
-            var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed, user.LockoutEnabled);
+            var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed);
             await _memberService.CacheMemberInfoAsync(id, info);
             var dataFromDb = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.FullName };
             return View(dataFromDb);
