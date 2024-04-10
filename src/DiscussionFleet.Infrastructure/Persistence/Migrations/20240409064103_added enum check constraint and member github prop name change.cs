@@ -5,11 +5,16 @@
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedEnumCheckConstraint : Migration
+    public partial class addedenumcheckconstraintandmembergithubpropnamechange : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.RenameColumn(
+                name: "GitHubHandle",
+                table: "Members",
+                newName: "GithubHandle");
+
             migrationBuilder.AddCheckConstraint(
                 name: "CK_ResourceNotifications_NotificationType_Enum",
                 table: "ResourceNotifications",
@@ -22,6 +27,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             migrationBuilder.DropCheckConstraint(
                 name: "CK_ResourceNotifications_NotificationType_Enum",
                 table: "ResourceNotifications");
+
+            migrationBuilder.RenameColumn(
+                name: "GithubHandle",
+                table: "Members",
+                newName: "GitHubHandle");
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Utils;
@@ -50,7 +49,7 @@ public static class ServiceCollectionExtensions
             var migrations = await dbContext.Database.GetAppliedMigrationsAsync();
             if (migrations.Any() is false) await dbContext.Database.MigrateAsync();
         }
-        
+
         services.AddDbContext<ApplicationDbContext>(
             dbContextOptions => dbContextOptions
                 .UseSqlServer(dbUrl)

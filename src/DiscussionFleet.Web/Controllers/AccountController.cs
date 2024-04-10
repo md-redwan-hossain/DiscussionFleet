@@ -7,6 +7,7 @@ using DiscussionFleet.Web.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SharpOutcome;
 
 namespace DiscussionFleet.Web.Controllers;
@@ -123,6 +124,8 @@ public class AccountController : Controller
     }
 
 
+    #region Confirm Account
+
     [HttpGet]
     public IActionResult ConfirmAccount()
     {
@@ -137,7 +140,6 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    #region Confirm Account
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
@@ -156,6 +158,12 @@ public class AccountController : Controller
             ModelState.AddModelError(string.Empty, error.Reason ?? "Something went wrong!");
             viewModel.HasError = true;
             return View(viewModel);
+        }
+
+        if (result.IsGoodOutcome)
+        {
+            TempData.TryAdd(WebConstants.AccountConfirmed, "Confirmation successful. Please login to continue");
+            return RedirectToAction(nameof(Login));
         }
 
         return RedirectToAction("Index", "Home");
@@ -192,31 +200,22 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid is false) return View(viewModel);
 
-        var user = await _memberService.RequestEmailConfirmationAsync(viewModel.Email, viewModel.Password);
-        if (user is not null)
-        {
-            var outcome = await _memberService.ResendEmailVerificationTokenAsync(user);
+        viewModel.Resolve(_scope);
 
-            if (outcome.IsGoodOutcome)
+        var result = await viewModel.ConductResendVerificationCode();
+
+        return result.Match<IActionResult>(
+            userId =>
             {
-                TempData.TryAdd(WebConstants.AppUserId, user.Id);
+                TempData.TryAdd(WebConstants.AppUserId, userId);
                 return RedirectToAction(nameof(ConfirmAccount));
-            }
-
-            if (outcome.TryPickBadOutcome(out var err))
+            },
+            errMessage =>
             {
-                if (err.Reason is ResendEmailErrorReason.TooEarly)
-                {
-                    ModelState.AddModelError(string.Empty, $"Wait until {err.NextTokenAtUtc} UTC");
-                    viewModel.HasError = true;
-                    return View(viewModel);
-                }
-            }
-        }
-
-        ModelState.AddModelError(string.Empty, "Invalid attempt.");
-        viewModel.HasError = true;
-        return View(viewModel);
+                ModelState.AddModelError(string.Empty, errMessage);
+                viewModel.HasError = true;
+                return View(viewModel);
+            });
     }
 
 
@@ -239,12 +238,21 @@ public class AccountController : Controller
     [HttpPost, ValidateAntiForgeryToken, Authorize]
     public async Task<IActionResult> Profile(ProfileViewModel viewModel, Guid id)
     {
-        var result = await viewModel.FetchMemberData(id);
-
-        if (result.TryPickGoodOutcome(out var member))
+        if (ModelState.IsValid is false)
         {
+            viewModel.HasError = true;
+            return View(viewModel);
         }
 
-        return View();
+        viewModel.Resolve(_scope);
+        var result = await viewModel.UpdateMemberData(id);
+        if (result is not MemberProfileUpdateResult.Ok)
+        {
+            ModelState.AddModelError(string.Empty, "Profile not found");
+            viewModel.HasError = true;
+            return View(viewModel);
+        }
+
+        return RedirectToAction(nameof(Profile));
     }
 }

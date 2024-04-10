@@ -13,9 +13,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
     private IMemberService _memberService;
     private ApplicationUserManager _userManager;
     [Required] public string Code { get; set; }
-
     [Required] public Guid UserId { get; set; }
-    public uint TryAgainAfterSeconds { get; set; } = 5;
     public bool HasError { get; set; }
 
     public ConfirmAccountViewModel()
@@ -30,7 +28,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
         _userManager = userManager;
     }
 
-    public async Task<Outcome<IGoodOutcome, IBadOutcome>> ConductConfirmationAsync(string id, string code)
+    public async Task<Outcome<ApplicationUser, IBadOutcome>> ConductConfirmationAsync(string id, string code)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user is null) return new BadOutcome(BadOutcomeTag.NotFound, "User not found");
@@ -40,7 +38,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
         var result = await _memberService.ConfirmEmailAsync(user, code);
         if (result is false) return new BadOutcome(BadOutcomeTag.Invalid, "Invalid verification code.");
 
-        return new GoodOutcome(GoodOutcomeTag.Matched);
+        return user;
     }
 
     public void Resolve(ILifetimeScope scope)

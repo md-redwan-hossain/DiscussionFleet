@@ -1,8 +1,4 @@
-using SharpOutcome;
-
 namespace DiscussionFleet.Application.MembershipFeatures;
-
-
 
 public interface IResendEmailError
 {

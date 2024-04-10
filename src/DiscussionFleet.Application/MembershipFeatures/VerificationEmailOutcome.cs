@@ -1,6 +1,6 @@
 namespace DiscussionFleet.Application.MembershipFeatures;
 
-public enum VerificationEmailOutcome
+public enum VerificationEmailResult
 {
     Ok,
     EntityNotFound,

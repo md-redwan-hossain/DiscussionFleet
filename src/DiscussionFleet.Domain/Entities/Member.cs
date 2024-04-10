@@ -10,7 +10,7 @@ public class Member : Entity<Guid>
     public string? Bio { get; set; }
     public string? PersonalWebsiteUrl { get; set; }
     public string? TwitterHandle { get; set; }
-    public string? GitHubHandle { get; set; }
+    public string? GithubHandle { get; set; }
     public Guid? ProfileImageId { get; set; }
     public ICollection<MemberBadge> MemberBadges { get; set; }
     public ICollection<SavedQuestion> SavedQuestions { get; set; }

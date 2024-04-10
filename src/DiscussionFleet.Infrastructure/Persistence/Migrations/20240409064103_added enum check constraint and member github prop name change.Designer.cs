@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240406201703_AddedEnumCheckConstraint")]
-    partial class AddedEnumCheckConstraint
+    [Migration("20240409064103_added enum check constraint and member github prop name change")]
+    partial class addedenumcheckconstraintandmembergithubpropnamechange
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -364,7 +364,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("GitHubHandle")
+                    b.Property<string>("GithubHandle")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 

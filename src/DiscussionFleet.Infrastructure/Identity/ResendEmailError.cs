@@ -1,5 +1,4 @@
 using DiscussionFleet.Application.MembershipFeatures;
-using SharpOutcome;
 
 namespace DiscussionFleet.Infrastructure.Identity;
 

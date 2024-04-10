@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+      <PackageReference Include="AWSSDK.S3" Version="3.7.307" />
       <PackageReference Include="EFCore.CheckConstraints" Version="8.0.1" />
       <PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="8.1.2" />
       <PackageReference Include="Hangfire.AspNetCore" Version="1.8.12" />

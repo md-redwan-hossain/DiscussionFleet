@@ -361,7 +361,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("GitHubHandle")
+                    b.Property<string>("GithubHandle")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 

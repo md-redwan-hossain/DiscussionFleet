@@ -70,5 +70,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id?}");
 
-app.UseHangfireServer();
+
 app.Run();

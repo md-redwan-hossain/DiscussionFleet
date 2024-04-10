@@ -42,7 +42,7 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
             .HasMaxLength(DomainEntityConstants.MemberTwitterMaxLength);
 
         builder
-            .Property(x => x.GitHubHandle)
+            .Property(x => x.GithubHandle)
             .HasMaxLength(DomainEntityConstants.MemberGithubMaxLength);
         
 

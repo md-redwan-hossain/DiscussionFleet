@@ -8,6 +8,7 @@ using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Hangfire;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using SharpOutcome;
 using StackExchange.Redis;
@@ -98,6 +99,22 @@ public class MemberService : IMemberService
 
     #endregion
 
+    #region Update Member Profile
+
+    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id)
+    {
+        var memberInDb = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
+        if (memberInDb is null) return MemberProfileUpdateResult.EntityNotFound;
+
+        var member = await dto.BuildAdapter().AdaptToAsync(memberInDb);
+        await _appUnitOfWork.MemberRepository.UpdateAsync(member);
+        await _appUnitOfWork.SaveAsync();
+        return MemberProfileUpdateResult.Ok;
+    }
+
+    #endregion
+
+
     #region Issue Verification Code in Email
 
     public Task<string> IssueVerificationMailTokenAsync(ApplicationUser user)
@@ -118,7 +135,7 @@ public class MemberService : IMemberService
         var body = $"""
                     <html>
                         <body>
-                            <h1>Welcome, {member.FullName}!</h1>
+                            <h2>Welcome, {member.FullName}!</h2>
                             <p>Thanks for signing up. Please verify your email address by using the following verification code:</p>
                             <h2>{verificationCode}</h2>
                             <p>If you didn't request this, you can safely ignore this email.</p>
@@ -151,21 +168,31 @@ public class MemberService : IMemberService
         if (user?.PasswordHash is null) return false;
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        return result is not PasswordVerificationResult.Failed && user.EmailConfirmed;
+        return result is not PasswordVerificationResult.Failed && user.EmailConfirmed is false;
     }
 
-    public async Task<ApplicationUser?> RequestEmailConfirmationAsync(string userName, string password)
+    public async Task<Outcome<ApplicationUser, CredentialError>> RequestEmailConfirmationAsync(string userName,
+        string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
-        if (user?.PasswordHash is null) return null;
-
-        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        if (result is not PasswordVerificationResult.Failed && user.EmailConfirmed is false)
+        if (user?.PasswordHash is null)
         {
-            return user;
+            return CredentialError.UserNameNotFound;
         }
 
-        return null;
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
+        if (result is PasswordVerificationResult.Failed)
+        {
+            return CredentialError.PasswordNotMatched;
+        }
+
+        if (user.EmailConfirmed)
+        {
+            return CredentialError.ProfileAlreadyConfirmed;
+        }
+
+        return user;
     }
 
 
@@ -194,11 +221,17 @@ public class MemberService : IMemberService
         return true;
     }
 
-    public async Task CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
+    public async Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
     {
         var cache = _redis.GetDatabase();
         var json = _jsonSerializationProvider.Serialize(memberInfo);
-        await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
+        return await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
+    }
+    
+    public async Task<bool> FlushMemberInfoCacheAsync(string id)
+    {
+        var cache = _redis.GetDatabase();
+        return await cache.HashDeleteAsync(RedisConstants.MemberInformationHashStore, id);
     }
 
     public async Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id)
@@ -235,9 +268,9 @@ public class MemberService : IMemberService
     }
 
 
-    private static Outcome<Success, IResendEmailError> ProcessResendResult(VerificationEmailOutcome result)
+    private static Outcome<Success, IResendEmailError> ProcessResendResult(VerificationEmailResult result)
     {
-        if (result is VerificationEmailOutcome.Ok) return new Success();
+        if (result is VerificationEmailResult.Ok) return new Success();
         return new ResendEmailError(ResendEmailErrorReason.EntityNotFound);
     }
 
@@ -248,24 +281,24 @@ public class MemberService : IMemberService
         return result;
     }
 
-    private async Task<VerificationEmailOutcome> IssueEmailToken(string id)
+    private async Task<VerificationEmailResult> IssueEmailToken(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
-        if (user is null) return VerificationEmailOutcome.EntityNotFound;
+        if (user is null) return VerificationEmailResult.EntityNotFound;
         return await IssueEmailToken(user).ConfigureAwait(false);
     }
 
 
-    private async Task<VerificationEmailOutcome> IssueEmailToken(ApplicationUser user)
+    private async Task<VerificationEmailResult> IssueEmailToken(ApplicationUser user)
     {
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == user.Id);
-        if (member is null) return VerificationEmailOutcome.EntityNotFound;
+        if (member is null) return VerificationEmailResult.EntityNotFound;
 
         await _userManager.UpdateSecurityStampAsync(user);
         var token = await IssueVerificationMailTokenAsync(user);
         _backgroundJobClient.Enqueue(() => SendVerificationMailAsync(user, member, token));
         await UpsertEmailVerificationCache(user.Id.ToString());
-        return VerificationEmailOutcome.Ok;
+        return VerificationEmailResult.Ok;
     }
 
 
@@ -275,12 +308,12 @@ public class MemberService : IMemberService
         if (tokenData is not null)
         {
             tokenData.UpdateToken();
-            await CacheEmailVerifyHistoryAsync(id, tokenData);
+            await CacheEmailVerifyHistoryAsync(id, tokenData).ConfigureAwait(false);
         }
         else
         {
             var tokenRateLimiter = new EmailTokenRateLimiter(_dateTimeProvider.CurrentUtcTime);
-            await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter);
+            await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter).ConfigureAwait(false);
         }
     }
 }
