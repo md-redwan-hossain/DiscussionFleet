@@ -31,7 +31,7 @@ public class ProfileViewModel : IViewModelWithResolve
     public string? TwitterHandle { get; set; }
     public string? GitHubHandle { get; set; }
     public IFormFile? ProfileImage { get; set; }
-    public Guid? ProfileImageId { get; set; }
+    public string? ProfileImageUrl { get; set; }
     public bool HasError { get; set; }
 
     #endregion
@@ -52,11 +52,15 @@ public class ProfileViewModel : IViewModelWithResolve
     }
 
 
-    public async Task<Outcome<Member, IBadOutcome>> FetchMemberData(Guid id)
+    public async Task FetchMemberData(Guid id)
     {
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
-        if (member is not null) return member;
-        return new BadOutcome(BadOutcomeTag.NotFound);
+        if (member is not null)
+        {
+            await member.BuildAdapter().AdaptToAsync(this);
+            var data = await _memberService.GetCachedMemberInfoAsync(id.ToString());
+            ProfileImageUrl = data?.ProfileImageUrl;
+        }
     }
 
     public async Task<MemberProfileUpdateResult> UpdateMemberData(Guid id)
@@ -80,6 +84,7 @@ public class ProfileViewModel : IViewModelWithResolve
                 var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == id);
                 if (existingImg is not null)
                 {
+                    existingImg.FileExtension = Path.GetExtension(formFile.FileName);
                     existingImg.UpdatedAtUtc = _dateTimeProvider.CurrentUtcTime;
                     await _appUnitOfWork.SaveAsync();
                 }

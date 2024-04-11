@@ -135,10 +135,12 @@
             styleButtonProcessItemPosition: 'right bottom',
         }
     );
-
-
+    
     // Load the static image into FilePond
-   // pond.addFile('./static/avatars/000m.jpg');
+    const profileImageUrl = '@Model.ProfileImageUrl';
+    if (profileImageUrl) {
+        pond.addFile(profileImageUrl);
+    }
 
 </script>
 

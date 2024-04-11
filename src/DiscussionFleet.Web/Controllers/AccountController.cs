@@ -232,12 +232,7 @@ public class AccountController : Controller
 
         var viewModel = _scope.Resolve<ProfileViewModel>();
 
-        var result = await viewModel.FetchMemberData(Guid.Parse(currentUserId));
-
-        if (result.TryPickGoodOutcome(out var member))
-        {
-            await member.BuildAdapter().AdaptToAsync(viewModel);
-        }
+       await viewModel.FetchMemberData(Guid.Parse(currentUserId));
 
         return View(viewModel);
     }
