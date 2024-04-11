@@ -28,7 +28,7 @@ public abstract class Repository<TEntity, TKey>
     public virtual async Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -49,7 +49,7 @@ public abstract class Repository<TEntity, TKey>
         Expression<Func<TEntity, TSorter>> orderBy,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     ) where TSorter : IComparable<TSorter>
     {
@@ -74,7 +74,7 @@ public abstract class Repository<TEntity, TKey>
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         IList<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -95,7 +95,7 @@ public abstract class Repository<TEntity, TKey>
         Expression<Func<TEntity, TSorter>> orderBy,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     ) where TSorter : IComparable<TSorter>
     {
@@ -120,7 +120,7 @@ public abstract class Repository<TEntity, TKey>
     public virtual async Task<IList<TEntity>> GetAllAsync(
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -142,7 +142,7 @@ public abstract class Repository<TEntity, TKey>
         uint limit = 10,
         bool ascendingOrder = true,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -171,7 +171,7 @@ public abstract class Repository<TEntity, TKey>
         uint limit = 10,
         bool ascendingOrder = true,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
-        bool disableTracking = true,
+        bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
     {

@@ -442,12 +442,18 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("Purpose")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("MultimediaImages", (string)null);
+                    b.ToTable("MultimediaImages", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MultimediaImages_Purpose_Enum", "[Purpose] BETWEEN CAST(1 AS tinyint) AND CAST(3 AS tinyint)");
+                        });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Question", b =>
@@ -1009,7 +1015,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.HasOne("DiscussionFleet.Domain.Entities.MultimediaImage", null)
                         .WithOne()
                         .HasForeignKey("DiscussionFleet.Domain.Entities.Member", "ProfileImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberBadge", b =>

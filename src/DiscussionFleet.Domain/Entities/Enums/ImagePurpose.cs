@@ -1,4 +1,4 @@
-﻿namespace DiscussionFleet.Application.Common.Enums;
+﻿namespace DiscussionFleet.Domain.Entities.Enums;
 
 public enum ImagePurpose : byte
 {

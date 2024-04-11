@@ -1,8 +1,11 @@
 using Autofac;
 using DiscussionFleet.Application;
+using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
@@ -15,8 +18,8 @@ public class ProfileViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IMemberService _memberService;
-
-    public static readonly string EmptyValue = "none";
+    private IFileBucketService _fileBucketService;
+    private IDateTimeProvider _dateTimeProvider;
 
     #region Properties
 
@@ -38,11 +41,14 @@ public class ProfileViewModel : IViewModelWithResolve
     }
 
 
-    public ProfileViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork, IMemberService memberService)
+    public ProfileViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork, IMemberService memberService,
+        IFileBucketService fileBucketService, IDateTimeProvider dateTimeProvider)
     {
         _scope = scope;
         _appUnitOfWork = appUnitOfWork;
         _memberService = memberService;
+        _fileBucketService = fileBucketService;
+        _dateTimeProvider = dateTimeProvider;
     }
 
 
@@ -57,19 +63,55 @@ public class ProfileViewModel : IViewModelWithResolve
     {
         var dto = await this.BuildAdapter().AdaptToTypeAsync<MemberUpdateRequest>();
         var result = await _memberService.UpdateAsync(dto, id);
-        if (result is MemberProfileUpdateResult.Ok)
-        {
-            await _memberService.FlushMemberInfoCacheAsync(id.ToString());
-        }
-
         return result;
     }
 
+    public async Task UpdateMemberProfileImage(Guid id, IFormFile formFile)
+    {
+        var result = await _fileBucketService.UploadImageAsync(formFile.OpenReadStream(), formFile.ContentType,
+            Path.GetExtension(formFile.FileName), id, ImagePurpose.UserProfile);
+
+        if (result)
+        {
+            var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id, disableTracking: false);
+
+            if (member?.ProfileImageId != null)
+            {
+                var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == id);
+                if (existingImg is not null)
+                {
+                    existingImg.UpdatedAtUtc = _dateTimeProvider.CurrentUtcTime;
+                    await _appUnitOfWork.SaveAsync();
+                }
+            }
+
+            else if (member is not null && member.ProfileImageId is null)
+            {
+                var entityImage = new MultimediaImage
+                {
+                    Id = id,
+                    Purpose = ImagePurpose.UserProfile,
+                    FileExtension = Path.GetExtension(formFile.FileName)
+                };
+                entityImage.SetCreatedAt(_dateTimeProvider.CurrentUtcTime);
+                await _appUnitOfWork.MultimediaImageRepository.CreateAsync(entityImage);
+                member.ProfileImageId = entityImage.Id;
+                await _appUnitOfWork.SaveAsync();
+            }
+        }
+    }
+
+    public async Task InvalidCacheAsync(string id)
+    {
+        await _memberService.FlushMemberInfoCacheAsync(id);
+    }
 
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _memberService = _scope.Resolve<IMemberService>();
+        _fileBucketService = _scope.Resolve<IFileBucketService>();
+        _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
     }
 }

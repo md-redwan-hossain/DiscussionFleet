@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Autofac;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -220,11 +221,18 @@ public class AccountController : Controller
 
 
     [HttpGet, Authorize]
-    public async Task<IActionResult> Profile(Guid id)
+    public async Task<IActionResult> Profile()
     {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (currentUserId is null)
+        {
+            return Unauthorized();
+        }
+
         var viewModel = _scope.Resolve<ProfileViewModel>();
 
-        var result = await viewModel.FetchMemberData(id);
+        var result = await viewModel.FetchMemberData(Guid.Parse(currentUserId));
 
         if (result.TryPickGoodOutcome(out var member))
         {
@@ -236,8 +244,17 @@ public class AccountController : Controller
 
 
     [HttpPost, ValidateAntiForgeryToken, Authorize]
-    public async Task<IActionResult> Profile(ProfileViewModel viewModel, Guid id)
+    public async Task<IActionResult> Profile(ProfileViewModel viewModel)
     {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (currentUserId is null)
+        {
+            return Unauthorized();
+        }
+
+        var parsedUserId = Guid.Parse(currentUserId);
+
         if (ModelState.IsValid is false)
         {
             viewModel.HasError = true;
@@ -245,7 +262,14 @@ public class AccountController : Controller
         }
 
         viewModel.Resolve(_scope);
-        var result = await viewModel.UpdateMemberData(id);
+
+        var result = await viewModel.UpdateMemberData(parsedUserId);
+
+        if (viewModel.ProfileImage is not null)
+        {
+            await viewModel.UpdateMemberProfileImage(parsedUserId, viewModel.ProfileImage);
+        }
+
         if (result is not MemberProfileUpdateResult.Ok)
         {
             ModelState.AddModelError(string.Empty, "Profile not found");
@@ -253,6 +277,7 @@ public class AccountController : Controller
             return View(viewModel);
         }
 
+        await viewModel.InvalidCacheAsync(currentUserId);
         return RedirectToAction(nameof(Profile));
     }
 }

@@ -44,7 +44,7 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
         builder
             .Property(x => x.GithubHandle)
             .HasMaxLength(DomainEntityConstants.MemberGithubMaxLength);
-        
+
 
         builder
             .Property(x => x.PersonalWebsiteUrl)
@@ -62,7 +62,7 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
             .WithOne()
             .HasForeignKey<Member>(x => x.ProfileImageId)
             .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder
             .HasMany<ResourceNotification>()
