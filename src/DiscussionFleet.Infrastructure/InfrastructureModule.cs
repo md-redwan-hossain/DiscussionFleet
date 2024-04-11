@@ -1,8 +1,10 @@
+using Amazon.S3;
 using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Domain.Repositories;
+using DiscussionFleet.Infrastructure.CloudFileBucket;
 using DiscussionFleet.Infrastructure.Email;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Persistence;
@@ -15,28 +17,11 @@ public class InfrastructureModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterType<JwtProvider>()
-            .As<IJwtProvider>()
-            .SingleInstance();
-
-        builder.RegisterType<DateTimeProvider>()
-            .As<IDateTimeProvider>()
-            .SingleInstance();
-
-        builder.RegisterType<GuidProvider>()
-            .As<IGuidProvider>()
-            .SingleInstance();
-
-
-        builder.RegisterType<QrCodeProvider>()
-            .As<IQrCodeProvider>()
-            .SingleInstance();
-
+        #region Data Access
 
         builder.Register(c => c.Resolve<ApplicationDbContext>())
             .As<IApplicationDbContext>()
             .InstancePerLifetimeScope();
-
 
         builder.RegisterType<AnswerRepository>()
             .As<IAnswerRepository>()
@@ -82,6 +67,10 @@ public class InfrastructureModule : Module
             .As<IApplicationUnitOfWork>()
             .InstancePerLifetimeScope();
 
+        #endregion
+
+        #region Services
+
         builder.RegisterType<MemberService>()
             .As<IMemberService>()
             .InstancePerLifetimeScope();
@@ -90,8 +79,42 @@ public class InfrastructureModule : Module
             .As<IEmailService>()
             .InstancePerLifetimeScope();
 
+        builder.RegisterType<FileBucketService>()
+            .As<IFileBucketService>()
+            .InstancePerLifetimeScope();
+
+        #endregion
+
+        #region Providers
+
         builder.RegisterType<JsonSerializationProvider>()
             .As<IJsonSerializationProvider>()
             .SingleInstance();
+
+        builder.RegisterType<JwtProvider>()
+            .As<IJwtProvider>()
+            .SingleInstance();
+
+        builder.RegisterType<DateTimeProvider>()
+            .As<IDateTimeProvider>()
+            .SingleInstance();
+
+        builder.RegisterType<GuidProvider>()
+            .As<IGuidProvider>()
+            .SingleInstance();
+
+        builder.RegisterType<QrCodeProvider>()
+            .As<IQrCodeProvider>()
+            .SingleInstance();
+
+        #endregion
+
+        #region External Libraries
+
+        // builder.RegisterType<AmazonS3Client>()
+        //     .As<IAmazonS3>()
+        //     .SingleInstance();
+
+        #endregion
     }
 }

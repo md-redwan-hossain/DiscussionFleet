@@ -1,4 +1,6 @@
 using System.Text;
+using Amazon.Runtime;
+using Amazon.S3;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -29,6 +31,19 @@ public static class ServiceCollectionExtensions
             .BindConfiguration(sectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        return services;
+    }
+
+    public static IServiceCollection AddAwsConfig(this IServiceCollection services, IConfiguration configuration)
+    {
+        var awsCredentialOptions = configuration.GetSection(AwsCredentialOptions.SectionName)
+            .Get<AwsCredentialOptions>();
+
+        ArgumentNullException.ThrowIfNull(awsCredentialOptions);
+        var awsOpts = configuration.GetAWSOptions();
+        awsOpts.Credentials = new BasicAWSCredentials(awsCredentialOptions.AccessKey, awsCredentialOptions.SecretKey);
+        services.AddDefaultAWSOptions(awsOpts);
+        services.AddAWSService<IAmazonS3>();
         return services;
     }
 

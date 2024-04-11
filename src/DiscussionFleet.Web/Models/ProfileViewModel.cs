@@ -27,6 +27,7 @@ public class ProfileViewModel : IViewModelWithResolve
     public string? PersonalWebsiteUrl { get; set; }
     public string? TwitterHandle { get; set; }
     public string? GitHubHandle { get; set; }
+    public IFormFile? ProfileImage { get; set; }
     public Guid? ProfileImageId { get; set; }
     public bool HasError { get; set; }
 

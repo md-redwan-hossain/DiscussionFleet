@@ -15,6 +15,8 @@ builder.Configuration.AddJsonFile("secrets.json");
 builder.Services.BindAndValidateOptions<AppSecretOptions>(AppSecretOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
 builder.Services.BindAndValidateOptions<SmtpOptions>(SmtpOptions.SectionName);
+builder.Services.BindAndValidateOptions<AwsCredentialOptions>(AwsCredentialOptions.SectionName);
+builder.Services.BindAndValidateOptions<FileBucketOptions>(FileBucketOptions.SectionName);
 
 await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
 builder.Services.AddRedisConfig(builder.Configuration);
@@ -27,7 +29,7 @@ builder.Services.Configure<RouteOptions>(options =>
     options.AppendTrailingSlash = false;
 });
 
-
+builder.Services.AddAwsConfig(builder.Configuration);
 builder.Services.AddControllersWithViews();
 
 
