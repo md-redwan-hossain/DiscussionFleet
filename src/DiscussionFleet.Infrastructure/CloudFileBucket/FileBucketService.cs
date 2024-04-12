@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
+using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities.Enums;
 using Microsoft.Extensions.Options;
 
@@ -46,15 +46,14 @@ public class FileBucketService : IFileBucketService
         return url;
     }
 
-    public async Task<bool> UploadImageAsync(Stream readStream, string contentType, string fileExtension, Guid id,
-        ImagePurpose purpose)
+    public async Task<bool> UploadImageAsync(ImageUploadRequest dto)
     {
         var putObjectRequest = new PutObjectRequest
         {
             BucketName = _fileBucketOptions.BucketName,
-            Key = $"{purpose.ToString()}_{id}{fileExtension}",
-            ContentType = contentType,
-            InputStream = readStream
+            Key = $"{dto.Purpose.ToString()}_{dto.Id}{dto.FileExtension}",
+            ContentType = dto.ContentType,
+            InputStream = dto.ReadStream
         };
         var result = await _s3Client.PutObjectAsync(putObjectRequest);
         return result.HttpStatusCode is HttpStatusCode.OK;

@@ -2,13 +2,10 @@ using System.Security.Claims;
 using Autofac;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Infrastructure.Identity.Managers;
-using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web.Models;
-using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SharpOutcome;
 
 namespace DiscussionFleet.Web.Controllers;
@@ -18,16 +15,14 @@ public class AccountController : Controller
     private readonly ILifetimeScope _scope;
     private readonly ApplicationSignInManager _signInManager;
     private readonly ApplicationUserManager _userManager;
-    private readonly IMemberService _memberService;
 
 
     public AccountController(ILifetimeScope scope, ApplicationSignInManager signInManager,
-        ApplicationUserManager userManager, IMemberService memberService)
+        ApplicationUserManager userManager)
     {
         _scope = scope;
         _signInManager = signInManager;
         _userManager = userManager;
-        _memberService = memberService;
     }
 
     #region Registration
@@ -232,7 +227,7 @@ public class AccountController : Controller
 
         var viewModel = _scope.Resolve<ProfileViewModel>();
 
-       await viewModel.FetchMemberData(Guid.Parse(currentUserId));
+        await viewModel.FetchMemberData(Guid.Parse(currentUserId));
 
         return View(viewModel);
     }
@@ -260,11 +255,6 @@ public class AccountController : Controller
 
         var result = await viewModel.UpdateMemberData(parsedUserId);
 
-        if (viewModel.ProfileImage is not null)
-        {
-            await viewModel.UpdateMemberProfileImage(parsedUserId, viewModel.ProfileImage);
-        }
-
         if (result is not MemberProfileUpdateResult.Ok)
         {
             ModelState.AddModelError(string.Empty, "Profile not found");
@@ -272,7 +262,17 @@ public class AccountController : Controller
             return View(viewModel);
         }
 
-        await viewModel.InvalidCacheAsync(currentUserId);
+        if (viewModel.ProfileImage is not null)
+        {
+            await viewModel.UpsertProfileImage(parsedUserId, viewModel.ProfileImage);
+        }
+
+        if (viewModel.ProfileImage is null)
+        {
+            await viewModel.RemoveProfileImage(parsedUserId);
+        }
+
+        await viewModel.RefreshCacheAsync(currentUserId);
         return RedirectToAction(nameof(Profile));
     }
 }

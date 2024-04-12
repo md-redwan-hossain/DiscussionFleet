@@ -20,7 +20,9 @@ public interface IMemberService
     Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
     Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);
     Task<bool> FlushMemberInfoCacheAsync(string id);
-    Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id);
+    Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60);
+    Task<bool> UpsertMemberProfileImage(ImageUploadRequest dto);
+    Task<bool> RemoveMemberProfileImage(Guid id);
     Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60);
     Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
     Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(string id);

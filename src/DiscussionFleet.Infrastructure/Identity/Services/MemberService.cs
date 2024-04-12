@@ -5,6 +5,7 @@ using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Hangfire;
@@ -238,16 +239,17 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id)
+    public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60)
     {
         var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
             subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
         if (entity is null) return null;
+
         var user = await _userManager.FindByIdAsync(id);
         if (user is null) return null;
 
-
         string? imgName = null;
+        DateTime? ttlUtc = null;
         if (entity.ProfileImageId is not null)
         {
             var img = await _appUnitOfWork
@@ -255,15 +257,62 @@ public class MemberService : IMemberService
                 .GetOneAsync(x => x.Id == entity.ProfileImageId);
 
             imgName = img?.ImageNameResolver();
+            ttlUtc = _dateTimeProvider.CurrentUtcTime.AddMinutes(ttlInMinute);
         }
 
         var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed, imgName,
-            await CacheImageUrl(imgName), _dateTimeProvider.CurrentUtcTime.AddHours(1));
+            await CacheImageUrl(imgName), ttlUtc);
 
         await CacheMemberInfoAsync(id, info);
         return info;
     }
 
+
+    public async Task<bool> UpsertMemberProfileImage(ImageUploadRequest dto)
+    {
+        var result = await _fileBucketService.UploadImageAsync(dto);
+        if (result is false) return false;
+
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == dto.Id);
+
+        if (member?.ProfileImageId != null)
+        {
+            var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == dto.Id);
+            if (existingImg is not null)
+            {
+                existingImg.FileExtension = dto.FileExtension;
+                existingImg.UpdatedAtUtc = _dateTimeProvider.CurrentUtcTime;
+                await _appUnitOfWork.SaveAsync();
+            }
+        }
+
+        else if (member is not null && member.ProfileImageId is null)
+        {
+            var entityImage = new MultimediaImage
+            {
+                Id = dto.Id,
+                Purpose = ImagePurpose.UserProfile,
+                FileExtension = dto.FileExtension
+            };
+            entityImage.SetCreatedAt(_dateTimeProvider.CurrentUtcTime);
+            await _appUnitOfWork.MultimediaImageRepository.CreateAsync(entityImage);
+            member.ProfileImageId = entityImage.Id;
+            await _appUnitOfWork.SaveAsync();
+        }
+
+        return true;
+    }
+
+
+    public async Task<bool> RemoveMemberProfileImage(Guid id)
+    {
+        var entityToDelete = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == id);
+        if (entityToDelete is null) return false;
+
+        await _appUnitOfWork.MultimediaImageRepository.RemoveAsync(entityToDelete);
+        await _appUnitOfWork.SaveAsync();
+        return true;
+    }
 
     public async Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60)
     {
