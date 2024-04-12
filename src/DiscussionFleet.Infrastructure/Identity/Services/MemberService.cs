@@ -26,12 +26,14 @@ public class MemberService : IMemberService
     private readonly IConnectionMultiplexer _redis;
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly IJsonSerializationProvider _jsonSerializationProvider;
+    private readonly IFileBucketService _fileBucketService;
 
 
     public MemberService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
         IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IEmailService emailService,
         IConnectionMultiplexer redis, IJsonSerializationProvider jsonSerializationProvider,
-        IBackgroundJobClient backgroundJobClient, IPasswordHasher<ApplicationUser> passwordHasher)
+        IBackgroundJobClient backgroundJobClient, IPasswordHasher<ApplicationUser> passwordHasher,
+        IFileBucketService fileBucketService)
     {
         _appUnitOfWork = appUnitOfWork;
         _userManager = userManager;
@@ -42,6 +44,7 @@ public class MemberService : IMemberService
         _jsonSerializationProvider = jsonSerializationProvider;
         _backgroundJobClient = backgroundJobClient;
         _passwordHasher = passwordHasher;
+        _fileBucketService = fileBucketService;
     }
 
     #region Create A Member
@@ -227,11 +230,57 @@ public class MemberService : IMemberService
         var json = _jsonSerializationProvider.Serialize(memberInfo);
         return await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
     }
-    
+
     public async Task<bool> FlushMemberInfoCacheAsync(string id)
     {
         var cache = _redis.GetDatabase();
         return await cache.HashDeleteAsync(RedisConstants.MemberInformationHashStore, id);
+    }
+
+
+    public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id)
+    {
+        var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
+            subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
+        if (entity is null) return null;
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null) return null;
+
+
+        string? imgName = null;
+        if (entity.ProfileImageId is not null)
+        {
+            var img = await _appUnitOfWork
+                .MultimediaImageRepository
+                .GetOneAsync(x => x.Id == entity.ProfileImageId);
+
+            imgName = img?.ImageNameResolver();
+        }
+
+        var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed, imgName,
+            await CacheImageUrl(imgName), _dateTimeProvider.CurrentUtcTime.AddHours(1));
+
+        await CacheMemberInfoAsync(id, info);
+        return info;
+    }
+
+
+    public async Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60)
+    {
+        var data = await GetCachedMemberInfoAsync(id);
+        if (data is null) return false;
+        if (data.ProfileImageName is not null)
+        {
+            var url = await _fileBucketService.GetImageUrlAsync(data.ProfileImageName);
+            var updatedMemberData = data with
+            {
+                ProfileImageUrl = url,
+                ProfileImageUrlExpirationUtc = _dateTimeProvider.CurrentUtcTime.AddMinutes(ttlInMinute)
+            };
+            await CacheMemberInfoAsync(id, updatedMemberData);
+        }
+
+        return true;
     }
 
     public async Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id)
@@ -315,5 +364,12 @@ public class MemberService : IMemberService
             var tokenRateLimiter = new EmailTokenRateLimiter(_dateTimeProvider.CurrentUtcTime);
             await CacheEmailVerifyHistoryAsync(id, tokenRateLimiter).ConfigureAwait(false);
         }
+    }
+
+    private async Task<string?> CacheImageUrl(string? key)
+    {
+        if (key is null) return null;
+        var imageUrl = await _fileBucketService.GetImageUrlAsync(key);
+        return imageUrl;
     }
 }

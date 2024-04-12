@@ -9,7 +9,6 @@ using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
-using SharpOutcome;
 
 namespace DiscussionFleet.Web.Models;
 
@@ -31,7 +30,7 @@ public class ProfileViewModel : IViewModelWithResolve
     public string? TwitterHandle { get; set; }
     public string? GitHubHandle { get; set; }
     public IFormFile? ProfileImage { get; set; }
-    public string? ProfileImageUrl { get; set; }
+    public string? ProfileImageUrl { get; set; } = string.Empty;
     public bool HasError { get; set; }
 
     #endregion

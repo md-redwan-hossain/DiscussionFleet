@@ -1,19 +1,5 @@
 @model ProfileViewModel
 
-
-@section ExternalLibFiles
-{
-    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
-          rel="stylesheet">
-    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-}
-
 @{
     ViewData["Title"] = "Profile";
 }
@@ -37,7 +23,6 @@
 
             <div class="card-body">
                 <form asp-controller="Account" asp-action="Profile" asp-antiforgery="true" enctype="multipart/form-data" autocomplete="off">
-
                     @if (Model.HasError)
                     {
                         <div class="row my-3">
@@ -55,11 +40,20 @@
                     <div class="row justify-content-around">
                         <div class="col-lg-4 text-center">
                             <div class="row mb-3 flex-column align-items-center">
-                                <label for="@Model.ProfileImage" class="form-label">Profile Image</label>
+                                <label asp-for="@Model.ProfileImage" class="form-label">Profile Image</label>
                                 <div class="col-md-6 col-lg-6">
-                                    <input asp-for="@Model.ProfileImage" type="hidden" id="hidden-input">
-                                    <input asp-for="@Model.ProfileImage" type="file" class="filepond" accept="image/png, image/jpg, image/jpeg"/>
-                                    <span asp-validation-for="@Model.ProfileImage" class="text-danger"></span>
+                                    <img id="profile-preview" src="@Model.ProfileImageUrl" class="rounded-circle">
+                                    <div class="pt-2">
+                                        <label id="upload-label" asp-for="@Model.ProfileImage" class="btn btn-primary">
+                                            Upload
+                                        </label>
+
+                                        <input asp-for="@Model.ProfileImage" id="file-upload" type="file"
+                                               accept="image/png, image/jpg, image/jpeg" style="display: none;">
+
+                                        <a href="#" id="delete-button" class="btn btn-danger">Delete</a>
+                                        <span asp-validation-for="@Model.ProfileImage" class="text-danger"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -110,38 +104,45 @@
 {
 
     <script>
-    // Register the plugin
-    FilePond.registerPlugin(FilePondPluginImagePreview);
-    FilePond.registerPlugin(FilePondPluginFileValidateSize);
-    FilePond.registerPlugin(FilePondPluginFileValidateType);
-    
-    const pond = FilePond.create(
-        document.querySelector('.filepond'),
-        {
-            allowImagePreview: true,
-            credits: false,
-            storeAsFile: true,
-            acceptedFileTypes: ['image/png', 'image/jpg', 'image/jpeg'],
-            maxFileSize: '200KB',
-            labelIdle: `Drag & Drop or <span class="filepond--label-action">Browse</span>`,
-            imagePreviewHeight: 100,
-            imageCropAspectRatio: '1:1',
-            imageResizeTargetWidth: 200,
-            imageResizeTargetHeight: 200,
-            stylePanelLayout: 'compact circle',
-            styleLoadIndicatorPosition: 'center bottom',
-            styleProgressIndicatorPosition: 'right bottom',
-            styleButtonRemoveItemPosition: 'left bottom',
-            styleButtonProcessItemPosition: 'right bottom',
-        }
-    );
-    
-    // Load the static image into FilePond
-    const profileImageUrl = '@Model.ProfileImageUrl';
-    if (profileImageUrl) {
-        pond.addFile(profileImageUrl);
-    }
+        const fileUpload = document.getElementById('file-upload');
+        const deleteButton = document.getElementById('delete-button');
 
+
+        document.getElementById('upload-label').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('file-upload').click();
+        });
+
+
+        deleteButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const preview = document.getElementById("profile-preview");
+            preview.src = "";
+            preview.style.display = "none";
+            deleteButton.style.display = "none";
+            fileUpload.value = "";
+        });
+
+
+        fileUpload.addEventListener('change', function (e) {
+            if (e.target.files.length > 0) {
+                const src = URL.createObjectURL(e.target.files[0]);
+                const preview = document.getElementById("profile-preview");
+                preview.src = src;
+                preview.style.display = "block";
+                deleteButton.style.display = "inline-block";
+            }
+        });
+
+
+        window.addEventListener('load', function (e) {
+            const preview = document.getElementById("profile-preview");
+            if (!preview.src || preview.src.trim() === '') {
+                deleteButton.style.display = "none";
+            } else {
+                deleteButton.style.display = "inline-block";
+            }
+        });
 </script>
 
 

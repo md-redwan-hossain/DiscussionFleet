@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Application.Common.Utils;
+namespace DiscussionFleet.Application.MembershipFeatures;
 
 public record MemberCachedInformation(
     string FullName,
@@ -6,4 +6,10 @@ public record MemberCachedInformation(
     string? ProfileImageName = null,
     string? ProfileImageUrl = null,
     DateTime? ProfileImageUrlExpirationUtc = null,
-    DateTime? LockedTillUtc = null);
+    DateTime? LockedTillUtc = null)
+{
+    // public void SetProfileImageUrl(string url)
+    // {
+    //     this.ProfileImageUrl = url;
+    // }
+}

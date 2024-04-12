@@ -37,39 +37,44 @@ public class MemberInfoForNavBar : ViewComponent
 
         if (cache is null)
         {
-            var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
-                subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
+            var data = await _memberService.RefreshMemberInfoCacheAsync(id);
+            if (data is null) return View();
 
-            if (entity is null) return View();
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user is null) return View();
-
-            string? imgName = null;
-            if (entity.ProfileImageId is not null)
-            {
-                var img = await _appUnitOfWork
-                    .MultimediaImageRepository
-                    .GetOneAsync(x => x.Id == entity.ProfileImageId);
-
-                imgName = img?.ImageNameResolver();
-            }
-
-            var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed, imgName,
-                await CacheImageUrl(imgName), _dateTimeProvider.CurrentUtcTime.AddHours(1));
+            cache = data;
             
-            await _memberService.CacheMemberInfoAsync(id, info);
-
-
-            var dataFromDb = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.FullName };
-
-            if (imgName is not null)
-            {
-                var url = await _fileBucketService.GetImageUrlAsync(imgName);
-                dataFromDb.ProfilePictureUrl = url;
-            }
-
-            return View(dataFromDb);
+            // var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
+            //     subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
+            //
+            // if (entity is null) return View();
+            //
+            // var user = await _userManager.FindByIdAsync(id);
+            // if (user is null) return View();
+            //
+            // string? imgName = null;
+            // if (entity.ProfileImageId is not null)
+            // {
+            //     var img = await _appUnitOfWork
+            //         .MultimediaImageRepository
+            //         .GetOneAsync(x => x.Id == entity.ProfileImageId);
+            //
+            //     imgName = img?.ImageNameResolver();
+            // }
+            //
+            // var info = new MemberCachedInformation(entity.FullName, user.EmailConfirmed, imgName,
+            //     await CacheImageUrl(imgName), _dateTimeProvider.CurrentUtcTime.AddHours(1));
+            //
+            // await _memberService.CacheMemberInfoAsync(id, info);
+            //
+            //
+            // var dataFromDb = new NavbarUserInfoViewModel { Id = entity.Id, Name = entity.FullName };
+            //
+            // if (imgName is not null)
+            // {
+            //     var url = await _fileBucketService.GetImageUrlAsync(imgName);
+            //     dataFromDb.ProfilePictureUrl = url;
+            // }
+            //
+            // return View(dataFromDb);
         }
 
         if (IsProfileImgUrlExpired(cache.ProfileImageUrlExpirationUtc))

@@ -1,6 +1,4 @@
-using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
-using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Contracts.Membership;
 using DiscussionFleet.Domain.Entities;
@@ -16,13 +14,14 @@ public interface IMemberService
         MemberRegistrationRequest dto);
 
     Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id);
-
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
     Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member, string verificationCode);
     Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter);
     Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
     Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);
     Task<bool> FlushMemberInfoCacheAsync(string id);
+    Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id);
+    Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60);
     Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
     Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(string id);
     Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user);
