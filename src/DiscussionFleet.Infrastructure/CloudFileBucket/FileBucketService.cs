@@ -58,4 +58,17 @@ public class FileBucketService : IFileBucketService
         var result = await _s3Client.PutObjectAsync(putObjectRequest);
         return result.HttpStatusCode is HttpStatusCode.OK;
     }
+
+
+    public async Task<bool> DeleteImageAsync(Guid id, ImagePurpose purpose, string fileExtension)
+    {
+        var deleteObjectRequest = new DeleteObjectRequest
+        {
+            BucketName = _fileBucketOptions.BucketName,
+            Key = $"{purpose.ToString()}_{id}{fileExtension}",
+        };
+
+        var response = await _s3Client.DeleteObjectAsync(deleteObjectRequest);
+        return response.HttpStatusCode is HttpStatusCode.OK;
+    }
 }

@@ -238,7 +238,6 @@ public class MemberService : IMemberService
         return await cache.HashDeleteAsync(RedisConstants.MemberInformationHashStore, id);
     }
 
-
     public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60)
     {
         var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
@@ -311,6 +310,10 @@ public class MemberService : IMemberService
 
         await _appUnitOfWork.MultimediaImageRepository.RemoveAsync(entityToDelete);
         await _appUnitOfWork.SaveAsync();
+
+        await _fileBucketService.DeleteImageAsync(entityToDelete.Id, entityToDelete.Purpose,
+            entityToDelete.FileExtension);
+
         return true;
     }
 
