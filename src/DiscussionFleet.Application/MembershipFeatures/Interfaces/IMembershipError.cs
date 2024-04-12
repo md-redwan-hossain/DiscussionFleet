@@ -1,6 +1,6 @@
 using SharpOutcome;
 
-namespace DiscussionFleet.Application.MembershipFeatures;
+namespace DiscussionFleet.Application.MembershipFeatures.Interfaces;
 
 public interface IMembershipError
 {

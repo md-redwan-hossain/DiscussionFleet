@@ -1,7 +1,8 @@
 using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.MembershipFeatures;
-using DiscussionFleet.Contracts.Membership;
+using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
+using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;

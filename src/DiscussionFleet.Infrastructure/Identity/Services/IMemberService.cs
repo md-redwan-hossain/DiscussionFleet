@@ -1,6 +1,8 @@
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.MembershipFeatures;
-using DiscussionFleet.Contracts.Membership;
+using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
+using DiscussionFleet.Application.MembershipFeatures.Enums;
+using DiscussionFleet.Application.MembershipFeatures.Interfaces;
 using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;

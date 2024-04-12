@@ -10,4 +10,8 @@
       <ProjectReference Include="..\DiscussionFleet.Domain\DiscussionFleet.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Membership\" />
+    </ItemGroup>
+
 </Project>

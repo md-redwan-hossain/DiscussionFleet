@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Autofac;
 using DiscussionFleet.Application.MembershipFeatures;
+using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using SharpOutcome;

@@ -1,4 +1,4 @@
-﻿using DiscussionFleet.Contracts.Membership;
+﻿using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Enums;
 
 namespace DiscussionFleet.Application.Common.Services;

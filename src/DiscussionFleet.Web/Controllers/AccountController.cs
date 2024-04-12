@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Autofac;
 using DiscussionFleet.Application.MembershipFeatures;
+using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web.Models;

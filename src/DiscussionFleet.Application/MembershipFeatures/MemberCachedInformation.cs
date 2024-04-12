@@ -6,10 +6,4 @@ public record MemberCachedInformation(
     string? ProfileImageName = null,
     string? ProfileImageUrl = null,
     DateTime? ProfileImageUrlExpirationUtc = null,
-    DateTime? LockedTillUtc = null)
-{
-    // public void SetProfileImageUrl(string url)
-    // {
-    //     this.ProfileImageUrl = url;
-    // }
-}
+    DateTime? LockedTillUtc = null);

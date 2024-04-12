@@ -1,4 +1,6 @@
 using DiscussionFleet.Application.MembershipFeatures;
+using DiscussionFleet.Application.MembershipFeatures.Enums;
+using DiscussionFleet.Application.MembershipFeatures.Interfaces;
 
 namespace DiscussionFleet.Infrastructure.Identity;
 

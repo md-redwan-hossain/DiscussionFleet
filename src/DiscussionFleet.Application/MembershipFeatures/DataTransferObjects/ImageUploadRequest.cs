@@ -1,6 +1,6 @@
 ﻿using DiscussionFleet.Domain.Entities.Enums;
 
-namespace DiscussionFleet.Contracts.Membership;
+namespace DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 
 public record ImageUploadRequest(
     Stream ReadStream,

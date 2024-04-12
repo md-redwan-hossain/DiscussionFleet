@@ -1,4 +1,4 @@
-﻿namespace DiscussionFleet.Contracts.Membership;
+﻿namespace DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 
 public record MemberUpdateRequest(
     string FullName,

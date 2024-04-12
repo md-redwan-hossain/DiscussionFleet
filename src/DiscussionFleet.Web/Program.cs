@@ -6,6 +6,7 @@ using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
+using DiscussionFleet.Web.Utils;
 using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +72,5 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id?}");
-
 
 app.Run();

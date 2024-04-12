@@ -3,7 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
-using DiscussionFleet.Contracts.Membership;
+using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Enums;
 using Microsoft.Extensions.Options;
 
