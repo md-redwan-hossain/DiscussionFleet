@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DiscussionFleet.Domain\DiscussionFleet.Domain.csproj" />
-    <ProjectReference Include="..\DiscussionFleet.Contracts\DiscussionFleet.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

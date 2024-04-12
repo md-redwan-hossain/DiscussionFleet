@@ -1,5 +1,6 @@
 using Autofac;
 using DiscussionFleet.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionFleet.Web.Controllers;
@@ -28,6 +29,7 @@ public class QuestionsController : Controller
         return View(model);
     }
 
+
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Index(QuestionSearchViewModel model)
     {
@@ -41,6 +43,25 @@ public class QuestionsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+
+    [HttpGet, Authorize]
+    public IActionResult Ask()
+    {
+        var model = _scope.Resolve<QuestionAskViewModel>();
+        return View(model);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize]
+    public IActionResult Ask(QuestionAskViewModel viewModel)
+    {
+        if (ModelState.IsValid is false)
+        {
+            viewModel.HasError = true;
+            return View(viewModel);
+        }
+
+        return View();
+    }
 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Search(string text)

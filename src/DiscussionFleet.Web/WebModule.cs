@@ -15,5 +15,8 @@ public class WebModule : Module
         builder.RegisterType<RegistrationViewModel>().AsSelf();
         builder.RegisterType<LoginViewModel>().AsSelf();
         builder.RegisterType<ProfileViewModel>().AsSelf();
+
+        // Question related
+        builder.RegisterType<QuestionAskViewModel>().AsSelf();
     }
 }
