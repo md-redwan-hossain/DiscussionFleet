@@ -11,15 +11,14 @@ public class ApplicationDbContext : IdentityDbContext<
     ApplicationUser, ApplicationRole, Guid,
     ApplicationUserClaim, ApplicationUserRole,
     ApplicationUserLogin, ApplicationRoleClaim,
-    ApplicationUserToken>
-    //, IDataProtectionKeyContext
+    ApplicationUserToken>, IDataProtectionKeyContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    //public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
     public DbSet<Member> Members => Set<Member>();
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<Question> Questions => Set<Question>();

@@ -25,6 +25,6 @@ public class MemberBadgeConfig : IEntityTypeConfiguration<MemberBadge>
             .WithMany()
             .HasForeignKey(x => x.BadgeId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

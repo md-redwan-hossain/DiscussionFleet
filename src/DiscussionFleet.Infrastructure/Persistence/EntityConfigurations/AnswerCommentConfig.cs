@@ -37,6 +37,6 @@ public class AnswerCommentConfig : IEntityTypeConfiguration<AnswerComment>
             .WithMany()
             .HasForeignKey(x => x.CommenterId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

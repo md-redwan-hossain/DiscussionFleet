@@ -25,6 +25,6 @@ public class QuestionTagConfig : IEntityTypeConfiguration<QuestionTag>
             .WithMany()
             .HasForeignKey(x => x.TagId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

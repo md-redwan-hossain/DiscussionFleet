@@ -25,6 +25,6 @@ public class SavedAnswerConfig : IEntityTypeConfiguration<SavedAnswer>
             .WithMany(x => x.SavedAnswers)
             .HasForeignKey(x => x.MemberId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
