@@ -18,10 +18,5 @@ public static class DomainEntityDbTableNames
     public const string QuestionVote = "QuestionVotes";
     public const string AnswerVote = "AnswerVotes";
     public const string MultimediaImage = "MultimediaImages";
-    public const string BlogPost = "BlogPosts";
-    public const string BlogPostAuthor = "BlogPostAuthors";
-    public const string BlogCategory = "BlogCategories";
-    public const string BlogPostCategory = "BlogPostCategories";
-    public const string BlogPostImage = "BlogPostImages";
     public const string ResourceNotification = "ResourceNotifications";
 }

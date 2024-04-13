@@ -11,19 +11,18 @@ public class ApplicationDbContext : IdentityDbContext<
     ApplicationUser, ApplicationRole, Guid,
     ApplicationUserClaim, ApplicationUserRole,
     ApplicationUserLogin, ApplicationRoleClaim,
-    ApplicationUserToken>, IApplicationDbContext, IDataProtectionKeyContext
+    ApplicationUserToken>
+    //, IDataProtectionKeyContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+    //public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
     public DbSet<Member> Members => Set<Member>();
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<Question> Questions => Set<Question>();
-    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
-    public DbSet<BlogCategory> BlogCategories => Set<BlogCategory>();
     public DbSet<MultimediaImage> MultimediaImages => Set<MultimediaImage>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<Badge> Badges => Set<Badge>();

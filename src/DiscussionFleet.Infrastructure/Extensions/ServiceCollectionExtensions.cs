@@ -74,7 +74,7 @@ public static class ServiceCollectionExtensions
                 .EnableDetailedErrors()
         );
 
-        services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
+        //services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
 
         return services;
     }

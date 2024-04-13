@@ -1,6 +1,5 @@
 using Autofac;
 using DiscussionFleet.Application;
-using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Domain.Entities.Enums;

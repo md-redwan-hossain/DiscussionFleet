@@ -7,21 +7,21 @@ namespace DiscussionFleet.Infrastructure.Persistence;
 
 public abstract class UnitOfWork : IUnitOfWork
 {
-    private readonly DbContext _dbContext;
+    private readonly DbContext _appDbContext;
 
-    protected UnitOfWork(DbContext dbContext) => _dbContext = dbContext;
+    protected UnitOfWork(DbContext appDbContext) => _appDbContext = appDbContext;
 
-    public virtual void Dispose() => _dbContext.Dispose();
+    public virtual void Dispose() => _appDbContext.Dispose();
 
-    public virtual ValueTask DisposeAsync() => _dbContext.DisposeAsync();
+    public virtual ValueTask DisposeAsync() => _appDbContext.DisposeAsync();
 
-    public virtual void Save() => _dbContext.SaveChanges();
+    public virtual void Save() => _appDbContext.SaveChanges();
 
-    public virtual async Task SaveAsync() => await _dbContext.SaveChangesAsync();
+    public virtual async Task SaveAsync() => await _appDbContext.SaveChangesAsync();
 
     public async Task<DbTransaction> BeginTransactionAsync()
     {
-        var trx = await _dbContext.Database.BeginTransactionAsync().ConfigureAwait(false);
+        var trx = await _appDbContext.Database.BeginTransactionAsync().ConfigureAwait(false);
         return trx.GetDbTransaction();
     }
 }

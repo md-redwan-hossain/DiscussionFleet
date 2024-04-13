@@ -13,13 +13,7 @@ public class QuestionVoteConfig : IEntityTypeConfiguration<QuestionVote>
 
         builder.HasKey(x => new { x.QuestionId, x.VoteGiverId });
 
-        builder
-            .HasOne<Question>()
-            .WithMany(x => x.Votes)
-            .HasForeignKey(x => x.QuestionId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
-
+        
         builder
             .HasOne<Member>()
             .WithMany()

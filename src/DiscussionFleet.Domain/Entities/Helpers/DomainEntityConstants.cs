@@ -41,15 +41,7 @@ public static class DomainEntityConstants
     public const int BadgeTitleMaxLength = 35;
     public const int BadgeTitleMinLength = 1;
 
-
-    // Blog
-    public const string BlogTitleMinLengthConstraint = "MinBlogTitleLength";
-    public const string BlogBodyMinLengthConstraint = "MinBlogBodyLength";
-    public const int BlogTitleMaxLength = 150;
-    public const int BlogTitleMinLength = 1;
-    public const int BlogBodyMinLength = 30;
-    public const int BlogBodyMaxLength = 50000;
-
+    
     // MultimediaImage
     public const int MultimediaImageCaptionMaxLength = 200;
     public const int MultimediaImageFileExtensionMaxLength = 10;

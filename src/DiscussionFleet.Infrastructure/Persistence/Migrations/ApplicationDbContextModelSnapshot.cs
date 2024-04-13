@@ -167,133 +167,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BlogCategories", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPost", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(50000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CoverImageFileExtension")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("CoverImageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Summary")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BlogPosts", null, t =>
-                        {
-                            t.HasCheckConstraint("MinBlogBodyLength", "LEN([Body]) >= 30");
-
-                            t.HasCheckConstraint("MinBlogTitleLength", "LEN([Title]) >= 1");
-                        });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostAuthor", b =>
-                {
-                    b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BlogAuthorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("BlogPostId", "BlogAuthorId");
-
-                    b.HasIndex("BlogAuthorId");
-
-                    b.ToTable("BlogPostAuthors", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostCategory", b =>
-                {
-                    b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BlogCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("BlogPostId", "BlogCategoryId");
-
-                    b.HasIndex("BlogCategoryId");
-
-                    b.ToTable("BlogPostCategories", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostImage", b =>
-                {
-                    b.Property<Guid>("BlogPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ImageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("BlogPostId", "ImageId");
-
-                    b.HasIndex("ImageId");
-
-                    b.ToTable("BlogPostImages", (string)null);
-                });
-
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.ForumRule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -462,8 +335,8 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("AuthorId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -487,13 +360,13 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("ViewCount")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("VoteCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId")
+                        .IsUnique();
 
                     b.ToTable("Questions", null, t =>
                         {
@@ -529,8 +402,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("QuestionId", "CommenterId");
-
-                    b.HasIndex("CommenterId");
 
                     b.ToTable("QuestionComments", null, t =>
                         {
@@ -886,25 +757,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FriendlyName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Xml")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DataProtectionKeys");
-                });
-
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
@@ -955,52 +807,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("VoteGiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostAuthor", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("BlogAuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.BlogPost", null)
-                        .WithMany("Authors")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostCategory", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.BlogCategory", null)
-                        .WithMany()
-                        .HasForeignKey("BlogCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.BlogPost", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPostImage", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.BlogPost", null)
-                        .WithMany("Images")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.MultimediaImage", null)
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -1033,14 +840,17 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionComment", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Question", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("CommenterId")
+                        .WithOne()
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.Question", "AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionComment", b =>
+                {
                     b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
                         .WithMany("Comments")
                         .HasForeignKey("QuestionId")
@@ -1173,15 +983,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Votes");
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.BlogPost", b =>
-                {
-                    b.Navigation("Authors");
-
-                    b.Navigation("Categories");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>

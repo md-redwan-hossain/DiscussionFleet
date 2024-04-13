@@ -1,4 +1,3 @@
-using Amazon.S3;
 using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
@@ -19,10 +18,6 @@ public class InfrastructureModule : Module
     {
         #region Data Access
 
-        builder.Register(c => c.Resolve<ApplicationDbContext>())
-            .As<IApplicationDbContext>()
-            .InstancePerLifetimeScope();
-
         builder.RegisterType<AnswerRepository>()
             .As<IAnswerRepository>()
             .InstancePerLifetimeScope();
@@ -31,13 +26,6 @@ public class InfrastructureModule : Module
             .As<IBadgeRepository>()
             .InstancePerLifetimeScope();
 
-        builder.RegisterType<BlogCategoryRepository>()
-            .As<IBlogCategoryRepository>()
-            .InstancePerLifetimeScope();
-
-        builder.RegisterType<BlogPostRepository>()
-            .As<IBlogPostRepository>()
-            .InstancePerLifetimeScope();
 
         builder.RegisterType<ForumRuleRepository>()
             .As<IForumRuleRepository>()

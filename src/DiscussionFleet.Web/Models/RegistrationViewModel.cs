@@ -3,7 +3,6 @@ using Hangfire;
 using System.ComponentModel.DataAnnotations;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
-using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
 using DiscussionFleet.Infrastructure.Identity;

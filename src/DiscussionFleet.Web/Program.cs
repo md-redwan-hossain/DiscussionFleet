@@ -6,8 +6,6 @@ using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
-using DiscussionFleet.Web.Utils;
-using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 

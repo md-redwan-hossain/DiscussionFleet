@@ -43,14 +43,6 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
                 )
             ));
 
-        // builder
-        //     .HasOne<Answer>()
-        //     .WithOne()
-        //     .HasForeignKey<Question>(x => x.AcceptedAnswerId)
-        //     .IsRequired(false)
-        //     .OnDelete(DeleteBehavior.SetNull);
-        //
-        //
 
         builder
             .HasOne(x => x.AcceptedAnswer)
@@ -65,5 +57,22 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
             .HasForeignKey(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder
+            .HasMany(x => x.Votes)
+            .WithOne()
+            .HasForeignKey(x => x.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder
+            .HasOne<Member>()
+            .WithOne()
+            .HasForeignKey<Question>(x => x.AuthorId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

@@ -32,11 +32,5 @@ public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>
 
         builder.HasKey(x => new { x.QuestionId, x.CommenterId });
 
-        builder
-            .HasOne<Member>()
-            .WithMany()
-            .HasForeignKey(x => x.CommenterId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
