@@ -72,6 +72,9 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AnswerGiverId")
+                        .IsUnique();
+
                     b.HasIndex("QuestionId");
 
                     b.ToTable("Answers", null, t =>
@@ -793,6 +796,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
                 {
+                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                        .WithOne()
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.Answer", "AnswerGiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
                         .WithMany()
                         .HasForeignKey("QuestionId")

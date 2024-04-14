@@ -35,12 +35,21 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
             .HasForeignKey(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder
             .HasMany(x => x.Comments)
             .WithOne()
             .HasForeignKey(x => x.AnswerId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder
+            .HasOne<Member>()
+            .WithOne()
+            .HasForeignKey<Answer>(x => x.AnswerGiverId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
     }
 }

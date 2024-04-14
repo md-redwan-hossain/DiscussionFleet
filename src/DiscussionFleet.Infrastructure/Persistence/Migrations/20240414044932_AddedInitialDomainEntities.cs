@@ -213,6 +213,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_Answers", x => x.Id);
                     table.CheckConstraint("MinAnswerBodyLength", "LEN([Body]) >= 30");
                     table.ForeignKey(
+                        name: "FK_Answers_Members_AnswerGiverId",
+                        column: x => x.AnswerGiverId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Answers_Questions_QuestionId",
                         column: x => x.QuestionId,
                         principalTable: "Questions",
@@ -439,6 +444,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 name: "IX_AnswerComments_CommenterId",
                 table: "AnswerComments",
                 column: "CommenterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Answers_AnswerGiverId",
+                table: "Answers",
+                column: "AnswerGiverId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Answers_QuestionId",

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240413194117_AddedInitialDomainEntities")]
-    partial class AddedInitialDomainEntities
+    [Migration("20240414045155_AddedIDataProtectionKeyContext")]
+    partial class AddedIDataProtectionKeyContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,9 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnswerGiverId")
+                        .IsUnique();
 
                     b.HasIndex("QuestionId");
 
@@ -760,6 +763,25 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
+                });
+
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
@@ -777,6 +799,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
                 {
+                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                        .WithOne()
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.Answer", "AnswerGiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
                         .WithMany()
                         .HasForeignKey("QuestionId")
