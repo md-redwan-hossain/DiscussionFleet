@@ -1,15 +1,19 @@
-@using DiscussionFleet.Application.QuestionFeatures;
-@using DiscussionFleet.Application.Common.Utils;
-@model QuestionSearchViewModel;
+@using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils
+@using DiscussionFleet.Domain.Utils
+@using Microsoft.AspNetCore.Mvc.TagHelpers;
+@model DiscussionFleet.Web.Models.Question.QuestionSearchViewModel;
 
 @{
     ViewData["Title"] = "Questions";
 }
 
-@section StyleSheets
+
+@section ExternalLibFiles
 {
-    <link href="~/tabler/dist-files/css/tabler-vendors.min.css?1684106062" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 }
+
 
 <div class="page-wrapper">
     <div class="page-header d-print-none">
@@ -52,7 +56,7 @@
         <div class="container-xl">
             <div class="row g-4">
                 <div class="col-md-3 d-none d-md-block" id="filter-area">
-                    <form asp-controller="Questions" asp-action="Index" autocomplete="off" asp-antiforgery="true">
+                    <form asp-controller="Questions" method="get" asp-action="Index" autocomplete="off">
                         <div class="form-label"> Filter by</div>
                         <div class="mb-4">
                             <label class="form-check">
@@ -97,7 +101,7 @@
                         <label class="form-label">Data Per Page</label>
                         <div class="mb-4">
                             <div class="btn-group w-100" role="group">
-                                <input type="radio" asp-for="DataPerPage" value="15" class="btn-check" id="btn-radio-basic-1"
+                                <input type="radio" asp-for="@Model.PaginationData.DataPerPage" value="15" class="btn-check" id="btn-radio-basic-1"
                                        autocomplete="off" checked>
                                 <label for="btn-radio-basic-1" type="button" class="btn">15</label>
                                 <input type="radio" asp-for="DataPerPage" value="30" class="btn-check" id="btn-radio-basic-2"
@@ -163,11 +167,15 @@
     });
     </script>
 
-    <script src="~/tabler/dist-files/libs/tom-select/dist/js/tom-select.base.min.js" defer asp-append-version="true"></script>
 
     <script>
           document.addEventListener("DOMContentLoaded", function () {           
             window.TomSelect && (new TomSelect(document.getElementById('selected-tags'), {
+                plugins: {
+                    remove_button:{
+                        title:'Remove this item',
+                    }
+                },
               copyClassesToDropdown: false,
               dropdownParent: 'body',
               controlInput: '<input>',

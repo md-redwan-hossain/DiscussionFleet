@@ -1,5 +1,5 @@
-using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;

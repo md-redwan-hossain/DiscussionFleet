@@ -1,5 +1,5 @@
 using System.Data.Common;
-using DiscussionFleet.Domain;
+using DiscussionFleet.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 

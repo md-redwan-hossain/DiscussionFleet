@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="Common\Enums\" />
-    <Folder Include="Common\Extensions\" />
   </ItemGroup>
 
 </Project>

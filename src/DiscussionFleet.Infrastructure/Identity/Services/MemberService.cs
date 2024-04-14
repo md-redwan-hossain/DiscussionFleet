@@ -6,8 +6,9 @@ using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
-using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Hangfire;
@@ -87,7 +88,7 @@ public class MemberService : IMemberService
             }
 
             var member = new Member { Id = applicationUser.Id, FullName = dto.FullName };
-            member.SetCreatedAt(_dateTimeProvider.CurrentUtcTime);
+            member.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
 
             await _appUnitOfWork.MemberRepository.CreateAsync(member);
             await _appUnitOfWork.SaveAsync();
@@ -295,7 +296,7 @@ public class MemberService : IMemberService
                 Purpose = ImagePurpose.UserProfile,
                 FileExtension = dto.FileExtension
             };
-            entityImage.SetCreatedAt(_dateTimeProvider.CurrentUtcTime);
+            entityImage.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
             await _appUnitOfWork.MultimediaImageRepository.CreateAsync(entityImage);
             member.ProfileImageId = entityImage.Id;
             await _appUnitOfWork.SaveAsync();

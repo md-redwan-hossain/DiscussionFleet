@@ -8,6 +8,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     where TKey : IEquatable<TKey>
 {
     Task CreateAsync(TEntity entity);
+    Task CreateManyAsync(ICollection<TEntity> entity);
 
     Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
@@ -71,6 +72,18 @@ public interface IRepositoryBase<TEntity, in TKey>
         CancellationToken cancellationToken = default
     );
 
+
+    Task<IList<TResult>> GetAllAsync<TResult, TSorter>(
+        Expression<Func<TEntity, bool>> filter,
+        Expression<Func<TEntity, TResult>> subsetSelector,
+        Expression<Func<TEntity, TSorter>> orderBy,
+        uint page = 1,
+        uint limit = 10,
+        bool ascendingOrder = true,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default
+    );
 
     Task UpdateAsync(TEntity entityToUpdate);
 

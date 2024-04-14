@@ -1,4 +1,4 @@
-using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 
 namespace DiscussionFleet.Domain.Repositories;
 

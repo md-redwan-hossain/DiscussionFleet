@@ -9,16 +9,18 @@ namespace DiscussionFleet.Web.ViewComponents;
 public class MemberInfoForNavBar : ViewComponent
 {
     private readonly ApplicationUserManager _userManager;
+    private readonly ApplicationSignInManager _signInManager;
     private readonly IMemberService _memberService;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-
     public MemberInfoForNavBar(ApplicationUserManager userManager,
-        IMemberService memberService, IDateTimeProvider dateTimeProvider)
+        IMemberService memberService, IDateTimeProvider dateTimeProvider,
+        ApplicationSignInManager signInManager)
     {
         _userManager = userManager;
         _memberService = memberService;
         _dateTimeProvider = dateTimeProvider;
+        _signInManager = signInManager;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
@@ -31,7 +33,12 @@ public class MemberInfoForNavBar : ViewComponent
         if (cache is null)
         {
             var data = await _memberService.RefreshMemberInfoCacheAsync(id);
-            if (data is null) return View();
+            if (data is null)
+            {
+                await _signInManager.SignOutAsync();
+                HttpContext.Response.Redirect("Account/Login/");
+                return View(new NavbarUserInfoViewModel());
+            }
 
             cache = data;
         }

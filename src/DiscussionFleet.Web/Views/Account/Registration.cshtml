@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model RegistrationViewModel;
 
 @{
@@ -75,15 +76,6 @@
                     </span>
                 </div>
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label class="form-check required">
-                    <input type="checkbox" class="form-check-input"/>
-                    <span class="form-check-label">
-                        Agree the terms and
-                        policy
-                    </span>
-                </label>
             </div>
             <div class="form-footer">
                 <button type="submit" class="btn btn-primary w-100">Create new account</button>

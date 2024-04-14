@@ -1,5 +1,6 @@
-using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,7 @@
-using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;

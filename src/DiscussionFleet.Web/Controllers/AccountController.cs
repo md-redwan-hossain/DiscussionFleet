@@ -76,9 +76,13 @@ public class AccountController : Controller
     #region Login
 
     [HttpGet]
-    public IActionResult Login()
+    public async Task<IActionResult> Login(string? returnUrl = null)
     {
+        returnUrl ??= Url.Content("~/");
+        await _signInManager.SignOutAsync();
+        
         var viewModel = _scope.Resolve<LoginViewModel>();
+        viewModel.ReturnUrl = returnUrl;
         return View(viewModel);
     }
 

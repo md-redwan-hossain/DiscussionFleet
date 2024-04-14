@@ -1,4 +1,6 @@
 using Autofac;
+using DiscussionFleet.Application.QuestionFeatures.Services;
+using DiscussionFleet.Application.TagFeatures;
 
 namespace DiscussionFleet.Application;
 
@@ -6,6 +8,12 @@ public class ApplicationModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        base.Load(builder);
+        builder.RegisterType<TagService>()
+            .As<ITagService>()
+            .InstancePerLifetimeScope();
+
+        builder.RegisterType<QuestionService>()
+            .As<IQuestionService>()
+            .InstancePerLifetimeScope();
     }
 }

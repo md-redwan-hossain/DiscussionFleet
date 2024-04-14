@@ -1,5 +1,6 @@
-using DiscussionFleet.Domain.Entities;
 using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -69,8 +70,8 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
 
         builder
             .HasOne<Member>()
-            .WithOne()
-            .HasForeignKey<Question>(x => x.AuthorId)
+            .WithMany()
+            .HasForeignKey(x => x.AuthorId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 

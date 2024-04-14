@@ -6,7 +6,7 @@ public abstract class Timestamp
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? UpdatedAtUtc { get; set; }
 
-    public void SetCreatedAt(DateTime dateTime)
+    public void SetCreatedAtUtc(DateTime dateTime)
     {
         if (_createdAtAssigned || CreatedAtUtc != default) return;
         CreatedAtUtc = dateTime;

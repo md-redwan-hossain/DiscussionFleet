@@ -1,5 +1,7 @@
-using DiscussionFleet.Domain.Entities;
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Generators;
@@ -46,8 +48,8 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
 
         builder
             .HasOne<Member>()
-            .WithOne()
-            .HasForeignKey<Answer>(x => x.AnswerGiverId)
+            .WithMany()
+            .HasForeignKey(x => x.AnswerGiverId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
 

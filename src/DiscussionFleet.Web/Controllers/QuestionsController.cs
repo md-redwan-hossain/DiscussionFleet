@@ -1,5 +1,6 @@
+using System.Security.Claims;
 using Autofac;
-using DiscussionFleet.Web.Models;
+using DiscussionFleet.Web.Models.Question;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,7 @@ public class QuestionsController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public IActionResult Index([FromQuery] QuestionSearchViewModel viewModel)
     {
         // public IActionResult Index(int page = 1, int limit = 15)
         // {
@@ -25,23 +26,22 @@ public class QuestionsController : Controller
 
 
         ViewData["Title"] = "Questions";
-        var model = _scope.Resolve<QuestionSearchViewModel>();
-        return View(model);
+        // var model = _scope.Resolve<QuestionSearchViewModel>();
+        return View(viewModel);
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Index(QuestionSearchViewModel model)
-    {
-        Console.WriteLine();
-        if (ModelState.IsValid)
-        {
-            return View(model);
-            // return RedirectToAction(nameof(Index));
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
+    // [HttpPost, ValidateAntiForgeryToken]
+    // public IActionResult Index(QuestionSearchViewModel model)
+    // {
+    //     if (ModelState.IsValid)
+    //     {
+    //         return View(model);
+    //         // return RedirectToAction(nameof(Index));
+    //     }
+    //
+    //     return RedirectToAction(nameof(Index));
+    // }
 
 
     [HttpGet, Authorize]
@@ -52,15 +52,30 @@ public class QuestionsController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken, Authorize]
-    public IActionResult Ask(QuestionAskViewModel viewModel)
+    public async Task<IActionResult> Ask(QuestionAskViewModel viewModel)
     {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (currentUserId is null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
         if (ModelState.IsValid is false)
         {
-            viewModel.HasError = true;
             return View(viewModel);
         }
 
-        return View();
+        viewModel.Resolve(_scope);
+        var error = await viewModel.ConductAskQuestion(Guid.Parse(currentUserId));
+        if (error is not null)
+        {
+            viewModel.HasError = true;
+            ModelState.AddModelError(string.Empty, error);
+            return View(viewModel);
+        }
+
+        return RedirectToAction(nameof(Ask));
     }
 
     [HttpPost, ValidateAntiForgeryToken]

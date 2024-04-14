@@ -21,7 +21,12 @@ public abstract class Repository<TEntity, TKey>
 
     public virtual async Task CreateAsync(TEntity entity)
     {
-        await EntityDbSet.AddAsync(entity);
+        await EntityDbSet.AddAsync(entity).ConfigureAwait(false);
+    }
+
+    public async Task CreateManyAsync(ICollection<TEntity> entity)
+    {
+        await EntityDbSet.AddRangeAsync(entity).ConfigureAwait(false);
     }
 
 
@@ -40,7 +45,7 @@ public abstract class Repository<TEntity, TKey>
 
         if (disableTracking) data = data.AsNoTracking();
 
-        return await data.FirstOrDefaultAsync(cancellationToken);
+        return await data.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -66,7 +71,7 @@ public abstract class Repository<TEntity, TKey>
 
         if (disableTracking) data = data.AsNoTracking();
 
-        return await data.FirstOrDefaultAsync(cancellationToken);
+        return await data.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -85,7 +90,10 @@ public abstract class Repository<TEntity, TKey>
         }
 
         if (disableTracking) data = data.AsNoTracking();
-        return await data.Select(subsetSelector).FirstOrDefaultAsync(cancellationToken);
+
+        return await data.Select(subsetSelector)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
 
@@ -113,7 +121,9 @@ public abstract class Repository<TEntity, TKey>
             data = includes.Aggregate(data, (current, include) => current.Include(include));
         }
 
-        return await data.Select(subsetSelector).FirstOrDefaultAsync(cancellationToken);
+        return await data.Select(subsetSelector)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
 
@@ -133,7 +143,7 @@ public abstract class Repository<TEntity, TKey>
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
         if (disableTracking) data = data.AsNoTracking();
-        return await data.ToListAsync(cancellationToken);
+        return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public virtual async Task<IList<TEntity>> GetAllAsync<TSorter>(
@@ -160,7 +170,7 @@ public abstract class Repository<TEntity, TKey>
 
         if (disableTracking) data = data.AsNoTracking();
 
-        return await data.ToListAsync(cancellationToken);
+        return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -189,7 +199,37 @@ public abstract class Repository<TEntity, TKey>
 
         if (disableTracking) data = data.AsNoTracking();
 
-        return await data.Select(subsetSelector).ToListAsync(cancellationToken);
+        return await data.Select(subsetSelector)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<IList<TResult>> GetAllAsync<TResult, TSorter>(Expression<Func<TEntity, bool>> filter,
+        Expression<Func<TEntity, TResult>> subsetSelector,
+        Expression<Func<TEntity, TSorter>> orderBy,
+        uint page = 1,
+        uint limit = 10, bool ascendingOrder = true,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default)
+    {
+        var data = EntityDbSet.Where(filter);
+        if (includes is not null)
+        {
+            data = includes.Aggregate(data, (current, include) => current.Include(include));
+        }
+
+        data = ascendingOrder
+            ? data.OrderBy(orderBy)
+            : data.OrderByDescending(orderBy);
+
+        data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
+
+        if (disableTracking) data = data.AsNoTracking();
+
+        return await data.Select(subsetSelector)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public virtual Task UpdateAsync(TEntity entityToUpdate)
@@ -220,8 +260,17 @@ public abstract class Repository<TEntity, TKey>
     {
         int count;
 
-        if (filter is not null) count = await EntityDbSet.CountAsync(filter, cancellationToken);
-        else count = await EntityDbSet.CountAsync(cancellationToken);
+        if (filter is not null)
+        {
+            count = await EntityDbSet
+                .CountAsync(filter, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        else
+        {
+            count = await EntityDbSet.CountAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         return count;
     }
