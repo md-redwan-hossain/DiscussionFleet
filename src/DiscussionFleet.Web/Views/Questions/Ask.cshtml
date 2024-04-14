@@ -85,7 +85,9 @@
                                     </div>
 
 
-                                    <div class="form-label" asp-for="SelectedTags">Choose from existing tags</div>
+                                    <div class="form-label" asp-for="SelectedTags">
+                                        Tags <span class="text-muted">(max @Model.MaxTags) </span>
+                                    </div>
                                     <div class="mb-4">
                                         <select asp-for="SelectedTags"
                                                 multiple
@@ -105,26 +107,6 @@
                                             }
                                         </select>
                                     </div>
-
-                                    @* *@
-                                    @* <div class="mb-3"> *@
-                                    @*     <label asp-for="Title" class="form-label"> *@
-                                    @*         Add new tags *@
-                                    @*         <span class="text-muted">(max @Model.MaxTags) </span> *@
-                                    @*     </label> *@
-                                    @*     <div class="input-group insert-many-tags mb-3"> *@
-                                    @*         <input type="text" id="tagInput" class="form-control" *@
-                                    @*                placeholder="Add new tags" *@
-                                    @*                aria-label="Recipient's username" aria-describedby="button-addon2"> *@
-                                    @*         <button class="btn btn-primary" type="button" id="button-addon2"> *@
-                                    @*             Add *@
-                                    @*         </button> *@
-                                    @*     </div> *@
-                                    @* *@
-                                    @*     <div class="tags-list"> *@
-                                    @*     </div> *@
-                                    @* *@
-                                    @* </div> *@
 
                                     <div>
                                         <label asp-for="Body" class="form-label">Body</label>
@@ -227,70 +209,7 @@
             itemsToRemove.forEach(function(item) {
                     select.removeItem(item);
                 });
-
         });
-        
-        
-        
-        // select.on('item_add', function() {
-        //     if (remainingTagSlot > 0){
-        //         remainingTagSlot -= 1; 
-        //     }
-        // });
-        //
-        // select.on('item_remove', function() {
-        //     if (remainingTagSlot > maxTags){
-        //         remainingTagSlot += 1; 
-        //     }
-        // });
-        
-    // document.getElementById('button-addon2').addEventListener('click', function () {
-    //     let tagInput = document.getElementById('tagInput');
-    //     let tagsList = document.querySelector('.tags-list');
-    //
-    //     let tagValue = tagInput.value;
-    //
-    //     const existingTags = document.getElementsByName('@nameof(QuestionAskViewModel.Tags)');
-    //    
-    //     if (existingTags.length >= remainingTagSlot) {
-    //         // Simply return if the maximum number of tags has been reached
-    //         return;
-    //     }
-    //
-    //     for (let i = 0; i < existingTags.length; i++) {
-    //         if (existingTags[i].value === tagValue) {
-    //             // Simply return if a duplicate tag is found
-    //             return;
-    //         }
-    //     }
-    //
-
-
-        // let tag = document.createElement('span');
-        // tag.className = 'tag';
-        // tag.innerHTML = tagValue + '<a href="#" class="btn-close"></a>';
-        //
-        // tagsList.appendChild(tag);
-        //
-        // // Create a new hidden input field with the value of the tag
-        // let hiddenInput = document.createElement('input');
-        // hiddenInput.type = 'hidden';
-        // hiddenInput.name = '@nameof(QuestionAskViewModel.Tags)'; 
-        // hiddenInput.value = tagValue;
-        //
-        // // Append the hidden input field to the form
-        // document.getElementById('md-form').appendChild(hiddenInput);
-        //
-        // tagInput.value = '';
-        //
-        // tag.querySelector('.btn-close').addEventListener('click', function (e) {
-        //     e.preventDefault();
-        //     tagsList.removeChild(tag);
-        //     // Remove the hidden input field when the tag is removed
-        //     document.getElementById('md-form').removeChild(hiddenInput);
-        // });
-    // });
-
     </script>
 
     <script>
