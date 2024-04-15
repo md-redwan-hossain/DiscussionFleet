@@ -8,7 +8,14 @@ using DiscussionFleet.Infrastructure.Extensions;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Configuration.AddJsonFile("secrets.json", optional: false);
+if (builder.Configuration.IsRunningInContainer())
+{
+    builder.Configuration.AddEnvironmentVariables();
+}
+else
+{
+    builder.Configuration.AddJsonFile("secrets.json", optional: false);
+}
 
 builder.Services.BindAndValidateOptions<AppSecretOptions>(AppSecretOptions.SectionName);
 builder.Services.BindAndValidateOptions<SmtpOptions>(SmtpOptions.SectionName);

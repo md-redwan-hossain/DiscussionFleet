@@ -20,7 +20,7 @@ public class CloudQueueService : ICloudQueueService
     public async Task EnqueueAsync(string jsonPayload, string messageDeduplicationId,
         string messageGroupId = "DiscussionFleet")
     {
-        var queueUrl = await GetQueueUrl(_cloudQueueOptions.FifoQueueName);
+        var queueUrl = await GetFifoQueueUrl(_cloudQueueOptions.FifoQueueName);
         var sendMessageRequest = new SendMessageRequest
         {
             QueueUrl = queueUrl,
@@ -37,7 +37,7 @@ public class CloudQueueService : ICloudQueueService
         if (maxData < 0) maxData = 1;
         if (maxData > 10) maxData = 10;
 
-        var queueUrl = await GetQueueUrl(_cloudQueueOptions.FifoQueueName);
+        var queueUrl = await GetFifoQueueUrl(_cloudQueueOptions.FifoQueueName);
         var receiveRequest = new ReceiveMessageRequest
         {
             QueueUrl = queueUrl,
@@ -57,7 +57,7 @@ public class CloudQueueService : ICloudQueueService
 
     public async Task DeleteAsync(string receiptHandle)
     {
-        var queueUrl = await GetQueueUrl(_cloudQueueOptions.FifoQueueName);
+        var queueUrl = await GetFifoQueueUrl(_cloudQueueOptions.FifoQueueName);
         var deleteMessageRequest = new DeleteMessageRequest
         {
             QueueUrl = queueUrl,
@@ -68,8 +68,13 @@ public class CloudQueueService : ICloudQueueService
     }
 
 
-    public async Task<string> GetQueueUrl(string queueName)
+    public async Task<string> GetFifoQueueUrl(string queueName)
     {
+        if (queueName.EndsWith(".fifo") is false)
+        {
+            queueName = $"{queueName}.fifo";
+        }
+
         try
         {
             var response = await _sqsClient.GetQueueUrlAsync(queueName);

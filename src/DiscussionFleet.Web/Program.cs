@@ -9,7 +9,14 @@ using DiscussionFleet.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("secrets.json");
+if (builder.Configuration.IsRunningInContainer())
+{
+    builder.Configuration.AddEnvironmentVariables();
+}
+else
+{
+    builder.Configuration.AddJsonFile("secrets.json", optional: false);
+}
 
 builder.Services.BindAndValidateOptions<AppSecretOptions>(AppSecretOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);

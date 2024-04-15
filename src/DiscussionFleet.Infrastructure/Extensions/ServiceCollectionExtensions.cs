@@ -24,6 +24,9 @@ namespace DiscussionFleet.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static bool IsRunningInContainer(this IConfiguration configuration) =>
+        configuration.GetValue<bool>("DOTNET_RUNNING_IN_CONTAINER");
+
     public static IServiceCollection BindAndValidateOptions<TOptions>(this IServiceCollection services,
         string sectionName)
         where TOptions : class
@@ -86,15 +89,12 @@ public static class ServiceCollectionExtensions
     {
         var hangfireUrl = configuration.GetSection(AppSecretOptions.SectionName)
             .GetValue<string>(nameof(AppSecretOptions.RedisHangfireUrl));
-        
+
         ArgumentNullException.ThrowIfNull(hangfireUrl);
 
         var redis = ConnectionMultiplexer.Connect(hangfireUrl);
 
-        services.AddHangfire(opt =>
-        {
-            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = RedisConstants.Hangfire });
-        });
+        services.AddHangfire(opt => opt.UseRedisStorage(redis));
 
         services.AddHangfireServer();
 
