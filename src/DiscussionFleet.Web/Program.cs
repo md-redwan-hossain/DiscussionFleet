@@ -17,6 +17,7 @@ builder.Services.BindAndValidateOptions<SmtpOptions>(SmtpOptions.SectionName);
 builder.Services.BindAndValidateOptions<ForumRulesOptions>(ForumRulesOptions.SectionName);
 builder.Services.BindAndValidateOptions<AwsCredentialOptions>(AwsCredentialOptions.SectionName);
 builder.Services.BindAndValidateOptions<FileBucketOptions>(FileBucketOptions.SectionName);
+builder.Services.BindAndValidateOptions<CloudQueueOptions>(CloudQueueOptions.SectionName);
 
 await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
 builder.Services.AddRedisConfig(builder.Configuration);

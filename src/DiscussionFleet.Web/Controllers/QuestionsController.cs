@@ -14,7 +14,7 @@ public class QuestionsController : Controller
     {
         _scope = scope;
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] QuestionSearchViewModel viewModel)
     {
@@ -22,7 +22,15 @@ public class QuestionsController : Controller
         await viewModel.FetchPostsAsync();
         return View(viewModel);
     }
-    
+
+
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var viewModel = _scope.Resolve<QuestionDetailsViewModel>();
+        return View(viewModel);
+    }
+
 
     [HttpGet, Authorize]
     public IActionResult Ask()

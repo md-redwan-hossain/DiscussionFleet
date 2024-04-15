@@ -5,7 +5,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace DiscussionFleet.Infrastructure.Email;
+namespace DiscussionFleet.Infrastructure.Services;
 
 public class HtmlEmailService : IEmailService
 {

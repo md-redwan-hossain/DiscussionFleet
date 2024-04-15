@@ -10,6 +10,7 @@ public interface IApplicationUnitOfWork : IUnitOfWork
     public IForumRuleRepository ForumRuleRepository { get; }
     public IMultimediaImageRepository MultimediaImageRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
+    public IAnswerRepository AnswerRepository { get; }
     public ITagRepository TagRepository { get; }
     public IResourceNotificationRepository ResourceNotificationRepository { get; }
 }

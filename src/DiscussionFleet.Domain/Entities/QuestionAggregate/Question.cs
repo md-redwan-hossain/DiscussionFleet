@@ -11,7 +11,6 @@ public class Question : Entity<Guid>
     public int VoteCount { get; set; }
     public int CommentCount { get; set; }
     public Guid AuthorId { get; set; }
-    // public DateTime CreatedAtUtc { get; set; }
     public AcceptedAnswer? AcceptedAnswer { get; set; }
     public ICollection<QuestionTag> Tags { get; set; }
     public ICollection<QuestionVote> Votes { get; set; }

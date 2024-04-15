@@ -180,8 +180,22 @@
       });
     });
     </script>
+
     
 
+    <script>
+        window.onload = function() {
+            const lastActivityDivs = document.getElementsByClassName('last-activity');
+            for (let i = 0; i < lastActivityDivs.length; i++) {
+                const utcDateTime = lastActivityDivs[i].getAttribute('data-time');
+                const date = new Date(utcDateTime);
+                const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                lastActivityDivs[i].textContent = localDate.toLocaleString(undefined, options);
+            }
+        };
+    </script>
+    
     <script>
           document.addEventListener("DOMContentLoaded", function () {           
             window.TomSelect && (new TomSelect(document.getElementById('selected-tags'), {

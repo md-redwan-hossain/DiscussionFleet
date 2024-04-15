@@ -1,8 +1,8 @@
 using DiscussionFleet.Application.Common.Providers;
-using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
+using DiscussionFleet.Application.MembershipFeatures.Utils;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -17,7 +17,6 @@ public interface IMemberService
 
     Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id);
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
-    Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member, string verificationCode);
     Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter);
     Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
     Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo);

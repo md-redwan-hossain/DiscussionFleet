@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autofac;
 using DiscussionFleet.Application;
-using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.QuestionFeatures.Services;
-using DiscussionFleet.Application.TagFeatures;
 using DiscussionFleet.Application.TagFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Web.Utils;
+using SharpOutcome;
 
 namespace DiscussionFleet.Web.Models.Question;
 
@@ -16,7 +15,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
 {
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
-    private ITagService _tagService;
     private IQuestionService _questionService;
 
 
@@ -25,12 +23,11 @@ public class QuestionAskViewModel : IViewModelWithResolve
     }
 
 
-    public QuestionAskViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork, ITagService tagService,
+    public QuestionAskViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork,
         IQuestionService questionService)
     {
         _scope = scope;
         _appUnitOfWork = appUnitOfWork;
-        _tagService = tagService;
         _questionService = questionService;
     }
 
@@ -42,9 +39,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
     public string Title { get; set; }
 
     [Required]
-    // [Length(DomainEntityConstants.QuestionBodyMinLength,
-    //     DomainEntityConstants.QuestionBodyMaxLength,
-    //     ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
     [StringLength(DomainEntityConstants.QuestionBodyMaxLength,
         ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
         MinimumLength = DomainEntityConstants.QuestionBodyMinLength)]
@@ -62,27 +56,18 @@ public class QuestionAskViewModel : IViewModelWithResolve
     {
         if (NewCreatedTags.Count + SelectedExistingTags.Count > 5) return "Maximum 5 tags are allowed";
 
-        string? duplicateErrMsg = null;
-        List<Guid> tagsId = [];
+        var dto = new QuestionWithNewTagsCreateRequest(id, Title, Body, SelectedExistingTags,
+            new TagCreateRequest(NewCreatedTags));
 
-        if (NewCreatedTags.Count > 0)
+        var oc = await _questionService.CreateWithNewTagsAsync(dto);
+
+        if (oc.TryPickBadOutcome(out var err))
         {
-            var tagCreateRequest = new TagCreateRequest(NewCreatedTags);
-            var outcome = await _tagService.CreateMany(tagCreateRequest);
-
-            outcome.Switch(
-                tags => tagsId.AddRange(tags.Select(x => x.Id)),
-                err => duplicateErrMsg = Helpers.DelimitedCollection(err.DuplicateData)
-            );
-
-            if (duplicateErrMsg is not null)
-            {
-                return $"Duplicate tags: {duplicateErrMsg}";
-            }
+            return err.Tag is BadOutcomeTag.Duplicate
+                ? $"Duplicate tags: {err}"
+                : "Unknown Error";
         }
 
-        var questionCreateRequest = new QuestionCreateRequest(id, Title, Body, [..tagsId, ..SelectedExistingTags]);
-        await _questionService.CreateAsync(questionCreateRequest);
         return null;
     }
 
@@ -97,7 +82,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
     {
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
-        _tagService = _scope.Resolve<ITagService>();
         _questionService = _scope.Resolve<IQuestionService>();
     }
 }

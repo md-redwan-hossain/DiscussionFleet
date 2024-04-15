@@ -64,12 +64,15 @@ public class QuestionSearchViewModel : IViewModelWithResolve
                 orderBy: x => x.Id
             );
             var author = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == question.AuthorId);
+            var answerCount = await _appUnitOfWork.AnswerRepository.GetCountAsync(x => x.QuestionId == question.Id);
+
+
             var shortTitle = question.Title.Length > 50 ? question.Title[..50] : question.Title;
             var shortBody = question.Body.Length > 200 ? question.Body[..200] : question.Body;
 
             shortBody = await _markdownService.MarkdownToPlainText(shortBody);
-            
-            var q = new QuestionAtSearchResultViewModel
+
+            var questionAtSearchResultViewModel = new QuestionAtSearchResultViewModel
             {
                 TitleResponse = new QuestionTitleResponse(shortTitle, string.Empty),
                 Body = shortBody,
@@ -80,11 +83,11 @@ public class QuestionSearchViewModel : IViewModelWithResolve
                 {
                     HasAcceptedAnswer = question.HasAcceptedAnswer,
                     VoteCount = question.VoteCount,
-                    AnswerCount = 2
+                    AnswerCount = answerCount
                 }
             };
 
-            Questions.Add(q);
+            Questions.Add(questionAtSearchResultViewModel);
         }
     }
 

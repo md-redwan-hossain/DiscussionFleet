@@ -22,7 +22,7 @@
                         <div class="row">
                             <div class="col">
                                 <p class="mb-0 text-dark">
-                                   @Html.Raw(Model.Body)
+                                    @Html.Raw(Model.Body)
                                 </p>
                             </div>
                         </div>
@@ -55,7 +55,10 @@
                                             <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/>
                                             <path d="M18 16.5v1.5l.5 .5"/>
                                         </svg>
-                                        @Model.LastActivity
+                                        <span class="last-activity" data-time="@Model.LastActivity.ToString("o")"></span>
+
+
+
                                     </div>
 
                                 </div>

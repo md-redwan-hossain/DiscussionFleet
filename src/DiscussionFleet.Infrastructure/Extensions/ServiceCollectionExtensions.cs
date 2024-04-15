@@ -1,6 +1,7 @@
 using System.Text;
 using Amazon.Runtime;
 using Amazon.S3;
+using Amazon.SQS;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
         awsOpts.Credentials = new BasicAWSCredentials(awsCredentialOptions.AccessKey, awsCredentialOptions.SecretKey);
         services.AddDefaultAWSOptions(awsOpts);
         services.AddAWSService<IAmazonS3>();
+        services.AddAWSService<IAmazonSQS>();
         return services;
     }
 
@@ -79,6 +81,25 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddRedisHangfireConfig(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var hangfireUrl = configuration.GetSection(AppSecretOptions.SectionName)
+            .GetValue<string>(nameof(AppSecretOptions.RedisHangfireUrl));
+        
+        ArgumentNullException.ThrowIfNull(hangfireUrl);
+
+        var redis = ConnectionMultiplexer.Connect(hangfireUrl);
+
+        services.AddHangfire(opt =>
+        {
+            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = RedisConstants.Hangfire });
+        });
+
+        services.AddHangfireServer();
+
+        return services;
+    }
 
     public static IServiceCollection AddRedisConfig(this IServiceCollection services, IConfiguration configuration)
     {
@@ -95,19 +116,11 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IConnectionMultiplexer>(redis);
 
-        services.AddHangfire(opt =>
-        {
-            opt.UseRedisStorage(redis, new RedisStorageOptions { Prefix = RedisConstants.Hangfire });
-        });
-
-        services.AddHangfireServer();
-
         services.AddStackExchangeRedisCache(opts =>
         {
             opts.Configuration = distCache;
             opts.InstanceName = RedisConstants.StackExchangeInstance;
         });
-
 
         return services;
     }

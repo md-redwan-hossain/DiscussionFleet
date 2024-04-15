@@ -1,12 +1,11 @@
 using Autofac;
-using Hangfire;
 using System.ComponentModel.DataAnnotations;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
+using DiscussionFleet.Application.MembershipFeatures.Utils;
 using DiscussionFleet.Infrastructure.Identity;
-using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using SharpOutcome;
@@ -18,11 +17,10 @@ public class RegistrationViewModel : IViewModelWithResolve
     #region Fields
 
     private ILifetimeScope _scope;
+    private ICloudQueueService _cloudQueueService;
+    private IJsonSerializationService _jsonSerializationService;
     private IMemberService _memberService;
-    private IEmailService _emailService;
-    private ApplicationSignInManager _signInManager;
     private IDateTimeProvider _dateTimeProvider;
-    private IBackgroundJobClient _backgroundJobClient;
 
     #endregion
 
@@ -33,15 +31,12 @@ public class RegistrationViewModel : IViewModelWithResolve
     }
 
     public RegistrationViewModel(ILifetimeScope scope, IMemberService memberService,
-        IEmailService emailService, IDateTimeProvider dateTimeProvider,
-        IBackgroundJobClient backgroundJobClient, ApplicationSignInManager applicationSignInManager)
+        IDateTimeProvider dateTimeProvider, ICloudQueueService cloudQueueService)
     {
         _scope = scope;
         _memberService = memberService;
-        _emailService = emailService;
         _dateTimeProvider = dateTimeProvider;
-        _backgroundJobClient = backgroundJobClient;
-        _signInManager = applicationSignInManager;
+        _cloudQueueService = cloudQueueService;
     }
 
     #endregion
@@ -73,7 +68,7 @@ public class RegistrationViewModel : IViewModelWithResolve
     [Display(Name = "Confirm password")]
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public string ConfirmPassword { get; set; }
-    
+
     public string? ReturnUrl { get; set; }
     public bool HasError { get; set; }
 
@@ -90,13 +85,24 @@ public class RegistrationViewModel : IViewModelWithResolve
         result.TryPickGoodOutcome(out var userData);
         var token = await _memberService.IssueVerificationMailTokenAsync(userData.applicationUser);
 
-        _backgroundJobClient.Enqueue(() =>
-            _memberService.SendVerificationMailAsync(userData.applicationUser, userData.member, token));
+        if (userData.applicationUser.Email is null)
+        {
+            return new MembershipError(BadOutcomeTag.NotFound);
+        }
+
+        var confirmationEmail = new MemberConfirmationEmail(
+            userData.applicationUser.Id,
+            userData.member.FullName,
+            userData.applicationUser.Email,
+            token
+        );
+
+        var json = _jsonSerializationService.Serialize(confirmationEmail);
+        await _cloudQueueService.EnqueueAsync(json, userData.applicationUser.Id.ToString());
 
         var tokenRateLimiter = new EmailTokenRateLimiter(tokenIssueTimeUtc: _dateTimeProvider.CurrentUtcTime);
-
         await _memberService.CacheEmailVerifyHistoryAsync(userData.member.Id.ToString(), tokenRateLimiter);
-        // await _signInManager.SignInAsync(userData.applicationUser, isPersistent: false);
+
         return userData.applicationUser.Id;
     }
 
@@ -104,10 +110,9 @@ public class RegistrationViewModel : IViewModelWithResolve
     {
         _scope = scope;
         _memberService = scope.Resolve<IMemberService>();
-        _emailService = _scope.Resolve<IEmailService>();
         _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
-        _backgroundJobClient = _scope.Resolve<IBackgroundJobClient>();
-        _signInManager = _scope.Resolve<ApplicationSignInManager>();
+        _jsonSerializationService = _scope.Resolve<IJsonSerializationService>();
+        _cloudQueueService = _scope.Resolve<ICloudQueueService>();
     }
 
     #endregion

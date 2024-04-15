@@ -1,13 +1,14 @@
 ﻿using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Util;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Enums;
 using Microsoft.Extensions.Options;
 
-namespace DiscussionFleet.Infrastructure.CloudFileBucket;
+namespace DiscussionFleet.Infrastructure.Services;
 
 public class FileBucketService : IFileBucketService
 {
@@ -18,6 +19,23 @@ public class FileBucketService : IFileBucketService
     {
         _s3Client = s3Client;
         _fileBucketOptions = options.Value;
+    }
+
+
+    public async Task<bool> DoesBucketExistAsync(string bucketName)
+    {
+        return await AmazonS3Util.DoesS3BucketExistV2Async(_s3Client, bucketName);
+    }
+
+    public async Task CreateBucketAsync(string bucketName)
+    {
+        var putBucketRequest = new PutBucketRequest
+        {
+            BucketName = bucketName,
+            UseClientRegion = true
+        };
+
+        await _s3Client.PutBucketAsync(putBucketRequest);
     }
 
     public async Task<string> GetImageUrlAsync(string key, uint ttlInMinute = 60)
@@ -48,6 +66,11 @@ public class FileBucketService : IFileBucketService
 
     public async Task<bool> UploadImageAsync(ImageUploadRequest dto)
     {
+        if (await DoesBucketExistAsync(_fileBucketOptions.BucketName) is false)
+        {
+            await CreateBucketAsync(_fileBucketOptions.BucketName);
+        }
+
         var putObjectRequest = new PutObjectRequest
         {
             BucketName = _fileBucketOptions.BucketName,
@@ -62,6 +85,11 @@ public class FileBucketService : IFileBucketService
 
     public async Task<bool> DeleteImageAsync(Guid id, ImagePurpose purpose, string fileExtension)
     {
+        if (await DoesBucketExistAsync(_fileBucketOptions.BucketName) is false)
+        {
+            await CreateBucketAsync(_fileBucketOptions.BucketName);
+        }
+
         var deleteObjectRequest = new DeleteObjectRequest
         {
             BucketName = _fileBucketOptions.BucketName,

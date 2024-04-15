@@ -4,4 +4,5 @@ public enum VerificationEmailResult
 {
     Ok,
     EntityNotFound,
+    EmailNotFound
 }

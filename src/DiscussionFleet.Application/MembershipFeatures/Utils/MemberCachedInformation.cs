@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Application.MembershipFeatures;
+namespace DiscussionFleet.Application.MembershipFeatures.Utils;
 
 public record MemberCachedInformation(
     string FullName,

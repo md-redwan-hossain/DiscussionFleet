@@ -1,6 +1,6 @@
-namespace DiscussionFleet.Application.Common.Providers;
+namespace DiscussionFleet.Application.Common.Services;
 
-public interface IJsonSerializationProvider
+public interface IJsonSerializationService
 {
     string Serialize<T>(T complexData, bool isCaseSensitive = true);
     T? DeSerialize<T>(string jsonData, bool isCaseSensitive = true);

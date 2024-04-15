@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Application.Common.Services;
 
-namespace DiscussionFleet.Infrastructure.Providers;
+namespace DiscussionFleet.Infrastructure.Services;
 
-public class JsonSerializationProvider : IJsonSerializationProvider
+public class JsonSerializationService : IJsonSerializationService
 {
     private static readonly JsonSerializerOptions DefaultOptions = new()
     {

@@ -3,8 +3,6 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Domain.Repositories;
-using DiscussionFleet.Infrastructure.CloudFileBucket;
-using DiscussionFleet.Infrastructure.Email;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Persistence.Repositories;
@@ -72,12 +70,16 @@ public class InfrastructureModule : Module
             .As<IFileBucketService>()
             .InstancePerLifetimeScope();
 
+        builder.RegisterType<CloudQueueService>()
+            .As<ICloudQueueService>()
+            .InstancePerLifetimeScope();
+
         #endregion
 
         #region Providers
 
-        builder.RegisterType<JsonSerializationProvider>()
-            .As<IJsonSerializationProvider>()
+        builder.RegisterType<JsonSerializationService>()
+            .As<IJsonSerializationService>()
             .SingleInstance();
 
         builder.RegisterType<JwtProvider>()

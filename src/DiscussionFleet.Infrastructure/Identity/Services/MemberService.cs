@@ -2,16 +2,15 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.Common.Utils;
-using DiscussionFleet.Application.MembershipFeatures;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
+using DiscussionFleet.Application.MembershipFeatures.Utils;
 using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
-using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using SharpOutcome;
@@ -24,31 +23,28 @@ public class MemberService : IMemberService
     private readonly IApplicationUnitOfWork _appUnitOfWork;
     private readonly ApplicationUserManager _userManager;
     private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-    private readonly IEmailService _emailService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IGuidProvider _guidProvider;
     private readonly IConnectionMultiplexer _redis;
-    private readonly IBackgroundJobClient _backgroundJobClient;
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
+    private readonly ICloudQueueService _cloudQueueService;
+    private readonly IJsonSerializationService _jsonSerializationService;
     private readonly IFileBucketService _fileBucketService;
 
 
     public MemberService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
-        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IEmailService emailService,
-        IConnectionMultiplexer redis, IJsonSerializationProvider jsonSerializationProvider,
-        IBackgroundJobClient backgroundJobClient, IPasswordHasher<ApplicationUser> passwordHasher,
-        IFileBucketService fileBucketService)
+        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IConnectionMultiplexer redis,
+        IJsonSerializationService jsonSerializationService, IPasswordHasher<ApplicationUser> passwordHasher,
+        IFileBucketService fileBucketService, ICloudQueueService cloudQueueService)
     {
         _appUnitOfWork = appUnitOfWork;
         _userManager = userManager;
         _dateTimeProvider = dateTimeProvider;
         _guidProvider = guidProvider;
-        _emailService = emailService;
         _redis = redis;
-        _jsonSerializationProvider = jsonSerializationProvider;
-        _backgroundJobClient = backgroundJobClient;
+        _jsonSerializationService = jsonSerializationService;
         _passwordHasher = passwordHasher;
         _fileBucketService = fileBucketService;
+        _cloudQueueService = cloudQueueService;
     }
 
     #region Create A Member
@@ -128,34 +124,7 @@ public class MemberService : IMemberService
     {
         return _userManager.GenerateEmailConfirmationTokenAsync(user);
     }
-
-    #endregion
-
-    #region Send Verification Email
-
-    public async Task SendVerificationMailAsync(ApplicationUser applicationUser, Member member,
-        string verificationCode)
-    {
-        ArgumentNullException.ThrowIfNull(applicationUser.Email);
-        const string subject = "Account Confirmation";
-
-        var body = $"""
-                    <html>
-                        <body>
-                            <h2>Welcome, {member.FullName}!</h2>
-                            <p>Thanks for signing up. Please verify your email address by using the following verification code:</p>
-                            <h2>{verificationCode}</h2>
-                            <p>If you didn't request this, you can safely ignore this email.</p>
-                            <p>Best Regards,</p>
-                            <p>DiscussionFleet</p>
-                        </body>
-                    </html>
-                    """;
-
-        await _emailService
-            .SendSingleEmailAsync(member.FullName, applicationUser.Email, subject, body)
-            .ConfigureAwait(false);
-    }
+    
 
     #endregion
 
@@ -206,7 +175,7 @@ public class MemberService : IMemberService
     public async Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter)
     {
         var cache = _redis.GetDatabase();
-        var json = _jsonSerializationProvider.Serialize(rateLimiter);
+        var json = _jsonSerializationService.Serialize(rateLimiter);
         await cache.HashSetAsync(RedisConstants.VerifyEmailHashStore, id, json).ConfigureAwait(false);
     }
 
@@ -215,7 +184,7 @@ public class MemberService : IMemberService
         var cache = _redis.GetDatabase();
         var json = await cache.HashGetAsync(RedisConstants.VerifyEmailHashStore, id).ConfigureAwait(false);
         if (json.IsNullOrEmpty) return null;
-        return _jsonSerializationProvider.DeSerialize<EmailTokenRateLimiter>(json.ToString());
+        return _jsonSerializationService.DeSerialize<EmailTokenRateLimiter>(json.ToString());
     }
 
     public async Task<bool> ConfirmEmailAsync(ApplicationUser user, string token)
@@ -231,7 +200,7 @@ public class MemberService : IMemberService
     public async Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
     {
         var cache = _redis.GetDatabase();
-        var json = _jsonSerializationProvider.Serialize(memberInfo);
+        var json = _jsonSerializationService.Serialize(memberInfo);
         return await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
     }
 
@@ -343,7 +312,7 @@ public class MemberService : IMemberService
         var cache = _redis.GetDatabase();
         var json = await cache.HashGetAsync(RedisConstants.MemberInformationHashStore, id).ConfigureAwait(false);
         if (json.IsNullOrEmpty) return null;
-        return _jsonSerializationProvider.DeSerialize<MemberCachedInformation>(json.ToString());
+        return _jsonSerializationService.DeSerialize<MemberCachedInformation>(json.ToString());
     }
 
 
@@ -395,12 +364,18 @@ public class MemberService : IMemberService
 
     private async Task<VerificationEmailResult> IssueEmailToken(ApplicationUser user)
     {
+        if (user.Email is null) return VerificationEmailResult.EmailNotFound;
+
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == user.Id);
         if (member is null) return VerificationEmailResult.EntityNotFound;
 
         await _userManager.UpdateSecurityStampAsync(user);
         var token = await IssueVerificationMailTokenAsync(user);
-        _backgroundJobClient.Enqueue(() => SendVerificationMailAsync(user, member, token));
+
+        var confirmationEmail = new MemberConfirmationEmail(user.Id, member.FullName, user.Email, token);
+        var json = _jsonSerializationService.Serialize(confirmationEmail);
+        await _cloudQueueService.EnqueueAsync(json, user.Id.ToString());
+
         await UpsertEmailVerificationCache(user.Id.ToString());
         return VerificationEmailResult.Ok;
     }
