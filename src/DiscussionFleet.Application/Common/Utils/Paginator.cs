@@ -4,7 +4,7 @@ public class Paginator
 {
     public Paginator(int totalItems, int currentPage = 1, int dataPerPage = 15)
     {
-        if (dataPerPage < 0) dataPerPage = 15;
+        if (dataPerPage <= 0) dataPerPage = 15;
 
         const int maxPages = 5;
         // calculate total pages

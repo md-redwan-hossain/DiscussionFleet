@@ -53,21 +53,21 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
     public bool HasError { get; set; }
     public bool CanCreate { get; set; } = true;
-    public HashSet<Guid> SelectedTags { get; set; } = [];
-    public HashSet<string> Tags { get; set; } = [];
+    public HashSet<Guid> SelectedExistingTags { get; set; } = [];
+    public HashSet<string> NewCreatedTags { get; set; } = [];
     public byte MaxTags { get; set; } = 5;
 
 
     public async Task<string?> ConductAskQuestion(Guid id)
     {
-        if (Tags.Count > 5) return "Maximum 5 tags are allowed";
+        if (NewCreatedTags.Count + SelectedExistingTags.Count > 5) return "Maximum 5 tags are allowed";
 
         string? duplicateErrMsg = null;
         List<Guid> tagsId = [];
 
-        if (Tags.Count > 0)
+        if (NewCreatedTags.Count > 0)
         {
-            var tagCreateRequest = new TagCreateRequest(Tags);
+            var tagCreateRequest = new TagCreateRequest(NewCreatedTags);
             var outcome = await _tagService.CreateMany(tagCreateRequest);
 
             outcome.Switch(
@@ -81,8 +81,7 @@ public class QuestionAskViewModel : IViewModelWithResolve
             }
         }
 
-
-        var questionCreateRequest = new QuestionCreateRequest(id, Title, Body, tagsId);
+        var questionCreateRequest = new QuestionCreateRequest(id, Title, Body, [..tagsId, ..SelectedExistingTags]);
         await _questionService.CreateAsync(questionCreateRequest);
         return null;
     }

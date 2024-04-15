@@ -14,35 +14,15 @@ public class QuestionsController : Controller
     {
         _scope = scope;
     }
-
+    
     [HttpGet]
-    public IActionResult Index([FromQuery] QuestionSearchViewModel viewModel)
+    public async Task<IActionResult> Index([FromQuery] QuestionSearchViewModel viewModel)
     {
-        // public IActionResult Index(int page = 1, int limit = 15)
-        // {
-        //     var pager = new Paginator(totalItems: 200, dataPerPage: limit, currentPage: page);
-        //     return View(pager);
-        // }
-
-
-        ViewData["Title"] = "Questions";
-        // var model = _scope.Resolve<QuestionSearchViewModel>();
+        viewModel.Resolve(_scope);
+        await viewModel.FetchPostsAsync();
         return View(viewModel);
     }
-
-
-    // [HttpPost, ValidateAntiForgeryToken]
-    // public IActionResult Index(QuestionSearchViewModel model)
-    // {
-    //     if (ModelState.IsValid)
-    //     {
-    //         return View(model);
-    //         // return RedirectToAction(nameof(Index));
-    //     }
-    //
-    //     return RedirectToAction(nameof(Index));
-    // }
-
+    
 
     [HttpGet, Authorize]
     public IActionResult Ask()

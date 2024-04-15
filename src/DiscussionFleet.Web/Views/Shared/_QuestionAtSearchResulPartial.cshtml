@@ -15,14 +15,14 @@
                         <div class="row">
                             <div class="col">
                                 <h3 class="mb-0">
-                                    <a href="@Model.TitleResponse.Title">@Model.TitleResponse.Url</a>
+                                    <a href="@Model.TitleResponse.Url">@Model.TitleResponse.Title</a>
                                 </h3>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <p class="mb-0 text-dark">
-                                    @Model.Body
+                                   @Html.Raw(Model.Body)
                                 </p>
                             </div>
                         </div>
@@ -63,18 +63,22 @@
                             <div class="col-md-auto">
                                 <div class="mt-3 badges">
 
-
-                                    @for (var i = 0; i <= 3; i++)
-                                    {
-                                        var tag = Model.Tags.ElementAt(i);
-                                        <a href="@tag.Url" class="badge badge-outline text-muted border fw-normal badge-pill">@tag.Title</a>
+                                    @{
+                                        var tagCounter = 0;
                                     }
 
-
-                                    @if (Model.Tags.Count > 3)
+                                    @foreach (var item in Model.Tags)
                                     {
-                                        var extraTagsCount = Model.Tags.Count - 3;
-                                        <span class="badge badge-outline text-muted border fw-normal badge-pill">@extraTagsCount </span>
+                                        tagCounter += 1;
+
+                                        if (tagCounter > 3)
+                                        {
+                                            var extraTagsCount = Model.Tags.Count - 3;
+                                            <span class="badge badge-outline text-muted border fw-normal badge-pill">+@extraTagsCount </span>
+                                            break;
+                                        }
+
+                                        <span class="badge badge-outline text-muted border fw-normal badge-pill">@item</span>
                                     }
 
                                 </div>

@@ -3,15 +3,15 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers;
 @model DiscussionFleet.Web.Models.Question.QuestionSearchViewModel;
 
-@{
-    ViewData["Title"] = "Questions";
-}
-
-
 @section ExternalLibFiles
 {
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+}
+
+@{
+    ViewData["Title"] = "Questions";
 }
 
 
@@ -60,26 +60,26 @@
                         <div class="form-label"> Filter by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="QuestionFilterCriteria.NoAnswer" type="checkbox" value="true" class="form-check-input">
+                                <input asp-for="FilterBy.NoAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No answers</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionFilterCriteria.NoAcceptedAnswer" type="checkbox" value="true" class="form-check-input">
+                                <input asp-for="FilterBy.NoAcceptedAnswer" type="checkbox" value="true" class="form-check-input">
                                 <span class="form-check-label">No accepted answer</span>
                             </label>
                         </div>
                         <div class="form-label">Sort by</div>
                         <div class="mb-4">
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.Newest" checked>
+                                <input asp-for="SortBy" type="radio" class="form-check-input" value="@QuestionSortCriteria.Newest" checked>
                                 <span class="form-check-label">Newest</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.RecentActivity">
+                                <input asp-for="SortBy" type="radio" class="form-check-input" value="@QuestionSortCriteria.RecentActivity">
                                 <span class="form-check-label">Recent activity</span>
                             </label>
                             <label class="form-check">
-                                <input asp-for="QuestionSortCriteria" type="radio" class="form-check-input" value="@QuestionSortCriteria.HighestScore">
+                                <input asp-for="SortBy" type="radio" class="form-check-input" value="@QuestionSortCriteria.HighestScore">
                                 <span class="form-check-label">Highest score</span>
                             </label>
                         </div>
@@ -101,13 +101,13 @@
                         <label class="form-label">Data Per Page</label>
                         <div class="mb-4">
                             <div class="btn-group w-100" role="group">
-                                <input type="radio" asp-for="@Model.PaginationData.DataPerPage" value="15" class="btn-check" id="btn-radio-basic-1"
+                                <input type="radio" asp-for="@Model.DataPerPage" value="15" class="btn-check" id="btn-radio-basic-1"
                                        autocomplete="off" checked>
                                 <label for="btn-radio-basic-1" type="button" class="btn">15</label>
-                                <input type="radio" asp-for="DataPerPage" value="30" class="btn-check" id="btn-radio-basic-2"
+                                <input type="radio" asp-for="@Model.DataPerPage" value="30" class="btn-check" id="btn-radio-basic-2"
                                        autocomplete="off">
                                 <label for="btn-radio-basic-2" type="button" class="btn">30</label>
-                                <input type="radio" asp-for="DataPerPage" value="50" class="btn-check" id="btn-radio-basic-3"
+                                <input type="radio" asp-for="@Model.DataPerPage" value="50" class="btn-check" id="btn-radio-basic-3"
                                        autocomplete="off">
                                 <label for="btn-radio-basic-3" type="button" class="btn">50</label>
                             </div>
@@ -146,7 +146,21 @@
                     {
                         <partial name="_QuestionAtSearchResulPartial" model="question"/>
                     }
-                    <partial name="_PaginationPartial" model="Model.PaginationData"/>
+
+                    @if (Model.Pagination.TotalItems is not 0)
+                    {
+                        <div class="d-flex mt-4">
+                            <ul class="pagination ms-auto">
+
+                                @for (var i = Model.Pagination.StartPage; i <= Model.Pagination.EndPage; i++)
+                                {
+                                    <li class="@(i == Model.Pagination.CurrentPage ? "page-item active" : "page-item")">
+                                        <a class="page-link" href="@Url.Action("Index", "Questions", new { CurrentPage = i, DataPerPage = Model.DataPerPage })">@i</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -166,7 +180,7 @@
       });
     });
     </script>
-
+    
 
     <script>
           document.addEventListener("DOMContentLoaded", function () {           

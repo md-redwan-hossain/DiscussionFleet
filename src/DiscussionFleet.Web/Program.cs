@@ -14,6 +14,7 @@ builder.Configuration.AddJsonFile("secrets.json");
 builder.Services.BindAndValidateOptions<AppSecretOptions>(AppSecretOptions.SectionName);
 builder.Services.BindAndValidateOptions<JwtOptions>(JwtOptions.SectionName);
 builder.Services.BindAndValidateOptions<SmtpOptions>(SmtpOptions.SectionName);
+builder.Services.BindAndValidateOptions<ForumRulesOptions>(ForumRulesOptions.SectionName);
 builder.Services.BindAndValidateOptions<AwsCredentialOptions>(AwsCredentialOptions.SectionName);
 builder.Services.BindAndValidateOptions<FileBucketOptions>(FileBucketOptions.SectionName);
 

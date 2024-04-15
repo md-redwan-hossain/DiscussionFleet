@@ -89,14 +89,14 @@
                                         Tags <span class="text-muted">(max @Model.MaxTags) </span>
                                     </div>
                                     <div class="mb-4">
-                                        <select asp-for="SelectedTags"
+                                        <select asp-for="SelectedExistingTags"
                                                 multiple
                                                 id="selected-tags"
                                                 type="text"
                                                 class="form-control">
                                             @foreach (var tag in await Model.FetchTagsAsync())
                                             {
-                                                if (Model.SelectedTags.Contains(tag.Id))
+                                                if (Model.SelectedExistingTags.Contains(tag.Id))
                                                 {
                                                     <option value="@tag.Id" selected>@tag.Title</option>
                                                 }
@@ -201,7 +201,7 @@
                    itemsToRemove.push(value);
                   let hiddenInput = document.createElement('input');
                   hiddenInput.type = 'hidden';
-                  hiddenInput.name = '@nameof(QuestionAskViewModel.Tags)'; 
+                  hiddenInput.name = '@nameof(QuestionAskViewModel.NewCreatedTags)'; 
                   hiddenInput.value = value;               
                   document.getElementById('md-form').appendChild(hiddenInput);
             })           

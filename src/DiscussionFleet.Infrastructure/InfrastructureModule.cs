@@ -9,6 +9,7 @@ using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Infrastructure.Persistence;
 using DiscussionFleet.Infrastructure.Persistence.Repositories;
 using DiscussionFleet.Infrastructure.Providers;
+using DiscussionFleet.Infrastructure.Services;
 
 namespace DiscussionFleet.Infrastructure;
 
@@ -99,9 +100,9 @@ public class InfrastructureModule : Module
 
         #region External Libraries
 
-        // builder.RegisterType<AmazonS3Client>()
-        //     .As<IAmazonS3>()
-        //     .SingleInstance();
+        builder.RegisterType<MarkdownService>()
+            .As<IMarkdownService>()
+            .SingleInstance();
 
         #endregion
     }

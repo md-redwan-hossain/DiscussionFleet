@@ -6,6 +6,6 @@ namespace DiscussionFleet.Domain.Repositories;
 
 public interface IQuestionRepository : IRepositoryBase<Question, Guid>
 {
-    Task<ICollection<Question>> GetQuestions(QuestionSortCriteria sortBy, QuestionFilterCriteria filterBy,
+    Task<PagedData<Question>> GetQuestions(QuestionSortCriteria sortBy, QuestionFilterCriteria filterBy,
         DataSortOrder sortOrder, int page, int limit, ICollection<Guid> tags);
 }
