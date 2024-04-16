@@ -47,6 +47,7 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
     public bool HasError { get; set; }
     public bool CanCreate { get; set; } = true;
+    public (HashSet<Guid> existing, HashSet<string> newlyCreated) Tags { get; set; }
     public HashSet<Guid> SelectedExistingTags { get; set; } = [];
     public HashSet<string> NewCreatedTags { get; set; } = [];
     public byte MaxTags { get; set; } = 5;
