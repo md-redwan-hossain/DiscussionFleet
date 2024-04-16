@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AspNetCore.ReCaptcha;
 using Autofac;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -34,7 +35,7 @@ public class AccountController : Controller
         return View(viewModel);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, ValidateReCaptcha]
     public async Task<IActionResult> Registration(RegistrationViewModel viewModel)
     {
         if (ModelState.IsValid is false)
@@ -80,14 +81,14 @@ public class AccountController : Controller
     {
         returnUrl ??= Url.Content("~/");
         await _signInManager.SignOutAsync();
-        
+
         var viewModel = _scope.Resolve<LoginViewModel>();
         viewModel.ReturnUrl = returnUrl;
         return View(viewModel);
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, ValidateReCaptcha]
     public async Task<IActionResult> Login(LoginViewModel viewModel)
     {
         viewModel.ReturnUrl ??= Url.Content("~/");
@@ -141,7 +142,7 @@ public class AccountController : Controller
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, ValidateReCaptcha]
     public async Task<IActionResult> ConfirmAccount(ConfirmAccountViewModel viewModel)
     {
         if (viewModel.UserId == default)
@@ -188,14 +189,14 @@ public class AccountController : Controller
 
     #endregion
 
-
+    [HttpGet]
     public IActionResult ResendVerificationCode()
     {
         var viewModel = _scope.Resolve<ResendVerificationCodeViewModel>();
         return View(viewModel);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, ValidateReCaptcha]
     public async Task<IActionResult> ResendVerificationCode(ResendVerificationCodeViewModel viewModel)
     {
         if (ModelState.IsValid is false) return View(viewModel);

@@ -1,3 +1,4 @@
+using AspNetCore.ReCaptcha;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DiscussionFleet.Application;
@@ -6,6 +7,7 @@ using DiscussionFleet.Infrastructure;
 using DiscussionFleet.Infrastructure.Extensions;
 using DiscussionFleet.Infrastructure.Utils;
 using DiscussionFleet.Web;
+using Mapster;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
@@ -40,6 +42,7 @@ try
     builder.Services.BindAndValidateOptions<FileBucketOptions>(FileBucketOptions.SectionName);
     builder.Services.BindAndValidateOptions<CloudQueueOptions>(CloudQueueOptions.SectionName);
     builder.Services.BindAndValidateOptions<SqlServerSerilogOptions>(SqlServerSerilogOptions.SectionName);
+    builder.Services.BindAndValidateOptions<GoogleRecaptchaOptions>(GoogleRecaptchaOptions.SectionName);
 
 
     var connectionString = builder.Configuration
@@ -68,10 +71,22 @@ try
             }
         )
     );
-    
+
     await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
     builder.Services.AddRedisConfig(builder.Configuration);
 
+    //
+    // var googleRecaptchaOpts = builder.Configuration
+    //     .GetSection(GoogleRecaptchaOptions.SectionName)
+    //     .Get<GoogleRecaptchaOptions>();
+    //
+    // ArgumentNullException.ThrowIfNull(googleRecaptchaOpts, nameof(GoogleRecaptchaOptions));
+    //
+    // var r = await googleRecaptchaOpts.BuildAdapter().AdaptToTypeAsync<ReCaptchaSettings>();
+    //
+    
+    builder.Services.AddReCaptcha(builder.Configuration.GetSection(GoogleRecaptchaOptions.SectionName));
+    
     builder.Services.AddIdentityConfiguration();
     builder.Services.AddCookieAuthentication();
     builder.Services.Configure<RouteOptions>(options =>

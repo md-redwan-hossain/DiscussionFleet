@@ -1,6 +1,6 @@
 @using DiscussionFleet.Infrastructure.Utils
 @using Microsoft.AspNetCore.Mvc.TagHelpers
-
+@addTagHelper *, AspNetCore.ReCaptcha
 @model ConfirmAccountViewModel;
 
 @{
@@ -55,7 +55,7 @@
             </div>
 
             <input type="hidden" asp-for="UserId"/>
-
+            <recaptcha/>
             <div class="form-footer">
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>

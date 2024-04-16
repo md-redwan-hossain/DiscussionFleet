@@ -5,11 +5,11 @@ namespace DiscussionFleet.Application.Common.Options;
 public record SmtpOptions
 {
     public const string SectionName = "SmtpOptions";
-    [Required] public string SenderName { get; set; }
-    [Required] public string SenderEmail { get; set; }
-    [Required] public string Host { get; set; }
-    [Required] public string Username { get; set; }
-    [Required] public string Password { get; set; }
-    [Required] public int Port { get; set; }
-    [Required] public bool UseSsl { get; set; }
+    [Required] public required string SenderName { get; init; }
+    [Required] public required string SenderEmail { get; init; }
+    [Required] public required string Host { get; init; }
+    [Required] public required string Username { get; init; }
+    [Required] public required string Password { get; init; }
+    [Required] public required int Port { get; init; }
+    [Required] public required bool UseSsl { get; init; }
 }
