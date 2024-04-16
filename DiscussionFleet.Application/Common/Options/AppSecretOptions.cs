@@ -9,4 +9,5 @@ public record AppSecretOptions
     [Required] public required string RedisDistributedCacheUrl { get; init; }
     [Required] public required string RedisHangfireUrl { get; init; }
     [Required] public required string RedisStackExchangeUrl { get; init; }
+    [Required] public required int EmailWorkerRunIntervalInSecond { get; init; } = 5;
 }

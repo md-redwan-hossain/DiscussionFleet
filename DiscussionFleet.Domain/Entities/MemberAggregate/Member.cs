@@ -16,23 +16,23 @@ public class Member : Entity<Guid>
     public ICollection<SavedQuestion> SavedQuestions { get; set; }
     public ICollection<SavedAnswer> SavedAnswers { get; set; }
 
-    // public bool Upvote(int positivePoint)
-    // {
-    //     if (positivePoint <= 0) return false;
-    //
-    //     try
-    //     {
-    //         checked
-    //         {
-    //             ReputationCount += positivePoint;
-    //             return true;
-    //         }
-    //     }
-    //     catch (OverflowException)
-    //     {
-    //         return false;
-    //     }
-    // }
+    public bool Upvote(int positivePoint)
+    {
+        if (positivePoint <= 0) return false;
+    
+        try
+        {
+            checked
+            {
+                ReputationCount += positivePoint;
+                return true;
+            }
+        }
+        catch (OverflowException)
+        {
+            return false;
+        }
+    }
 
 
     public bool DownVote(int negativePoint)

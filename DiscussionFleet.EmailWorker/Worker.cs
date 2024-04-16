@@ -1,6 +1,8 @@
+using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures.Utils;
 using Hangfire;
+using Microsoft.Extensions.Options;
 
 namespace DiscussionFleet.EmailWorker;
 
@@ -11,17 +13,20 @@ public class Worker : BackgroundService
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly IEmailService _emailService;
     private readonly IJsonSerializationService _jsonSerializationService;
+    private readonly AppSecretOptions _appSecretOptions;
 
 
     public Worker(ILogger<Worker> logger, ICloudQueueService cloudQueueService,
         IBackgroundJobClient backgroundJobClient, IEmailService emailService,
-        IJsonSerializationService jsonSerializationService)
+        IJsonSerializationService jsonSerializationService,
+        IOptions<AppSecretOptions> appSecretOptions)
     {
         _logger = logger;
         _cloudQueueService = cloudQueueService;
         _backgroundJobClient = backgroundJobClient;
         _emailService = emailService;
         _jsonSerializationService = jsonSerializationService;
+        _appSecretOptions = appSecretOptions.Value;
     }
 
 
@@ -48,10 +53,10 @@ public class Worker : BackgroundService
                 await _cloudQueueService.DeleteAsync(receiptHandle);
             }
 
-            await Task.Delay(5000, stoppingToken);
+            var timer = _appSecretOptions.EmailWorkerRunIntervalInSecond * 1000;
+            await Task.Delay(timer, stoppingToken);
         }
     }
-
 
     // ReSharper disable once MemberCanBePrivate.Global
     public async Task SendVerificationMailAsync(string fullName, string email, string verificationCode)

@@ -19,8 +19,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IQuestionService _questionService;
-    private ForumRulesOptions _forumRulesOptions;
-    private IMemberReputationService _memberReputationService;
 
 
     public QuestionAskViewModel()
@@ -29,14 +27,11 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
 
     public QuestionAskViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork,
-        IQuestionService questionService, IOptions<ForumRulesOptions> forumRulesOptions,
-        IMemberReputationService memberReputationService)
+        IQuestionService questionService)
     {
         _scope = scope;
         _appUnitOfWork = appUnitOfWork;
         _questionService = questionService;
-        _memberReputationService = memberReputationService;
-        _forumRulesOptions = forumRulesOptions.Value;
     }
 
     [Required]
@@ -80,11 +75,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
                 : "Unknown Error";
         }
 
-        if (outcome.IsGoodOutcome)
-        {
-            await _memberReputationService.UpvoteAsync(id, _forumRulesOptions.NewQuestion);
-        }
-
         return null;
     }
 
@@ -100,7 +90,5 @@ public class QuestionAskViewModel : IViewModelWithResolve
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _questionService = _scope.Resolve<IQuestionService>();
-        _memberReputationService = _scope.Resolve<IMemberReputationService>();
-        _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

@@ -65,7 +65,7 @@ public class QuestionService : IQuestionService
             try
             {
                 var outcome = await _tagService.CreateMany(dto.NewTagDto);
-                
+
                 if (outcome.TryPickBadOutcome(out var err))
                 {
                     await trx.RollbackAsync();
@@ -90,10 +90,7 @@ public class QuestionService : IQuestionService
             }
         }
 
-        // await using var trx = await _appUnitOfWork.BeginTransactionAsync();
-
 
         return new BadOutcome(BadOutcomeTag.Unknown);
     }
-    
 }

@@ -16,25 +16,11 @@ public class MemberReputationService : IMemberReputationService
         var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
         if (entity is null) return false;
 
-        // var result = entity.Upvote(positivePoint);
+        var result = entity.Upvote(positivePoint);
+        if (!result) return false;
 
-        try
-        {
-            checked
-            {
-                entity.ReputationCount += positivePoint;
-                await _appUnitOfWork.SaveAsync();
-                return true;
-            }
-        }
-        catch (OverflowException)
-        {
-            return false;
-        }
-
-        //
-        // await _appUnitOfWork.SaveAsync();
-        // return true;
+        await _appUnitOfWork.SaveAsync();
+        return true;
     }
 
     public async Task<bool> DownVoteAsync(Guid id, int negativePoint)
