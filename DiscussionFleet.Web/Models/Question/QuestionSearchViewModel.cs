@@ -37,7 +37,7 @@ public class QuestionSearchViewModel : IViewModelWithResolve
     public int CurrentPage { get; set; } = 1;
     [BindNever] public Paginator Pagination { get; set; }
     public HashSet<Guid> SelectedTags { get; set; } = [];
-    public IList<QuestionAtSearchResultViewModel> Questions { get; set; } = [];
+    public IList<SingleQuestionAtSearchResultViewModel> Questions { get; set; } = [];
 
     public async Task<IList<Tag>> FetchTagsAsync()
     {
@@ -49,14 +49,14 @@ public class QuestionSearchViewModel : IViewModelWithResolve
     public async Task FetchPostsAsync()
     {
         if (DataPerPage < 15) DataPerPage = 15;
-        var (enumerable, total) = await _appUnitOfWork.QuestionRepository.GetQuestions(SortBy, FilterBy,
+        var (questions, total) = await _appUnitOfWork.QuestionRepository.GetQuestions(SortBy, FilterBy,
             SortOrder, CurrentPage, DataPerPage, SelectedTags);
 
         var pager = new Paginator(totalItems: total, dataPerPage: DataPerPage, currentPage: CurrentPage);
 
         Pagination = pager;
 
-        foreach (var question in enumerable)
+        foreach (var question in questions)
         {
             var tags = await _appUnitOfWork.TagRepository.GetAllAsync<string, Guid>(
                 filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
@@ -70,14 +70,14 @@ public class QuestionSearchViewModel : IViewModelWithResolve
             var shortTitle = question.Title.Length > 50 ? question.Title[..50] : question.Title;
             var shortBody = question.Body.Length > 200 ? question.Body[..200] : question.Body;
 
-            shortBody = await _markdownService.MarkdownToPlainText(shortBody);
+            shortBody = await _markdownService.MarkdownToPlainTextAsync(shortBody);
 
-            var questionAtSearchResultViewModel = new QuestionAtSearchResultViewModel
+            var questionAtSearchResultViewModel = new SingleQuestionAtSearchResultViewModel
             {
-                TitleResponse = new QuestionTitleResponse(shortTitle, string.Empty),
+                TitleResponse = new QuestionTitleResponse(shortTitle, question.Id),
                 Body = shortBody,
                 LastActivity = question.UpdatedAtUtc ?? question.CreatedAtUtc,
-                AuthorResponse = new QuestionAuthorResponse(author?.FullName ?? string.Empty, string.Empty),
+                AuthorName = author?.FullName ?? string.Empty,
                 Tags = tags,
                 Stats = new QuestionStatsViewModel
                 {

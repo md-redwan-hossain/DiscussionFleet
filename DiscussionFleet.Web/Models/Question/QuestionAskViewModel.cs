@@ -20,7 +20,6 @@ public class QuestionAskViewModel : IViewModelWithResolve
     private IApplicationUnitOfWork _appUnitOfWork;
     private IQuestionService _questionService;
 
-
     public QuestionAskViewModel()
     {
     }
@@ -55,7 +54,7 @@ public class QuestionAskViewModel : IViewModelWithResolve
     public byte MaxTags { get; set; } = 5;
 
 
-    public async Task<string?> ConductAskQuestion(Guid id)
+    public async Task<Outcome<Guid, string>> ConductAskQuestion(Guid id)
     {
         if (SelectedExistingTags is null && NewCreatedTags.Count == 0) return "At least 1 tag is required.";
 
@@ -75,7 +74,12 @@ public class QuestionAskViewModel : IViewModelWithResolve
                 : "Unknown Error";
         }
 
-        return null;
+        if (outcome.TryPickGoodOutcome(out var newQuestion))
+        {
+            return newQuestion.Id;
+        }
+
+        return "Unknown error.";
     }
 
 

@@ -104,7 +104,7 @@ public class MemberService : IMemberService
 
     #region Update Member Profile
 
-    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id)
+    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, System.Guid id)
     {
         var memberInDb = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
         if (memberInDb is null) return MemberProfileUpdateResult.EntityNotFound;
@@ -212,7 +212,7 @@ public class MemberService : IMemberService
 
     public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60)
     {
-        var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(id),
+        var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == System.Guid.Parse(id),
             subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
         if (entity is null) return null;
 
@@ -275,7 +275,7 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<bool> RemoveMemberProfileImage(Guid id)
+    public async Task<bool> RemoveMemberProfileImage(System.Guid id)
     {
         var entityToDelete = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == id);
         if (entityToDelete is null) return false;
@@ -316,7 +316,7 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user)
+    public async Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
 
@@ -328,7 +328,7 @@ public class MemberService : IMemberService
         return ProcessResendResult(await IssueEmailToken(user));
     }
 
-    public async Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(string id)
+    public async Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(string id)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(id);
 
@@ -341,9 +341,9 @@ public class MemberService : IMemberService
     }
 
 
-    private static Outcome<Success, IResendEmailError> ProcessResendResult(VerificationEmailResult result)
+    private static Outcome<SuccessOutcome, IResendEmailError> ProcessResendResult(VerificationEmailResult result)
     {
-        if (result is VerificationEmailResult.Ok) return new Success();
+        if (result is VerificationEmailResult.Ok) return new SuccessOutcome();
         return new ResendEmailError(ResendEmailErrorReason.EntityNotFound);
     }
 

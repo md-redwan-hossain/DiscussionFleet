@@ -1,3 +1,3 @@
 ﻿namespace DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 
-public record QuestionTitleResponse(string Title, string Url);
+public record QuestionTitleResponse(string Title, Guid Id);

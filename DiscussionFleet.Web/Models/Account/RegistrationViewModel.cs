@@ -1,5 +1,5 @@
-using Autofac;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
@@ -10,7 +10,7 @@ using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using SharpOutcome;
 
-namespace DiscussionFleet.Web.Models;
+namespace DiscussionFleet.Web.Models.Account;
 
 public class RegistrationViewModel : IViewModelWithResolve
 {

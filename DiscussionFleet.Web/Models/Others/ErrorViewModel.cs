@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Web.Models;
+namespace DiscussionFleet.Web.Models.Others;
 
 public class ErrorViewModel
 {

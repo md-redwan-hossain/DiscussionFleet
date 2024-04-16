@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DiscussionFleet.Web.Models;
+namespace DiscussionFleet.Web.Models.Account;
 
 public class ForgotPasswordViewModel
 {

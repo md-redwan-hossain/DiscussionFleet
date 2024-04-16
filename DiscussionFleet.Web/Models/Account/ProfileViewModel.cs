@@ -7,7 +7,7 @@ using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
 
-namespace DiscussionFleet.Web.Models;
+namespace DiscussionFleet.Web.Models.Account;
 
 public class ProfileViewModel : IViewModelWithResolve
 {

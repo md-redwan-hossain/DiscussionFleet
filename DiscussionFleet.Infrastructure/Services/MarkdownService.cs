@@ -11,17 +11,17 @@ public class MarkdownService : IMarkdownService
     private static readonly MarkdownPipeline Pipeline =
         new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
-    public Task<string> MarkdownToHtml(string markdownText)
+    public Task<string> MarkdownToHtmlAsync(string markdownText)
     {
         return Task.Run(() => Markdown.ToHtml(markdownText, Pipeline));
     }
 
-    public Task<string> MarkdownToPlainText(string markdownText)
+    public Task<string> MarkdownToPlainTextAsync(string markdownText)
     {
         return Task.Run(() => Markdown.ToPlainText(markdownText, Pipeline));
     }
 
-    public Task<string> SanitizeConvertedHtml(string unsafeHtmlText)
+    public Task<string> SanitizeConvertedHtmlAsync(string unsafeHtmlText)
     {
         return Task.Run(() => Sanitizer.Sanitize(unsafeHtmlText));
     }

@@ -5,7 +5,7 @@ using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using SharpOutcome;
 
-namespace DiscussionFleet.Web.Models;
+namespace DiscussionFleet.Web.Models.Account;
 
 public class ResendVerificationCodeViewModel : IViewModelWithResolve
 {

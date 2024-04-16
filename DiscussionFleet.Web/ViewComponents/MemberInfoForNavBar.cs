@@ -2,6 +2,7 @@ using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Models;
+using DiscussionFleet.Web.Models.Others;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionFleet.Web.ViewComponents;
@@ -26,7 +27,12 @@ public class MemberInfoForNavBar : ViewComponent
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var id = _userManager.GetUserId(UserClaimsPrincipal);
-        if (id is null) return View();
+        if (id is null)
+        {
+            await _signInManager.SignOutAsync();
+            HttpContext.Response.Redirect("Account/Login/");
+            return View(new NavbarUserInfoViewModel());
+        }
 
         var cache = await _memberService.GetCachedMemberInfoAsync(id);
 

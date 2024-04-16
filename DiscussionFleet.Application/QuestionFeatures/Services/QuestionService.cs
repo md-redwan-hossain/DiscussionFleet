@@ -32,7 +32,7 @@ public class QuestionService : IQuestionService
         _memberReputationService = memberReputationService;
     }
 
-    public async Task CreateAsync(QuestionCreateRequest dto)
+    public async Task<Question> CreateAsync(QuestionCreateRequest dto)
     {
         var id = _guidProvider.SortableGuid();
 
@@ -56,9 +56,10 @@ public class QuestionService : IQuestionService
         entity.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
         await _appUnitOfWork.QuestionRepository.CreateAsync(entity);
         await _appUnitOfWork.SaveAsync();
+        return entity;
     }
 
-    public async Task<Outcome<Success, IBadOutcome>> CreateWithNewTagsAsync(QuestionWithNewTagsCreateRequest dto)
+    public async Task<Outcome<Question, IBadOutcome>> CreateWithNewTagsAsync(QuestionWithNewTagsCreateRequest dto)
     {
         await using (var trx = await _appUnitOfWork.BeginTransactionAsync())
         {
@@ -72,17 +73,20 @@ public class QuestionService : IQuestionService
                     return new BadOutcome(BadOutcomeTag.Duplicate, Helpers.DelimitedCollection(err.DuplicateData));
                 }
 
+
                 if (outcome.TryPickGoodOutcome(out var data))
                 {
                     ICollection<Guid> tags = [..dto.ExistingTags, ..data.Select(x => x.Id)];
                     var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
-                    await CreateAsync(questionCreateRequest);
+                    var createdQuestion = await CreateAsync(questionCreateRequest);
+
+                    await _memberReputationService.UpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
+                    await trx.CommitAsync();
+                    return createdQuestion;
                 }
 
-                await _memberReputationService.UpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
-
-                await trx.CommitAsync();
-                return Success.Return;
+                await trx.RollbackAsync();
+                return new BadOutcome(BadOutcomeTag.Unknown);
             }
             catch (Exception)
             {

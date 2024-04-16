@@ -15,7 +15,7 @@ public interface IMemberService
     Task<Outcome<(ApplicationUser applicationUser, Member member), IMembershipError>> CreateAsync(
         MemberRegistrationRequest dto);
 
-    Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id);
+    Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, System.Guid id);
     Task<string> IssueVerificationMailTokenAsync(ApplicationUser user);
     Task CacheEmailVerifyHistoryAsync(string id, ITokenRateLimiter rateLimiter);
     Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
@@ -23,11 +23,11 @@ public interface IMemberService
     Task<bool> FlushMemberInfoCacheAsync(string id);
     Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60);
     Task<bool> UpsertMemberProfileImage(ImageUploadRequest dto);
-    Task<bool> RemoveMemberProfileImage(Guid id);
+    Task<bool> RemoveMemberProfileImage(System.Guid id);
     Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60);
     Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id);
-    Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(string id);
-    Task<Outcome<Success, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user);
+    Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(string id);
+    Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user);
     Task<bool> HasCorrectCredentialsAsync(string userName, string password);
     Task<bool> CanRequestEmailConfirmationAsync(string userName, string password);
     Task<Outcome<ApplicationUser, CredentialError>> RequestEmailConfirmationAsync(string userName, string password);

@@ -28,6 +28,7 @@ public class QuestionsController : Controller
     public async Task<IActionResult> Details(Guid id)
     {
         var viewModel = _scope.Resolve<QuestionDetailsViewModel>();
+        await viewModel.FetchQuestion(id);
         return View(viewModel);
     }
 
@@ -55,15 +56,18 @@ public class QuestionsController : Controller
         }
 
         viewModel.Resolve(_scope);
-        var error = await viewModel.ConductAskQuestion(Guid.Parse(currentUserId));
-        if (error is not null)
+        var outcome = await viewModel.ConductAskQuestion(Guid.Parse(currentUserId));
+
+        if (outcome.TryPickBadOutcome(out var err))
         {
             viewModel.HasError = true;
-            ModelState.AddModelError(string.Empty, error);
+            ModelState.AddModelError(string.Empty, err);
             return View(viewModel);
         }
 
-        return RedirectToAction(nameof(Ask));
+        outcome.TryPickGoodOutcome(out var id);
+
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
