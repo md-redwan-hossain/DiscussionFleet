@@ -43,8 +43,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
                     SqlDataType.VarChar
                 )
             ));
-
-
+        
         builder
             .HasOne(x => x.AcceptedAnswer)
             .WithOne()
@@ -58,15 +57,7 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
             .HasForeignKey(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-
-
-        builder
-            .HasMany(x => x.Votes)
-            .WithOne()
-            .HasForeignKey(x => x.QuestionId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
-
+        
 
         builder
             .HasOne<Member>()

@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240414172339_Fixed some FK Issue")]
-    partial class FixedsomeFKIssue
+    [Migration("20240416192044_AddedIDataProtectionKeyContext")]
+    partial class AddedIDataProtectionKeyContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -99,30 +99,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("MinAnswerCommentBodyLength", "LEN([Body]) >= 15");
                         });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.AnswerVote", b =>
-                {
-                    b.Property<Guid>("AnswerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUpvote")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AnswerId", "VoteGiverId");
-
-                    b.HasIndex("VoteGiverId");
-
-                    b.ToTable("AnswerVotes", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
@@ -370,30 +346,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("QuestionTags", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionVote", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUpvote")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("QuestionId", "VoteGiverId");
-
-                    b.HasIndex("VoteGiverId");
-
-                    b.ToTable("QuestionVotes", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Badge", b =>
@@ -822,21 +774,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.AnswerVote", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
-                        .WithMany("Votes")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
-                        .WithMany()
-                        .HasForeignKey("VoteGiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
                 {
                     b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
@@ -944,21 +881,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionVote", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
-                        .WithMany("Votes")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
-                        .WithMany()
-                        .HasForeignKey("VoteGiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
@@ -1022,8 +944,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
@@ -1042,8 +962,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Tags");
-
-                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }

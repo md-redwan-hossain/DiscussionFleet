@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240414051353_AddedInitialDomainEntities")]
+    [Migration("20240416192003_AddedInitialDomainEntities")]
     partial class AddedInitialDomainEntities
     {
         /// <inheritdoc />
@@ -20,31 +20,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AnswerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("QuestionId", "AnswerId");
-
-                    b.HasIndex("AnswerId")
-                        .IsUnique();
-
-                    b.HasIndex("QuestionId")
-                        .IsUnique();
-
-                    b.ToTable("AcceptedAnswers", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,8 +56,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AnswerGiverId")
-                        .IsUnique();
+                    b.HasIndex("AnswerGiverId");
 
                     b.HasIndex("QuestionId");
 
@@ -86,7 +66,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerComment", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.AnswerComment", b =>
                 {
                     b.Property<Guid>("AnswerId")
                         .HasColumnType("uniqueidentifier");
@@ -121,109 +101,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerVote", b =>
-                {
-                    b.Property<Guid>("AnswerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUpvote")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AnswerId", "VoteGiverId");
-
-                    b.HasIndex("VoteGiverId");
-
-                    b.ToTable("AnswerVotes", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Badge", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GivenCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Badges", null, t =>
-                        {
-                            t.HasCheckConstraint("MinBadgeTitleLength", "LEN([Title]) >= 1");
-                        });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.ForumRule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AnswerAcceptor")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerMarkedAccepted")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerVotedUp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ArticleVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ArticleVotedUp")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MinimumReputationForVote")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostFlagged")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuestionVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuestionVotedUp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SuggestedEditAccepted")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ForumRules", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -279,7 +157,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberBadge", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.MemberBadge", b =>
                 {
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
@@ -300,7 +178,255 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("MemberBadges", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MultimediaImage", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedAnswer", b =>
+                {
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("AnswerId", "MemberId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("SavedAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedQuestion", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("QuestionId", "MemberId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("SavedQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.AcceptedAnswer", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("QuestionId", "AnswerId");
+
+                    b.HasIndex("AnswerId")
+                        .IsUnique();
+
+                    b.HasIndex("QuestionId")
+                        .IsUnique();
+
+                    b.ToTable("AcceptedAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(30000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("HasAcceptedAnswer")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAnswered")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VoteCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("Questions", null, t =>
+                        {
+                            t.HasCheckConstraint("MinQuestionBodyLength", "LEN([Body]) >= 220");
+
+                            t.HasCheckConstraint("MinQuestionTileLength", "LEN([Title]) >= 15");
+                        });
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionComment", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EditCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UsefulVoteCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("QuestionId", "CommenterId");
+
+                    b.ToTable("QuestionComments", null, t =>
+                        {
+                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
+                        });
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionTag", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("QuestionId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("QuestionTags", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Badge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GivenCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Badges", null, t =>
+                        {
+                            t.HasCheckConstraint("MinBadgeTitleLength", "LEN([Title]) >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ForumRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AnswerAcceptor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnswerMarkedAccepted")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnswerVotedDown")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnswerVotedUp")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ArticleVotedDown")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ArticleVotedUp")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MinimumReputationForVote")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostFlagged")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionVotedDown")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionVotedUp")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SuggestedEditAccepted")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForumRules", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.MultimediaImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -335,132 +461,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Question", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(30000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CommentCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsAnswered")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("VoteCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId")
-                        .IsUnique();
-
-                    b.ToTable("Questions", null, t =>
-                        {
-                            t.HasCheckConstraint("MinQuestionBodyLength", "LEN([Body]) >= 220");
-
-                            t.HasCheckConstraint("MinQuestionTileLength", "LEN([Title]) >= 15");
-                        });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionComment", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CommenterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(600)
-                        .HasColumnType("nvarchar(600)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EditCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UsefulVoteCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("QuestionId", "CommenterId");
-
-                    b.ToTable("QuestionComments", null, t =>
-                        {
-                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
-                        });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionTag", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("QuestionId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("QuestionTags", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionVote", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VoteGiverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUpvote")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("QuestionId", "VoteGiverId");
-
-                    b.HasIndex("VoteGiverId");
-
-                    b.ToTable("QuestionVotes", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.ResourceNotification", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -499,49 +500,7 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedAnswer", b =>
-                {
-                    b.Property<Guid>("AnswerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AnswerId", "MemberId");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("SavedAnswers", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedQuestion", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("QuestionId", "MemberId");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("SavedQuestions", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Tag", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Tag", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -766,178 +725,148 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AcceptedAnswer", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", b =>
                 {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
-                        .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "AnswerId")
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("AnswerGiverId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
-                        .WithOne("AcceptedAnswer")
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.AcceptedAnswer", "QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.Answer", "AnswerGiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerComment", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.AnswerComment", b =>
                 {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
                         .WithMany("Comments")
                         .HasForeignKey("AnswerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
                         .WithMany()
                         .HasForeignKey("CommenterId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerVote", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
-                        .WithMany("Votes")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("VoteGiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
                 {
                     b.HasOne("DiscussionFleet.Infrastructure.Identity.Managers.ApplicationUser", null)
                         .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.Member", "Id")
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.MemberAggregate.Member", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.MultimediaImage", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.MultimediaImage", null)
                         .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.Member", "ProfileImageId")
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.MemberAggregate.Member", "ProfileImageId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberBadge", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.MemberBadge", b =>
                 {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Badge", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.Badge", null)
                         .WithMany()
                         .HasForeignKey("BadgeId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
                         .WithMany("MemberBadges")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Question", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedAnswer", b =>
                 {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithOne()
-                        .HasForeignKey("DiscussionFleet.Domain.Entities.Question", "AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionComment", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionTag", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionVote", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
-                        .WithMany("Votes")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("VoteGiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.ResourceNotification", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("ConsumerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedAnswer", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Answer", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
                         .WithMany()
                         .HasForeignKey("AnswerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
                         .WithMany("SavedAnswers")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.SavedQuestion", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedQuestion", b =>
                 {
-                    b.HasOne("DiscussionFleet.Domain.Entities.Member", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
                         .WithMany("SavedQuestions")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.Question", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
                         .WithMany()
                         .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.AcceptedAnswer", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
+                        .WithOne()
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.QuestionAggregate.AcceptedAnswer", "AnswerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
+                        .WithOne("AcceptedAnswer")
+                        .HasForeignKey("DiscussionFleet.Domain.Entities.QuestionAggregate.AcceptedAnswer", "QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionComment", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionTag", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("ConsumerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -993,14 +922,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Answer", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Votes");
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Member", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
                 {
                     b.Navigation("MemberBadges");
 
@@ -1009,15 +936,13 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Navigation("SavedQuestions");
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.Question", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", b =>
                 {
                     b.Navigation("AcceptedAnswer");
 
                     b.Navigation("Comments");
 
                     b.Navigation("Tags");
-
-                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }
