@@ -12,7 +12,7 @@ public interface IRepositoryBase<TEntity, in TKey>
 
     Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
-        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        ICollection<Expression<Func<TEntity, object?>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
     );
@@ -44,6 +44,16 @@ public interface IRepositoryBase<TEntity, in TKey>
         CancellationToken cancellationToken = default
     ) where TSorter : IComparable<TSorter>;
 
+
+    Task<IList<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>> filter,
+        uint page = 1, uint limit = 10,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default
+    );
+
+
     Task<IList<TEntity>> GetAllAsync(
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
@@ -52,6 +62,17 @@ public interface IRepositoryBase<TEntity, in TKey>
     );
 
     Task<IList<TEntity>> GetAllAsync<TSorter>(
+        Expression<Func<TEntity, TSorter>> orderBy,
+        uint page = 1,
+        uint limit = 10,
+        bool ascendingOrder = true,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<IList<TEntity>> GetAllAsync<TSorter>(
+        Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TSorter>> orderBy,
         uint page = 1,
         uint limit = 10,

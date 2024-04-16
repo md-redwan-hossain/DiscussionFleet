@@ -32,7 +32,7 @@ public abstract class Repository<TEntity, TKey>
 
     public virtual async Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
-        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        ICollection<Expression<Func<TEntity, object?>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
     )
@@ -146,6 +146,28 @@ public abstract class Repository<TEntity, TKey>
         return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
+
+    public virtual async Task<IList<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>> filter,
+        uint page = 1, uint limit = 10,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var data = EntityDbSet.Where(filter);
+
+        if (includes is not null)
+        {
+            data = includes.Aggregate(data, (current, include) => current.Include(include));
+        }
+
+        data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
+
+        if (disableTracking) data = data.AsNoTracking();
+        return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public virtual async Task<IList<TEntity>> GetAllAsync<TSorter>(
         Expression<Func<TEntity, TSorter>> orderBy,
         uint page = 1,
@@ -157,6 +179,33 @@ public abstract class Repository<TEntity, TKey>
     )
     {
         var data = EntityDbSet.AsQueryable();
+        if (includes is not null)
+        {
+            data = includes.Aggregate(data, (current, include) => current.Include(include));
+        }
+
+        data = ascendingOrder
+            ? data.OrderBy(orderBy)
+            : data.OrderByDescending(orderBy);
+
+        data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
+
+        if (disableTracking) data = data.AsNoTracking();
+
+        return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IList<TEntity>> GetAllAsync<TSorter>(
+        Expression<Func<TEntity, bool>> filter,
+        Expression<Func<TEntity, TSorter>> orderBy,
+        uint page = 1, uint limit = 10,
+        bool ascendingOrder = true,
+        ICollection<Expression<Func<TEntity, object>>>? includes = null,
+        bool disableTracking = false,
+        CancellationToken cancellationToken = default)
+    {
+        var data = EntityDbSet.Where(filter);
+
         if (includes is not null)
         {
             data = includes.Aggregate(data, (current, include) => current.Include(include));
@@ -204,7 +253,8 @@ public abstract class Repository<TEntity, TKey>
             .ConfigureAwait(false);
     }
 
-    public async Task<IList<TResult>> GetAllAsync<TResult, TSorter>(Expression<Func<TEntity, bool>> filter,
+    public async Task<IList<TResult>> GetAllAsync<TResult, TSorter>(
+        Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
         uint page = 1,

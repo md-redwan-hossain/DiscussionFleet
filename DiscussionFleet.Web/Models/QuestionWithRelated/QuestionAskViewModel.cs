@@ -1,18 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autofac;
 using DiscussionFleet.Application;
-using DiscussionFleet.Application.Common.Options;
-using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.QuestionFeatures.Services;
 using DiscussionFleet.Application.TagFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Web.Utils;
-using Microsoft.Extensions.Options;
 using SharpOutcome;
 
-namespace DiscussionFleet.Web.Models.Question;
+namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 
 public class QuestionAskViewModel : IViewModelWithResolve
 {

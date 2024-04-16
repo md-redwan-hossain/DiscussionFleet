@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Autofac;
-using DiscussionFleet.Web.Models.Question;
+using DiscussionFleet.Web.Models.QuestionWithRelated;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

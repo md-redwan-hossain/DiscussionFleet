@@ -9,7 +9,7 @@ using DiscussionFleet.Domain.Utils;
 using DiscussionFleet.Web.Utils;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace DiscussionFleet.Web.Models.Question;
+namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 
 public class QuestionSearchViewModel : IViewModelWithResolve
 {

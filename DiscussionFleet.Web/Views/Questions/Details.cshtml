@@ -1,4 +1,4 @@
-﻿@model DiscussionFleet.Web.Models.Question.QuestionDetailsViewModel;
+﻿@model DiscussionFleet.Web.Models.QuestionWithRelated.QuestionDetailsViewModel;
 
 
 @{
@@ -52,7 +52,7 @@
                             </div>
                             <div class="d-none d-md-block">
                                 <span class="text-muted">Modified</span>
-                                <span class="text-dark  utc-datetime" data-time="@Model.UpdatedAtUtc?.ToString("o")"></span>
+                                <span class="text-dark utc-datetime" data-time="@Model.UpdatedAtUtc?.ToString("o")"></span>
                             </div>
                         </div>
 
@@ -71,246 +71,170 @@
 <div class="row">
 <div class="col-lg-8 mb-sm-2 mb-lg-0">
 <div class="row pb-3">
-<div class="col">
-<div class="card">
-<div class="card-header">
-    <div>
-        <div class="row align-items-center">
-            <div class="col-auto">
-                <span class="avatar rounded-circle"
-                      style="background-image: url('@Url.Content(Model.ProfilePicUrl)')">
-                </span>
-            </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="avatar rounded-circle"
+                                  style="background-image: url('@Url.Content(Model.ProfilePicUrl)')">
+                            </span>
+                        </div>
 
 
-            <div class="col">
-                <div class="fs-4 d-block d-md-none">@Model.AuthorName</div>
-                <div class="fs-4 text-muted d-inline-block d-md-none">
-                    <div class="badge badge-outline text-muted border fw-normal d-flex"
-                         data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
-                        <span class="text-yellow">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-medal">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M12 4v3m-4 -3v6m8 -6v6"/>
-                                <path d="M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z"/>
-                            </svg>
-                        </span>
-                        <span class="text-dark">@Model.AuthorReputation</span>
+                        <div class="col">
+                            <div class="fs-4 d-block d-md-none">@Model.AuthorName</div>
+                            <div class="fs-4 text-muted d-inline-block d-md-none">
+                                <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                    <span class="text-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             class="icon icon-tabler icons-tabler-outline icon-tabler-medal">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M12 4v3m-4 -3v6m8 -6v6"/>
+                                            <path d="M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z"/>
+                                        </svg>
+                                    </span>
+                                    <span class="text-dark">@Model.AuthorReputation</span>
+                                </div>
+                            </div>
+
+                            <div class="card-title d-none d-md-block">@Model.AuthorName</div>
+                            <div class="card-subtitle d-none d-md-inline-block">
+                                <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                    <span class="text-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             class="icon icon-tabler icons-tabler-outline icon-tabler-medal">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M12 4v3m-4 -3v6m8 -6v6"/>
+                                            <path d="M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z"/>
+                                        </svg>
+                                    </span>
+                                    <span class="text-dark">@Model.AuthorReputation</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-
-                <div class="card-title d-none d-md-block">@Model.AuthorName</div>
-                <div class="card-subtitle d-none d-md-inline-block">
-                    <div class="badge badge-outline text-muted border fw-normal d-flex"
-                         data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
-                        <span class="text-yellow">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-medal">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M12 4v3m-4 -3v6m8 -6v6"/>
-                                <path d="M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z"/>
-                            </svg>
-                        </span>
-                        <span class="text-dark">@Model.AuthorReputation</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="card-actions">
-        <div class="col-auto d-flex flex-wrap gap-2 ">
-            <a href="#" class="badge badge-outline text-green border fw-normal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                     fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path
-                        d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
-                </svg>
-            </a>
-
-            <div class="badge badge-outline text-muted border fw-normal d-flex" data-bs-toggle="tooltip"
-                 data-bs-placement="top" title="Tooltip on top">
-                <span class="text-yellow">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                         viewBox="0 0 24 24" fill="currentColor"
-                         class="icon icon-tabler icons-tabler-filled icon-tabler-rosette">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path
-                            d="M12.01 2.011a3.2 3.2 0 0 1 2.113 .797l.154 .145l.698 .698a1.2 1.2 0 0 0 .71 .341l.135 .008h1a3.2 3.2 0 0 1 3.195 3.018l.005 .182v1c0 .27 .092 .533 .258 .743l.09 .1l.697 .698a3.2 3.2 0 0 1 .147 4.382l-.145 .154l-.698 .698a1.2 1.2 0 0 0 -.341 .71l-.008 .135v1a3.2 3.2 0 0 1 -3.018 3.195l-.182 .005h-1a1.2 1.2 0 0 0 -.743 .258l-.1 .09l-.698 .697a3.2 3.2 0 0 1 -4.382 .147l-.154 -.145l-.698 -.698a1.2 1.2 0 0 0 -.71 -.341l-.135 -.008h-1a3.2 3.2 0 0 1 -3.195 -3.018l-.005 -.182v-1a1.2 1.2 0 0 0 -.258 -.743l-.09 -.1l-.697 -.698a3.2 3.2 0 0 1 -.147 -4.382l.145 -.154l.698 -.698a1.2 1.2 0 0 0 .341 -.71l.008 -.135v-1l.005 -.182a3.2 3.2 0 0 1 3.013 -3.013l.182 -.005h1a1.2 1.2 0 0 0 .743 -.258l.1 -.09l.698 -.697a3.2 3.2 0 0 1 2.269 -.944z"/>
-                    </svg>
-                </span>
-                <span class="text-dark">@Model.VoteCount</span>
-            </div>
-
-            <a href="#" class="badge badge-outline text-red border fw-normal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                     fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path
-                        d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
-                </svg>
-            </a>
-
-            <a href="#" class="badge badge-outline text-cyan border fw-normal">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                    stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M8.7 10.7l6.6 -3.4"/>
-                    <path d="M8.7 13.3l6.6 3.4"/>
-                </svg>
-            </a>
-        </div>
-    </div>
-</div>
-<div class="card-body">
-
-    <div id="question-body" class="markdown">
-        @Html.Raw(Model.Body)
-    </div>
-
-    <div class="hr-text text-primary">Comments</div>
-
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-            <div class="row">
-                <div class="col-auto d-flex flex-column gap-1">
-                    <span class="text-yellow text-center">
-                        434
-                    </span>
-                    <div>
+                <div class="card-actions">
+                    <div class="col-auto d-flex flex-wrap gap-2 ">
                         <a href="#" class="badge badge-outline text-green border fw-normal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="currentColor"
-                                 class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                 fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                 <path
                                     d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
                             </svg>
                         </a>
-                    </div>
-                    <div>
-                        <a href="#" class="badge badge-outline text-cyan border fw-normal">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="icon icon-tabler icons-tabler-outline icon-tabler-share">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M8.7 10.7l6.6 -3.4"/>
-                                <path d="M8.7 13.3l6.6 3.4"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="col">
-                    <p class="text-dark">
-                        Another observation is that you don't need to sort the array, but you just need to
-                        partition
-                        it with the value 128. Sorting is n*log(n), whereas partitioning is just linear.
-                        Basically
-                        it
-                        is just one run of the quick sort partitioning step with the pivot chosen to be 128.
-                        Unfortunately in C++ there is just nth_element function, which partition by position,
-                        not by
-                        value.
-                        <span class="comment-meta">
-                            <span> - </span>
-                            <a href="#" class=" link fs-5">md-redwan-hossain</a>
-                            <span class="text-muted fs-5 ">
-                                20/10/2015 at 15:35
+
+                        <div class="badge badge-outline text-muted border fw-normal d-flex" data-bs-toggle="tooltip"
+                             data-bs-placement="top" title="Tooltip on top">
+                            <span class="text-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                     viewBox="0 0 24 24" fill="currentColor"
+                                     class="icon icon-tabler icons-tabler-filled icon-tabler-rosette">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M12.01 2.011a3.2 3.2 0 0 1 2.113 .797l.154 .145l.698 .698a1.2 1.2 0 0 0 .71 .341l.135 .008h1a3.2 3.2 0 0 1 3.195 3.018l.005 .182v1c0 .27 .092 .533 .258 .743l.09 .1l.697 .698a3.2 3.2 0 0 1 .147 4.382l-.145 .154l-.698 .698a1.2 1.2 0 0 0 -.341 .71l-.008 .135v1a3.2 3.2 0 0 1 -3.018 3.195l-.182 .005h-1a1.2 1.2 0 0 0 -.743 .258l-.1 .09l-.698 .697a3.2 3.2 0 0 1 -4.382 .147l-.154 -.145l-.698 -.698a1.2 1.2 0 0 0 -.71 -.341l-.135 -.008h-1a3.2 3.2 0 0 1 -3.195 -3.018l-.005 -.182v-1a1.2 1.2 0 0 0 -.258 -.743l-.09 -.1l-.697 -.698a3.2 3.2 0 0 1 -.147 -4.382l.145 -.154l.698 -.698a1.2 1.2 0 0 0 .341 -.71l.008 -.135v-1l.005 -.182a3.2 3.2 0 0 1 3.013 -3.013l.182 -.005h1a1.2 1.2 0 0 0 .743 -.258l.1 -.09l.698 -.697a3.2 3.2 0 0 1 2.269 -.944z"/>
+                                </svg>
                             </span>
-                        </span>
-                    </p>
-                </div>
-            </div>
-        </li>
-        <li class="list-group-item ">
-            <div class="row">
-                <div class="col-auto d-flex flex-column gap-1">
-                    <span class="text-yellow text-center">
-                        434
-                    </span>
-                    <div>
-                        <a href="#" class="badge badge-outline text-green border fw-normal">
+                            <span class="text-dark">@Model.VoteCount</span>
+                        </div>
+
+                        <a href="#" class="badge badge-outline text-red border fw-normal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="currentColor"
-                                 class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                 fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                 <path
-                                    d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                    d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
                             </svg>
                         </a>
                     </div>
-                    <div>
-                        <a href="#" class="badge badge-outline text-cyan border fw-normal">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="icon icon-tabler icons-tabler-outline icon-tabler-share">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                                <path d="M8.7 10.7l6.6 -3.4"/>
-                                <path d="M8.7 13.3l6.6 3.4"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="col">
-                    <p class="text-dark">
-                        Another observation is that you don't need to sort the array, but you just need to
-                        partition
-                        it with the value 128. Sorting is n*log(n), whereas partitioning is just linear.
-                        Basically
-                        it
-                        is just one run of the quick sort partitioning step with the pivot chosen to be 128.
-                        Unfortunately in C++ there is just nth_element function, which partition by position,
-                        not by
-                        value.
-                        <span class="comment-meta">
-                            <span> - </span>
-                            <a href="#" class=" link fs-5">md-redwan-hossain</a>
-                            <span class="text-muted fs-5 ">
-                                20/10/2015 at 15:35
-                            </span>
-                        </span>
-                    </p>
                 </div>
             </div>
-        </li>
-    </ul>
+            <div class="card-body">
 
-    <div class="d-flex justify-content-end">
-        <a href="#" class="link-secondary link-offset-2 fs-5">Add a comment</a>
-    </div>
+                <div id="question-body" class="markdown">
+                    @Html.Raw(Model.Body)
+                </div>
 
-</div>
-<div class="card-footer">
-    <div class=" d-flex flex-wrap gap-1">
-        @foreach (var item in Model.TagNames)
-        {
-            <span class="badge bg-blue-lt">@item</span>
-        }
+                <div class="hr-text text-primary">Comments</div>
+
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.Comments)
+                    {
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-auto d-flex flex-column gap-1">
+                                    <span class="text-yellow text-center">
+                                        @item.UsefulVoteCount
+                                    </span>
+                                    <div>
+                                        <a href="#" class="badge badge-outline text-green border fw-normal">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="currentColor"
+                                                 class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path
+                                                    d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a href="#" class="badge badge-outline text-cyan border fw-normal">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-share">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                                                <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                                                <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                                                <path d="M8.7 10.7l6.6 -3.4"/>
+                                                <path d="M8.7 13.3l6.6 3.4"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <p class="text-dark">
+                                        @item.Body
+                                        <span class="comment-meta">
+                                            <span> - </span>
+                                            <span class=" link fs-5">@item.AuthorName</span>
+                                            <span class="text-muted fs-5 utc-datetime" data-time="@item.LastActivityUtc.ToString("o")"> </span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                    }
+
+                </ul>
+
+                <div class="d-flex justify-content-end">
+                    <a href="#" class="link-secondary link-offset-2 fs-5">Add a comment</a>
+                </div>
+
+            </div>
+            <div class="card-footer">
+                <div class=" d-flex flex-wrap gap-1">
+                    @foreach (var item in Model.TagNames)
+                    {
+                        <span class="badge bg-blue-lt">@item</span>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-</div>
-</div>
 </div>
 
 <!-- Answer sorting area start -->
@@ -416,20 +340,6 @@
                         d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
                 </svg>
             </a>
-
-            <a href="#" class="badge badge-outline text-cyan border fw-normal">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                    stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                    <path d="M8.7 10.7l6.6 -3.4"/>
-                    <path d="M8.7 13.3l6.6 3.4"/>
-                </svg>
-            </a>
         </div>
     </div>
 </div>
@@ -526,7 +436,7 @@
 
 <div class="hr-text text-primary">Comments</div>
 <ul class="list-group list-group-flush">
-    <li class="list-group-item text-decoration-none">
+    <li class="list-group-item">
         <div class="row">
             <div class="col-auto d-flex flex-column gap-1">
                 <span class="text-yellow text-center">

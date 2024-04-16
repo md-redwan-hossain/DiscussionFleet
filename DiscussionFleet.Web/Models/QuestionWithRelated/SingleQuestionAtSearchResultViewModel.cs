@@ -1,6 +1,6 @@
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 
-namespace DiscussionFleet.Web.Models.Question;
+namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 
 public class SingleQuestionAtSearchResultViewModel
 {

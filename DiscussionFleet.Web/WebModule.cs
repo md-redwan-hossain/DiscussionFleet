@@ -1,7 +1,7 @@
 using Autofac;
 using DiscussionFleet.Web.Models;
 using DiscussionFleet.Web.Models.Account;
-using DiscussionFleet.Web.Models.Question;
+using DiscussionFleet.Web.Models.QuestionWithRelated;
 
 namespace DiscussionFleet.Web;
 
