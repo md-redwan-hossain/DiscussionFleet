@@ -1,12 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autofac;
 using DiscussionFleet.Application;
+using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.QuestionFeatures.Services;
 using DiscussionFleet.Application.TagFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Web.Utils;
+using Microsoft.Extensions.Options;
 using SharpOutcome;
 
 namespace DiscussionFleet.Web.Models.Question;
@@ -16,6 +19,8 @@ public class QuestionAskViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IQuestionService _questionService;
+    private ForumRulesOptions _forumRulesOptions;
+    private IMemberReputationService _memberReputationService;
 
 
     public QuestionAskViewModel()
@@ -24,11 +29,14 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
 
     public QuestionAskViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork,
-        IQuestionService questionService)
+        IQuestionService questionService, IOptions<ForumRulesOptions> forumRulesOptions,
+        IMemberReputationService memberReputationService)
     {
         _scope = scope;
         _appUnitOfWork = appUnitOfWork;
         _questionService = questionService;
+        _memberReputationService = memberReputationService;
+        _forumRulesOptions = forumRulesOptions.Value;
     }
 
     [Required]
@@ -47,26 +55,34 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
     public bool HasError { get; set; }
     public bool CanCreate { get; set; } = true;
-    public (HashSet<Guid> existing, HashSet<string> newlyCreated) Tags { get; set; }
-    public HashSet<Guid> SelectedExistingTags { get; set; } = [];
+    public HashSet<Guid>? SelectedExistingTags { get; set; } = [];
     public HashSet<string> NewCreatedTags { get; set; } = [];
     public byte MaxTags { get; set; } = 5;
 
 
     public async Task<string?> ConductAskQuestion(Guid id)
     {
-        if (NewCreatedTags.Count + SelectedExistingTags.Count > 5) return "Maximum 5 tags are allowed";
+        if (SelectedExistingTags is null && NewCreatedTags.Count == 0) return "At least 1 tag is required.";
 
-        var dto = new QuestionWithNewTagsCreateRequest(id, Title, Body, SelectedExistingTags,
+        if (NewCreatedTags.Count + SelectedExistingTags?.Count == 0) return "At least 1 tag is required.";
+
+        if (NewCreatedTags.Count + SelectedExistingTags?.Count > 5) return "Maximum 5 tags are allowed.";
+
+        var dto = new QuestionWithNewTagsCreateRequest(id, Title, Body, SelectedExistingTags ?? [],
             new TagCreateRequest(NewCreatedTags));
 
-        var oc = await _questionService.CreateWithNewTagsAsync(dto);
+        var outcome = await _questionService.CreateWithNewTagsAsync(dto);
 
-        if (oc.TryPickBadOutcome(out var err))
+        if (outcome.TryPickBadOutcome(out var err))
         {
             return err.Tag is BadOutcomeTag.Duplicate
                 ? $"Duplicate tags: {err}"
                 : "Unknown Error";
+        }
+
+        if (outcome.IsGoodOutcome)
+        {
+            await _memberReputationService.UpvoteAsync(id, _forumRulesOptions.NewQuestion);
         }
 
         return null;
@@ -84,5 +100,7 @@ public class QuestionAskViewModel : IViewModelWithResolve
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _questionService = _scope.Resolve<IQuestionService>();
+        _memberReputationService = _scope.Resolve<IMemberReputationService>();
+        _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

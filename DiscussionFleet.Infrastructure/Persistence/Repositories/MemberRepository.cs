@@ -8,4 +8,6 @@ public class MemberRepository : Repository<Member, Guid>, IMemberRepository
     public MemberRepository(ApplicationDbContext context) : base(context)
     {
     }
+
+
 }

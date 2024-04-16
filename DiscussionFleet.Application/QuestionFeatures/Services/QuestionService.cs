@@ -1,9 +1,12 @@
-﻿using DiscussionFleet.Application.Common.Providers;
+﻿using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Utils;
+using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.TagFeatures;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Outcomes;
+using Microsoft.Extensions.Options;
 using SharpOutcome;
 
 namespace DiscussionFleet.Application.QuestionFeatures.Services;
@@ -14,14 +17,19 @@ public class QuestionService : IQuestionService
     private readonly IGuidProvider _guidProvider;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ITagService _tagService;
+    private readonly ForumRulesOptions _forumRulesOptions;
+    private readonly IMemberReputationService _memberReputationService;
 
     public QuestionService(IApplicationUnitOfWork appUnitOfWork, IGuidProvider guidProvider,
-        IDateTimeProvider dateTimeProvider, ITagService tagService)
+        IDateTimeProvider dateTimeProvider, IOptions<ForumRulesOptions> forumRulesOptions,
+        IMemberReputationService memberReputationService, ITagService tagService)
     {
         _appUnitOfWork = appUnitOfWork;
         _guidProvider = guidProvider;
         _dateTimeProvider = dateTimeProvider;
         _tagService = tagService;
+        _forumRulesOptions = forumRulesOptions.Value;
+        _memberReputationService = memberReputationService;
     }
 
     public async Task CreateAsync(QuestionCreateRequest dto)
@@ -52,41 +60,40 @@ public class QuestionService : IQuestionService
 
     public async Task<Outcome<Success, IBadOutcome>> CreateWithNewTagsAsync(QuestionWithNewTagsCreateRequest dto)
     {
-        await using var trx = await _appUnitOfWork.BeginTransactionAsync();
-
-        try
+        await using (var trx = await _appUnitOfWork.BeginTransactionAsync())
         {
-            var outcome = await _tagService.CreateMany(dto.NewTagDto);
-            
-            if (outcome.TryPickBadOutcome(out var err))
+            try
+            {
+                var outcome = await _tagService.CreateMany(dto.NewTagDto);
+                
+                if (outcome.TryPickBadOutcome(out var err))
+                {
+                    await trx.RollbackAsync();
+                    return new BadOutcome(BadOutcomeTag.Duplicate, Helpers.DelimitedCollection(err.DuplicateData));
+                }
+
+                if (outcome.TryPickGoodOutcome(out var data))
+                {
+                    ICollection<Guid> tags = [..dto.ExistingTags, ..data.Select(x => x.Id)];
+                    var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
+                    await CreateAsync(questionCreateRequest);
+                }
+
+                await _memberReputationService.UpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
+
+                await trx.CommitAsync();
+                return Success.Return;
+            }
+            catch (Exception)
             {
                 await trx.RollbackAsync();
-                return new BadOutcome(BadOutcomeTag.Duplicate, Helpers.DelimitedCollection(err.DuplicateData));
             }
-            
-            if (outcome.TryPickGoodOutcome(out var data))
-            {
-                ICollection<Guid> tags = [..dto.ExistingTags, ..data.Select(x => x.Id)];
-                var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
-                await CreateAsync(questionCreateRequest);
-            }
-            
-            await trx.CommitAsync();
-            return Success.Return;
         }
-        catch (Exception)
-        {
-            await trx.RollbackAsync();
-        }
+
+        // await using var trx = await _appUnitOfWork.BeginTransactionAsync();
+
 
         return new BadOutcome(BadOutcomeTag.Unknown);
     }
-
-    public async Task<Question> GetManyAsync(QuestionFilterRequest dto)
-    {
-        await _appUnitOfWork.QuestionRepository.GetAllAsync(
-            includes: [x => x.AcceptedAnswer]
-        );
-        throw new NotImplementedException();
-    }
+    
 }

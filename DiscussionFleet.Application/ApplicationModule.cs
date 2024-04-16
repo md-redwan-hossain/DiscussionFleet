@@ -1,4 +1,5 @@
 using Autofac;
+using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.Services;
 using DiscussionFleet.Application.TagFeatures;
 
@@ -14,6 +15,10 @@ public class ApplicationModule : Module
 
         builder.RegisterType<QuestionService>()
             .As<IQuestionService>()
+            .InstancePerLifetimeScope();
+
+        builder.RegisterType<MemberReputationService>()
+            .As<IMemberReputationService>()
             .InstancePerLifetimeScope();
     }
 }

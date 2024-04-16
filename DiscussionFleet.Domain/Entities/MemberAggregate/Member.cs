@@ -15,4 +15,47 @@ public class Member : Entity<Guid>
     public ICollection<MemberBadge> MemberBadges { get; set; }
     public ICollection<SavedQuestion> SavedQuestions { get; set; }
     public ICollection<SavedAnswer> SavedAnswers { get; set; }
+
+    // public bool Upvote(int positivePoint)
+    // {
+    //     if (positivePoint <= 0) return false;
+    //
+    //     try
+    //     {
+    //         checked
+    //         {
+    //             ReputationCount += positivePoint;
+    //             return true;
+    //         }
+    //     }
+    //     catch (OverflowException)
+    //     {
+    //         return false;
+    //     }
+    // }
+
+
+    public bool DownVote(int negativePoint)
+    {
+        if (negativePoint >= 0) return false;
+        if (ReputationCount == 1) return false;
+        
+        try
+        {
+            checked
+            {
+                var reputationCountMinusOne = ReputationCount - 1;
+                var toPositivePoint = negativePoint * -1;
+                var availablePointToSubtract = toPositivePoint - reputationCountMinusOne;
+                var toApply = negativePoint - availablePointToSubtract;
+                ReputationCount -= toApply;
+
+                return true;
+            }
+        }
+        catch (OverflowException)
+        {
+            return false;
+        }
+    }
 }
