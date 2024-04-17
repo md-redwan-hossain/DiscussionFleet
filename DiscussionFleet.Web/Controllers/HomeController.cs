@@ -1,32 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace DiscussionFleet.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
-
     public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
     {
         return View();
     }
 
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error(int id)
+    public IActionResult Error([FromRoute] int id, [FromQuery] string? returnUrl)
     {
         ViewData["IsException"] = true;
+        ViewData["ReturnUrl"] = returnUrl;
+        ViewData["ErrorMessage"] = ReasonPhrases.GetReasonPhrase(id);
         ViewData["ErrorCode"] = id;
         return View("StatusCodeError");
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult Error(string returnUrl)
+    {
+        return LocalRedirect(returnUrl);
     }
 }

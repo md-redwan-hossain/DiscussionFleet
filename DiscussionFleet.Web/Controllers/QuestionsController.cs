@@ -1,5 +1,8 @@
 using System.Security.Claims;
 using Autofac;
+using DiscussionFleet.Application.AnswerFeatures;
+using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Web.Models.AnswerWithRelated;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +71,57 @@ public class QuestionsController : Controller
         outcome.TryPickGoodOutcome(out var id);
 
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize]
+    public async Task<IActionResult> Answer([FromRoute] Guid id, [FromForm] AnswerViewModel viewModel)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (currentUserId is null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        // if (ModelState.IsValid is false)
+        // {
+        //     return View(viewModel);
+        // }
+        var parsedUserId = Guid.Parse(currentUserId);
+
+        viewModel.Resolve(_scope);
+
+        var result = await viewModel.CheckValidAuthorAsync(parsedUserId, id);
+
+        if (result is AnswerCreateValidityResult.HomogenousUser)
+        {
+            ModelState.AddModelError(string.Empty, "Question asker can't answer can't answer in own question");
+        }
+
+        if (result is AnswerCreateValidityResult.QuestionNotFound)
+        {
+            RedirectToAction(nameof(Index));
+        }
+
+        await viewModel.ConductAnswerCreationAsync(parsedUserId);
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
+    // [ValidateAntiForgeryToken]
+    // [HttpPost("details/{id:guid}/up-vote")]
+    [HttpGet("{controller}/details/{id:guid}/up-vote")]
+    public IActionResult UpVote(Guid id)
+    {
+        Console.WriteLine();
+        // if (ModelState.IsValid)
+        // {
+        //     return View(model);
+        // }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost, ValidateAntiForgeryToken]

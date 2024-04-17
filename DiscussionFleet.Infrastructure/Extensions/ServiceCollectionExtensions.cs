@@ -4,12 +4,14 @@ using Amazon.S3;
 using Amazon.SQS;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Utils;
+using DiscussionFleet.Infrastructure.Identity;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Persistence;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -126,6 +128,30 @@ public static class ServiceCollectionExtensions
     }
 
 
+    public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var forumRulesOptions = configuration.GetSection(ForumRulesOptions.SectionName).Get<ForumRulesOptions>();
+
+        ArgumentNullException.ThrowIfNull(forumRulesOptions);
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(nameof(forumRulesOptions.MinimumReputationForVote), policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(
+                        new MinimumReputationRequirement(forumRulesOptions.MinimumReputationForVote)
+                    );
+                }
+            );
+        });
+
+
+        return services;
+    }
+
+
     public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
     {
         const string allowedCharsInPassword =
@@ -136,6 +162,7 @@ public static class ServiceCollectionExtensions
         //     options.TokenLifespan = TimeSpan.FromMinutes(15);
         // });
 
+        services.AddSingleton<IAuthorizationHandler, MinimumReputationHandler>();
 
         services.AddIdentity<ApplicationUser, ApplicationRole>(
                 options =>
@@ -193,16 +220,27 @@ public static class ServiceCollectionExtensions
         //     });
         // return services;
 
-        services.AddAuthentication()
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-            {
-                options.LoginPath = new PathString("/account/login");
-                options.AccessDeniedPath = new PathString("/account/login");
-                options.LogoutPath = new PathString("/account/logout");
-                options.Cookie.Name = "Identity";
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromHours(1);
-            });
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = new PathString("/account/login");
+            options.AccessDeniedPath = new PathString("/home/error/401");
+            options.LogoutPath = new PathString("/account/logout");
+            options.Cookie.Name = "Identity";
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        });
+
+        // services.AddAuthentication()
+        //     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        //     {
+        //         options.LoginPath = new PathString("/account/login");
+        //         options.AccessDeniedPath = new PathString("/account/login");
+        //         options.LogoutPath = new PathString("/account/logout");
+        //         options.Cookie.Name = "Identity";
+        //         options.SlidingExpiration = true;
+        //         options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        //     });
 
         return services;
     }

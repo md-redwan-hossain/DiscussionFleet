@@ -75,20 +75,13 @@ try
     await builder.Services.AddDatabaseConfigAsync(builder.Configuration);
     builder.Services.AddRedisConfig(builder.Configuration);
 
-    //
-    // var googleRecaptchaOpts = builder.Configuration
-    //     .GetSection(GoogleRecaptchaOptions.SectionName)
-    //     .Get<GoogleRecaptchaOptions>();
-    //
-    // ArgumentNullException.ThrowIfNull(googleRecaptchaOpts, nameof(GoogleRecaptchaOptions));
-    //
-    // var r = await googleRecaptchaOpts.BuildAdapter().AdaptToTypeAsync<ReCaptchaSettings>();
-    //
-    
     builder.Services.AddReCaptcha(builder.Configuration.GetSection(GoogleRecaptchaOptions.SectionName));
-    
+
     builder.Services.AddIdentityConfiguration();
     builder.Services.AddCookieAuthentication();
+    builder.Services.AddAuthorizationPolicies(builder.Configuration);
+
+
     builder.Services.Configure<RouteOptions>(options =>
     {
         options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
@@ -124,7 +117,6 @@ try
         .UseRouting()
         .UseAuthentication()
         .UseAuthorization();
-// .UseSession();
 
     app.MapControllerRoute(
         name: "areas",

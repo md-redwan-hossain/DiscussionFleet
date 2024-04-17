@@ -180,7 +180,7 @@ public class AccountController : Controller
     {
         await _signInManager.SignOutAsync();
 
-        if (returnUrl != null)
+        if (returnUrl is not null)
         {
             return LocalRedirect(returnUrl);
         }
