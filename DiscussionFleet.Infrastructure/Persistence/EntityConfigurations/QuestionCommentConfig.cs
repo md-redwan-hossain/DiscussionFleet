@@ -1,5 +1,6 @@
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -14,23 +15,20 @@ public class QuestionCommentConfig : IEntityTypeConfiguration<QuestionComment>
     {
         builder.ToTable(DomainEntityDbTableNames.QuestionComment);
 
+        builder.HasKey(x => new { x.QuestionId, x.CommentId });
+
         builder
-            .Property(c => c.Body)
-            .HasMaxLength(DomainEntityConstants.CommentBodyMaxLength);
+            .HasOne<Question>()
+            .WithMany()
+            .HasForeignKey(x => x.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
 
-
-        var cc = new SqlCheckConstrainGenerator(InfrastructureConstants.DatabaseInUse);
-
-        builder.ToTable(b =>
-            b.HasCheckConstraint(DomainEntityConstants.QuestionCommentBodyMinLengthConstraint,
-                cc.GreaterThanOrEqual(
-                    nameof(QuestionComment.Body),
-                    DomainEntityConstants.CommentBodyMinLength,
-                    SqlDataType.VarChar
-                )
-            ));
-
-        builder.HasKey(x => new { x.QuestionId, x.CommenterId });
-
+        builder
+            .HasOne<Comment>()
+            .WithMany()
+            .HasForeignKey(x => x.CommentId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

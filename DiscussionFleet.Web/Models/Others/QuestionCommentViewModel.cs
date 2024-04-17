@@ -4,6 +4,7 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Web.Utils;
 
 namespace DiscussionFleet.Web.Models.Others;
@@ -13,17 +14,19 @@ public class QuestionCommentViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IDateTimeProvider _dateTimeProvider;
+    private IGuidProvider _guidProvider;
 
     public QuestionCommentViewModel()
     {
     }
 
     public QuestionCommentViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider)
     {
         _appUnitOfWork = appUnitOfWork;
         _scope = scope;
         _dateTimeProvider = dateTimeProvider;
+        _guidProvider = guidProvider;
     }
 
 
@@ -47,11 +50,20 @@ public class QuestionCommentViewModel : IViewModelWithResolve
 
         if (question is null) return false;
 
+
+        var comment = new Comment
+        {
+            Id = _guidProvider.SortableGuid(),
+            Body = Body,
+            CommenterId = commentWriterId,
+        };
+
+        comment.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
+
         var questionComment = new QuestionComment
         {
             QuestionId = question.Id,
-            CommenterId = commentWriterId,
-            Body = Body
+            CommentId = comment.Id
         };
 
         questionComment.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
@@ -68,5 +80,6 @@ public class QuestionCommentViewModel : IViewModelWithResolve
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
+        _guidProvider = _scope.Resolve<IGuidProvider>();
     }
 }

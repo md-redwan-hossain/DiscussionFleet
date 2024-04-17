@@ -102,12 +102,17 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
     private async Task LoadQuestionCommentsAsync(ICollection<QuestionComment> questionComments)
     {
-        var questionCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
-            filter: x => questionComments.Select(z => z.CommenterId).Contains(x.Id),
+        var comments = await _appUnitOfWork.CommentRepository.GetAllAsync(
+            filter: x => questionComments.Select(z => z.CommentId).Contains(x.Id),
             orderBy: x => x.Id
         );
 
-        foreach (var comment in questionComments)
+        var questionCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
+            filter: x => comments.Select(z => z.CommenterId).Contains(x.Id),
+            orderBy: x => x.Id
+        );
+
+        foreach (var comment in comments)
         {
             var ansAuthor = questionCommenters.FirstOrDefault(x => x.Id == comment.CommenterId);
             if (ansAuthor is null) continue;
@@ -172,7 +177,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     }
 
 
-    private async Task<ICollection<ReadCommentViewModel>> LoadAnswerCommentsAsync(ICollection<AnswerComment> answerComments)
+    private async Task<ICollection<ReadCommentViewModel>> LoadAnswerCommentsAsync(
+        ICollection<AnswerComment> answerComments)
     {
         ICollection<ReadCommentViewModel> cvmStorage = [];
 

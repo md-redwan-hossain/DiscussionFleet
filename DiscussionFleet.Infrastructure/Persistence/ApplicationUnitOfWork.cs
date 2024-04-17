@@ -9,7 +9,8 @@ public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
         IMemberRepository memberRepository, IMultimediaImageRepository multimediaImageRepository,
         IQuestionRepository questionRepository, ITagRepository tagRepository,
         IResourceNotificationRepository resourceNotificationRepository, IAnswerRepository answerRepository,
-        IQuestionVoteRepository questionVoteRepository, IAnswerVoteRepository answerVoteRepository)
+        IQuestionVoteRepository questionVoteRepository, IAnswerVoteRepository answerVoteRepository,
+        ICommentRepository commentRepository)
         : base(appDbContext)
     {
         MemberRepository = memberRepository;
@@ -20,11 +21,13 @@ public sealed class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
         AnswerRepository = answerRepository;
         QuestionVoteRepository = questionVoteRepository;
         AnswerVoteRepository = answerVoteRepository;
+        CommentRepository = commentRepository;
     }
 
     public IMemberRepository MemberRepository { get; }
     public IQuestionVoteRepository QuestionVoteRepository { get; }
     public IAnswerVoteRepository AnswerVoteRepository { get; }
+    public ICommentRepository CommentRepository { get; }
     public IMultimediaImageRepository MultimediaImageRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
     public IAnswerRepository AnswerRepository { get; }

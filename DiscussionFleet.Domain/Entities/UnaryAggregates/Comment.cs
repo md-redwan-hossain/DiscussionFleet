@@ -6,4 +6,6 @@ public class Comment : Entity<Guid>
 {
     public string Body { get; set; }
     public Guid CommenterId { get; set; }
+
+
 }
