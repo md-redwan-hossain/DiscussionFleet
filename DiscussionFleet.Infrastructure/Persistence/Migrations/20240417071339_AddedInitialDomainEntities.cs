@@ -12,46 +12,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Badges",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: false),
-                    GivenCount = table.Column<int>(type: "int", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Badges", x => x.Id);
-                    table.CheckConstraint("MinBadgeTitleLength", "LEN([Title]) >= 1");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ForumRules",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MinimumReputationForVote = table.Column<int>(type: "int", nullable: false),
-                    QuestionVotedUp = table.Column<int>(type: "int", nullable: false),
-                    AnswerVotedUp = table.Column<int>(type: "int", nullable: false),
-                    ArticleVotedUp = table.Column<int>(type: "int", nullable: false),
-                    AnswerMarkedAccepted = table.Column<int>(type: "int", nullable: false),
-                    AnswerAcceptor = table.Column<int>(type: "int", nullable: false),
-                    SuggestedEditAccepted = table.Column<int>(type: "int", nullable: false),
-                    QuestionVotedDown = table.Column<int>(type: "int", nullable: false),
-                    AnswerVotedDown = table.Column<int>(type: "int", nullable: false),
-                    ArticleVotedDown = table.Column<int>(type: "int", nullable: false),
-                    PostFlagged = table.Column<int>(type: "int", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ForumRules", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MultimediaImages",
                 columns: table => new
                 {
@@ -116,31 +76,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         principalTable: "MultimediaImages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MemberBadges",
-                columns: table => new
-                {
-                    BadgeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MemberId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MemberBadges", x => new { x.MemberId, x.BadgeId });
-                    table.ForeignKey(
-                        name: "FK_MemberBadges_Badges_BadgeId",
-                        column: x => x.BadgeId,
-                        principalTable: "Badges",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_MemberBadges_Members_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,7 +169,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     CommenterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Body = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
                     UsefulVoteCount = table.Column<int>(type: "int", nullable: false),
-                    EditCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -273,6 +207,32 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionVotes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VoteGiverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionVotes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuestionVotes_Members_VoteGiverId",
+                        column: x => x.VoteGiverId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_QuestionVotes_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -333,7 +293,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     CommenterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Body = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
                     UsefulVoteCount = table.Column<int>(type: "int", nullable: false),
-                    EditCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -350,6 +309,32 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_AnswerComments_Members_CommenterId",
                         column: x => x.CommenterId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnswerVotes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VoteGiverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AnswerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnswerVotes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnswerVotes_Answers_AnswerId",
+                        column: x => x.AnswerId,
+                        principalTable: "Answers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AnswerVotes_Members_VoteGiverId",
+                        column: x => x.VoteGiverId,
                         principalTable: "Members",
                         principalColumn: "Id");
                 });
@@ -407,9 +392,15 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 column: "QuestionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemberBadges_BadgeId",
-                table: "MemberBadges",
-                column: "BadgeId");
+                name: "IX_AnswerVotes_AnswerId",
+                table: "AnswerVotes",
+                column: "AnswerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnswerVotes_VoteGiverId_AnswerId",
+                table: "AnswerVotes",
+                columns: new[] { "VoteGiverId", "AnswerId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Members_ProfileImageId",
@@ -427,6 +418,17 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 name: "IX_QuestionTags_TagId",
                 table: "QuestionTags",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionVotes_QuestionId",
+                table: "QuestionVotes",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionVotes_VoteGiverId_QuestionId",
+                table: "QuestionVotes",
+                columns: new[] { "VoteGiverId", "QuestionId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResourceNotifications_ConsumerId",
@@ -460,16 +462,16 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 name: "AnswerComments");
 
             migrationBuilder.DropTable(
-                name: "ForumRules");
-
-            migrationBuilder.DropTable(
-                name: "MemberBadges");
+                name: "AnswerVotes");
 
             migrationBuilder.DropTable(
                 name: "QuestionComments");
 
             migrationBuilder.DropTable(
                 name: "QuestionTags");
+
+            migrationBuilder.DropTable(
+                name: "QuestionVotes");
 
             migrationBuilder.DropTable(
                 name: "ResourceNotifications");
@@ -479,9 +481,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "SavedQuestions");
-
-            migrationBuilder.DropTable(
-                name: "Badges");
 
             migrationBuilder.DropTable(
                 name: "Tags");

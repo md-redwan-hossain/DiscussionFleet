@@ -12,7 +12,6 @@ public class Member : Entity<Guid>
     public string? TwitterHandle { get; set; }
     public string? GithubHandle { get; set; }
     public Guid? ProfileImageId { get; set; }
-    public ICollection<MemberBadge> MemberBadges { get; set; }
     public ICollection<SavedQuestion> SavedQuestions { get; set; }
     public ICollection<SavedAnswer> SavedAnswers { get; set; }
 

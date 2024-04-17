@@ -27,8 +27,8 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<MultimediaImage> MultimediaImages => Set<MultimediaImage>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<Badge> Badges => Set<Badge>();
-    public DbSet<ForumRule> ForumRules => Set<ForumRule>();
+    public DbSet<AnswerVote> AnswerVotes => Set<AnswerVote>();
+    public DbSet<QuestionVote> QuestionVotes => Set<QuestionVote>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -4,7 +4,6 @@ using Autofac;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using DiscussionFleet.Infrastructure.Utils;
-using DiscussionFleet.Web.Models;
 using DiscussionFleet.Web.Models.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

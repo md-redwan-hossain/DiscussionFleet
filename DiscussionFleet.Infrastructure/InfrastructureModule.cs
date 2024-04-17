@@ -20,16 +20,7 @@ public class InfrastructureModule : Module
         builder.RegisterType<AnswerRepository>()
             .As<IAnswerRepository>()
             .InstancePerLifetimeScope();
-
-        builder.RegisterType<BadgeRepository>()
-            .As<IBadgeRepository>()
-            .InstancePerLifetimeScope();
-
-
-        builder.RegisterType<ForumRuleRepository>()
-            .As<IForumRuleRepository>()
-            .InstancePerLifetimeScope();
-
+        
         builder.RegisterType<MemberRepository>()
             .As<IMemberRepository>()
             .InstancePerLifetimeScope();

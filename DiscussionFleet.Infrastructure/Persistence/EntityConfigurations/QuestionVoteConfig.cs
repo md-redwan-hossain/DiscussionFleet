@@ -1,30 +1,31 @@
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 
-public class MemberBadgeConfig : IEntityTypeConfiguration<MemberBadge>
+public class QuestionVoteConfig : IEntityTypeConfiguration<QuestionVote>
 {
-    public void Configure(EntityTypeBuilder<MemberBadge> builder)
+    public void Configure(EntityTypeBuilder<QuestionVote> builder)
     {
-        builder.ToTable(DomainEntityDbTableNames.MemberBadge);
+        builder.ToTable(DomainEntityDbTableNames.QuestionVote);
 
-        builder.HasKey(x => new { x.MemberId, x.BadgeId });
+        builder.HasIndex(x => new { x.VoteGiverId, x.QuestionId }).IsUnique();
 
         builder
-            .HasOne<Member>()
-            .WithMany(x => x.MemberBadges)
-            .HasForeignKey(x => x.MemberId)
+            .HasOne<Question>()
+            .WithMany()
+            .HasForeignKey(x => x.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne<Badge>()
+            .HasOne<Member>()
             .WithMany()
-            .HasForeignKey(x => x.BadgeId)
+            .HasForeignKey(x => x.VoteGiverId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
     }

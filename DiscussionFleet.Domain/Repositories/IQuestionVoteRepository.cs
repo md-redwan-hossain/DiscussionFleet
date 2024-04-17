@@ -2,6 +2,6 @@ using DiscussionFleet.Domain.Entities.UnaryAggregates;
 
 namespace DiscussionFleet.Domain.Repositories;
 
-public interface IForumRuleRepository : IRepositoryBase<ForumRule, Guid>
+public interface IQuestionVoteRepository : IRepositoryBase<QuestionVote, Guid>
 {
 }

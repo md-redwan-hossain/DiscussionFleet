@@ -79,9 +79,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("EditCount")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -152,27 +149,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("MinMemberReputation", "[ReputationCount] >= 1");
                         });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.MemberBadge", b =>
-                {
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BadgeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("MemberId", "BadgeId");
-
-                    b.HasIndex("BadgeId");
-
-                    b.ToTable("MemberBadges", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedAnswer", b =>
@@ -307,9 +283,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("EditCount")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -345,82 +318,32 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("QuestionTags", (string)null);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Badge", b =>
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.AnswerVote", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GivenCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Badges", null, t =>
-                        {
-                            t.HasCheckConstraint("MinBadgeTitleLength", "LEN([Title]) >= 1");
-                        });
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ForumRule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("AnswerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AnswerAcceptor")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerMarkedAccepted")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnswerVotedUp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ArticleVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ArticleVotedUp")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("MinimumReputationForVote")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostFlagged")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuestionVotedDown")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuestionVotedUp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SuggestedEditAccepted")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("VoteGiverId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ForumRules", (string)null);
+                    b.HasIndex("AnswerId");
+
+                    b.HasIndex("VoteGiverId", "AnswerId")
+                        .IsUnique();
+
+                    b.ToTable("AnswerVotes", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.MultimediaImage", b =>
@@ -456,6 +379,34 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_MultimediaImages_Purpose_Enum", "[Purpose] BETWEEN CAST(1 AS tinyint) AND CAST(3 AS tinyint)");
                         });
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.QuestionVote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("VoteGiverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("VoteGiverId", "QuestionId")
+                        .IsUnique();
+
+                    b.ToTable("QuestionVotes", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
@@ -785,21 +736,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.MemberBadge", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.Badge", null)
-                        .WithMany()
-                        .HasForeignKey("BadgeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
-                        .WithMany("MemberBadges")
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.SavedAnswer", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
@@ -878,6 +814,36 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.AnswerVote", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
+                        .WithMany()
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("VoteGiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.QuestionVote", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("VoteGiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
@@ -945,8 +911,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
                 {
-                    b.Navigation("MemberBadges");
-
                     b.Navigation("SavedAnswers");
 
                     b.Navigation("SavedQuestions");

@@ -5,7 +5,6 @@ using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.TagFeatures;
 using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
-using DiscussionFleet.Domain.Outcomes;
 using Microsoft.Extensions.Options;
 using SharpOutcome;
 

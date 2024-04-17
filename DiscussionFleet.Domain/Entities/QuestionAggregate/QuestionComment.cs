@@ -8,5 +8,4 @@ public class QuestionComment : Timestamp
     public Guid CommenterId { get; set; }
     public string Body { get; set; }
     public int UsefulVoteCount { get; set; }
-    public int EditCount { get; set; }
 }
