@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240417071424_AddedIDataProtectionKeyContext")]
+    [Migration("20240417132711_AddedIDataProtectionKeyContext")]
     partial class AddedIDataProtectionKeyContext
     {
         /// <inheritdoc />
@@ -71,13 +71,8 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AnswerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CommenterId")
+                    b.Property<Guid>("CommentId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(600)
-                        .HasColumnType("nvarchar(600)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -85,17 +80,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UsefulVoteCount")
-                        .HasColumnType("int");
+                    b.HasKey("AnswerId", "CommentId");
 
-                    b.HasKey("AnswerId", "CommenterId");
+                    b.HasIndex("CommentId");
 
-                    b.HasIndex("CommenterId");
-
-                    b.ToTable("AnswerComments", null, t =>
-                        {
-                            t.HasCheckConstraint("MinAnswerCommentBodyLength", "LEN([Body]) >= 15");
-                        });
+                    b.ToTable("AnswerComments", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.MemberAggregate.Member", b =>
@@ -275,13 +264,8 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CommenterId")
+                    b.Property<Guid>("CommentId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(600)
-                        .HasColumnType("nvarchar(600)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -289,15 +273,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UsefulVoteCount")
-                        .HasColumnType("int");
+                    b.HasKey("QuestionId", "CommentId");
 
-                    b.HasKey("QuestionId", "CommenterId");
+                    b.HasIndex("CommentId");
 
-                    b.ToTable("QuestionComments", null, t =>
-                        {
-                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
-                        });
+                    b.ToTable("QuestionComments", (string)null);
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionTag", b =>
@@ -347,6 +327,34 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("AnswerVotes", (string)null);
+                });
+
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
+
+                    b.Property<Guid>("CommenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Comments", null, t =>
+                        {
+                            t.HasCheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
+                        });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.MultimediaImage", b =>
@@ -718,10 +726,10 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.Comment", null)
                         .WithMany()
-                        .HasForeignKey("CommenterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -795,6 +803,12 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.QuestionAggregate.QuestionComment", b =>
                 {
+                    b.HasOne("DiscussionFleet.Domain.Entities.UnaryAggregates.Comment", null)
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
                         .WithMany("Comments")
                         .HasForeignKey("QuestionId")

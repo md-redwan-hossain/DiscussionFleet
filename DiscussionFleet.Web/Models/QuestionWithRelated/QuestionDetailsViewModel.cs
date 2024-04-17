@@ -182,12 +182,19 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     {
         ICollection<ReadCommentViewModel> cvmStorage = [];
 
-        var answerCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
-            filter: x => answerComments.Select(z => z.CommenterId).Contains(x.Id),
+
+        var comments = await _appUnitOfWork.CommentRepository.GetAllAsync(
+            filter: x => answerComments.Select(z => z.CommentId).Contains(x.Id),
             orderBy: x => x.Id
         );
 
-        foreach (var comment in answerComments)
+
+        var answerCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
+            filter: x => comments.Select(z => z.CommenterId).Contains(x.Id),
+            orderBy: x => x.Id
+        );
+
+        foreach (var comment in comments)
         {
             var ansAuthor = answerCommenters.FirstOrDefault(x => x.Id == comment.CommenterId);
             if (ansAuthor is null) continue;

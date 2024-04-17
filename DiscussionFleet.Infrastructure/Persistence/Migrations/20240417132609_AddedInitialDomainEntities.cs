@@ -12,6 +12,22 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
+                    CommenterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.CheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MultimediaImages",
                 columns: table => new
                 {
@@ -166,16 +182,19 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CommenterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Body = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
-                    UsefulVoteCount = table.Column<int>(type: "int", nullable: false),
+                    CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuestionComments", x => new { x.QuestionId, x.CommenterId });
-                    table.CheckConstraint("MinQuestionCommentBodyLength", "LEN([Body]) >= 15");
+                    table.PrimaryKey("PK_QuestionComments", x => new { x.QuestionId, x.CommentId });
+                    table.ForeignKey(
+                        name: "FK_QuestionComments_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_QuestionComments_Questions_QuestionId",
                         column: x => x.QuestionId,
@@ -290,16 +309,13 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     AnswerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CommenterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Body = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
-                    UsefulVoteCount = table.Column<int>(type: "int", nullable: false),
+                    CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AnswerComments", x => new { x.AnswerId, x.CommenterId });
-                    table.CheckConstraint("MinAnswerCommentBodyLength", "LEN([Body]) >= 15");
+                    table.PrimaryKey("PK_AnswerComments", x => new { x.AnswerId, x.CommentId });
                     table.ForeignKey(
                         name: "FK_AnswerComments_Answers_AnswerId",
                         column: x => x.AnswerId,
@@ -307,10 +323,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AnswerComments_Members_CommenterId",
-                        column: x => x.CommenterId,
-                        principalTable: "Members",
-                        principalColumn: "Id");
+                        name: "FK_AnswerComments_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -377,9 +394,9 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnswerComments_CommenterId",
+                name: "IX_AnswerComments_CommentId",
                 table: "AnswerComments",
-                column: "CommenterId");
+                column: "CommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Answers_AnswerGiverId",
@@ -408,6 +425,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 column: "ProfileImageId",
                 unique: true,
                 filter: "[ProfileImageId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionComments_CommentId",
+                table: "QuestionComments",
+                column: "CommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_AuthorId",
@@ -481,6 +503,9 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "SavedQuestions");
+
+            migrationBuilder.DropTable(
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Tags");

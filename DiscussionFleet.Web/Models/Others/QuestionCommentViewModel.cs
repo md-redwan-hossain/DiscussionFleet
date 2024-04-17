@@ -41,6 +41,11 @@ public class QuestionCommentViewModel : IViewModelWithResolve
     public string Body { get; set; }
 
 
+    // public async Task<bool>LoadCommentTitleAsync(Guid id, Guid commentWriterId)
+    // {
+    //     
+    // }
+    //
     public async Task<bool> ConductCommentCreateAsync(Guid id, Guid commentWriterId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
@@ -59,6 +64,9 @@ public class QuestionCommentViewModel : IViewModelWithResolve
         };
 
         comment.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
+
+        await _appUnitOfWork.CommentRepository.CreateAsync(comment);
+
 
         var questionComment = new QuestionComment
         {
