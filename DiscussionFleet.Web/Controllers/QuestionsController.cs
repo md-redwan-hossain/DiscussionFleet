@@ -110,9 +110,8 @@ public class QuestionsController : Controller
     }
 
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
-    // [ValidateAntiForgeryToken]
-    // [HttpPost("details/{id:guid}/up-vote")]
-    [HttpGet("{controller}/details/{id:guid}/up-vote")]
+    [ValidateAntiForgeryToken]
+    [HttpPost("{controller}/details/{id:guid}/up-vote")]
     public IActionResult UpVote(Guid id)
     {
         Console.WriteLine();
@@ -123,6 +122,23 @@ public class QuestionsController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    
+    
+    
+    [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
+    [ValidateAntiForgeryToken]
+    [HttpPost("{controller}/details/{id:guid}/down-vote")]
+    public IActionResult DownVote(Guid id)
+    {
+        Console.WriteLine();
+        // if (ModelState.IsValid)
+        // {
+        //     return View(model);
+        // }
+
+        return RedirectToAction(nameof(Index));
+    }
+    
 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Search(string text)

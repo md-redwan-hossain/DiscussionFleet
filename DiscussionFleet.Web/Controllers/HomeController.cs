@@ -12,19 +12,11 @@ public class HomeController : Controller
 
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error([FromRoute] int id, [FromQuery] string? returnUrl)
+    public IActionResult Error(int id)
     {
         ViewData["IsException"] = true;
-        ViewData["ReturnUrl"] = returnUrl;
         ViewData["ErrorMessage"] = ReasonPhrases.GetReasonPhrase(id);
         ViewData["ErrorCode"] = id;
         return View("StatusCodeError");
-    }
-
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Error(string returnUrl)
-    {
-        return LocalRedirect(returnUrl);
     }
 }

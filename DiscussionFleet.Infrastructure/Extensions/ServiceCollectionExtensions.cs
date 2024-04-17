@@ -204,23 +204,6 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCookieAuthentication(this IServiceCollection services)
     {
-        // services.AddAuthentication(o => { o.DefaultScheme = IdentityConstants.ApplicationScheme; })
-        //     .AddIdentityCookies(o =>
-        //     {
-        //         o.ApplicationCookie?.Configure(options =>
-        //         {
-        //             options.Cookie.HttpOnly = true;
-        //             options.LoginPath = new PathString("/account/login");
-        //             options.AccessDeniedPath = new PathString("/account/login");
-        //             options.LogoutPath = new PathString("/account/logout");
-        //             options.Cookie.Name = "Identity";
-        //             options.SlidingExpiration = true;
-        //             options.ExpireTimeSpan = TimeSpan.FromHours(1);
-        //         });
-        //     });
-        // return services;
-
-
         services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = new PathString("/account/login");
@@ -230,18 +213,7 @@ public static class ServiceCollectionExtensions
             options.SlidingExpiration = true;
             options.ExpireTimeSpan = TimeSpan.FromHours(1);
         });
-
-        // services.AddAuthentication()
-        //     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-        //     {
-        //         options.LoginPath = new PathString("/account/login");
-        //         options.AccessDeniedPath = new PathString("/account/login");
-        //         options.LogoutPath = new PathString("/account/logout");
-        //         options.Cookie.Name = "Identity";
-        //         options.SlidingExpiration = true;
-        //         options.ExpireTimeSpan = TimeSpan.FromHours(1);
-        //     });
-
+        
         return services;
     }
 

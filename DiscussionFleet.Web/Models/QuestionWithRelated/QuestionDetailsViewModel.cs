@@ -42,6 +42,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public DateTime? UpdatedAtUtc { get; set; }
     public int AuthorReputation { get; set; }
     public int AnswerCount { get; set; }
+    public bool CanVote { get; set; }
     public ICollection<CommentViewModel> Comments { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
 
