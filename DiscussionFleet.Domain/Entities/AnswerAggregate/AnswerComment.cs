@@ -5,5 +5,8 @@ namespace DiscussionFleet.Domain.Entities.AnswerAggregate;
 public class AnswerComment : Timestamp
 {
     public Guid AnswerId { get; set; }
-    public Guid CommentId { get; set; }
+    public Guid CommenterId { get; set; }
+    public string Body { get; set; }
+    public int UsefulVoteCount { get; set; }
+    public int EditCount { get; set; }
 }
