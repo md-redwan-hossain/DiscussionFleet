@@ -49,7 +49,7 @@ public class AnswerViewModel : IViewModelWithResolve
     {
         await _answerService.CreateAsync(new AnswerCreateRequest(Body, answerGiverId));
 
-        await _votingService.MemberUpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
+        await _votingService.MemberReputationUpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
     }
 
     public void Resolve(ILifetimeScope scope)

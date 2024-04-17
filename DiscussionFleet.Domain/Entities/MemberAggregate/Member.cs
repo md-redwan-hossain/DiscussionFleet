@@ -18,7 +18,7 @@ public class Member : Entity<Guid>
     public bool Upvote(int positivePoint)
     {
         if (positivePoint <= 0) return false;
-    
+
         try
         {
             checked
@@ -38,15 +38,22 @@ public class Member : Entity<Guid>
     {
         if (negativePoint >= 0) return false;
         if (ReputationCount == 1) return false;
-        
+
         try
         {
             checked
             {
-                var reputationCountMinusOne = ReputationCount - 1;
                 var toPositivePoint = negativePoint * -1;
+
+                if (ReputationCount - toPositivePoint >= 1)
+                {
+                    ReputationCount -= toPositivePoint;
+                    return true;
+                }
+
+                var reputationCountMinusOne = ReputationCount - 1;
                 var availablePointToSubtract = toPositivePoint - reputationCountMinusOne;
-                var toApply = negativePoint - availablePointToSubtract;
+                var toApply = toPositivePoint - availablePointToSubtract;
                 ReputationCount -= toApply;
 
                 return true;

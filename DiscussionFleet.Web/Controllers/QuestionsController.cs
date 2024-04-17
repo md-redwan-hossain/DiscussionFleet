@@ -4,6 +4,7 @@ using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Web.Models.AnswerWithRelated;
+using DiscussionFleet.Web.Models.Others;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,11 @@ public class QuestionsController : Controller
 
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var canVoteResult = await viewModel.CheckVotingAbilityAsync(currentUserId, author);
-        if (canVoteResult) viewModel.CanVote = true;
+        var canVoteResult = await _votingService
+            .CheckVotingAbilityAsync(currentUserId, author.Id, question.Id);
+
+        viewModel.CanUpvote = canVoteResult.upvote;
+        viewModel.CanDownVote = canVoteResult.downVote;
 
         return View(viewModel);
     }
@@ -130,7 +134,10 @@ public class QuestionsController : Controller
     [HttpPost("{controller}/details/{id:guid}/up-vote")]
     public async Task<IActionResult> UpVote(Guid id)
     {
-        await _votingService.QuestionUpvoteAsync(id);
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null) return RedirectToAction("Login", "Account");
+
+        await _votingService.QuestionUpvoteAsync(id, Guid.Parse(currentUserId));
 
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -141,10 +148,70 @@ public class QuestionsController : Controller
     [HttpPost("{controller}/details/{id:guid}/down-vote")]
     public async Task<IActionResult> DownVote(Guid id)
     {
-        await _votingService.QuestionDownVoteAsync(id);
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null) return RedirectToAction("Login", "Account");
+
+        await _votingService.QuestionDownVoteAsync(id, Guid.Parse(currentUserId));
 
         return RedirectToAction(nameof(Details), new { id });
     }
+
+
+    [HttpGet("{controller}/details/{id:guid}/comment")]
+    [Authorize]
+    public IActionResult QuestionComment(Guid id)
+    {
+        var viewModel = _scope.Resolve<QuestionCommentViewModel>();
+        viewModel.Id = id;
+        return View("Comment", viewModel);
+    }
+
+    [HttpPost("{controller}/details/{id:guid}/comment")]
+    [Authorize, ValidateAntiForgeryToken]
+    public async Task<IActionResult> QuestionComment(QuestionCommentViewModel viewModel)
+    {
+        if (viewModel.Id == default)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        if (ModelState.IsValid is false)
+        {
+            return View("Comment", viewModel);
+        }
+
+        viewModel.Resolve(_scope);
+        await viewModel.ConductCommentCreateAsync(viewModel.Id, Guid.Parse(currentUserId));
+        return RedirectToAction(nameof(Details), new { id = viewModel.Id });
+    }
+
+
+    // [HttpGet("{controller}/details/{id:guid}/comment")]
+    // public IActionResult AnswerComment(Guid id)
+    // {
+    //     var viewModel = _scope.Resolve<CreateCommentViewModel>();
+    //
+    //     return View("Comment", viewModel);
+    // }
+    //
+    //
+    // [HttpPost, ValidateAntiForgeryToken]
+    // public IActionResult AnswerComment(Guid id, CreateCommentViewModel viewModel)
+    // {
+    //     Console.WriteLine();
+    //     // if (ModelState.IsValid)
+    //     // {
+    //     //     return View(model);
+    //     // }
+    //
+    //     return RedirectToAction(nameof(Index));
+    // }
 
 
     [HttpPost, ValidateAntiForgeryToken]

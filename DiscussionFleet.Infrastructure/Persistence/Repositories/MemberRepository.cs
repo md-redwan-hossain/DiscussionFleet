@@ -10,4 +10,26 @@ public class MemberRepository : Repository<Member, Guid>, IMemberRepository
     }
 
 
+    public async Task<bool> ReputationUpvoteAsync(Guid id, int positivePoint)
+    {
+        if (positivePoint <= 0) return false;
+
+        var entity = await GetOneAsync(x => x.Id == id);
+        if (entity is null) return false;
+
+        var result = entity.Upvote(positivePoint);
+        return result;
+    }
+
+
+    public async Task<bool> ReputationDownVoteAsync(Guid id, int negativePoint)
+    {
+        if (negativePoint >= 0) return false;
+
+        var entity = await GetOneAsync(x => x.Id == id);
+        if (entity is null) return false;
+
+        var result = entity.DownVote(negativePoint);
+        return result;
+    }
 }

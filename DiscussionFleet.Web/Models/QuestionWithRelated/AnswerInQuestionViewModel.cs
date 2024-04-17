@@ -11,5 +11,5 @@ public class AnswerInQuestionViewModel
     public int AuthorReputation { get; set; }
     public bool IsAccepted { get; set; }
 
-    public ICollection<CommentViewModel> Comments { get; set; } = [];
+    public ICollection<ReadCommentViewModel> Comments { get; set; } = [];
 }

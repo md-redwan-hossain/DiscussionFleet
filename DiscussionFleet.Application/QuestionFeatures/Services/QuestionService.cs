@@ -79,7 +79,7 @@ public class QuestionService : IQuestionService
                     var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
                     var createdQuestion = await CreateAsync(questionCreateRequest);
 
-                    await _votingService.MemberUpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
+                    await _votingService.MemberReputationUpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
                     await trx.CommitAsync();
                     return createdQuestion;
                 }

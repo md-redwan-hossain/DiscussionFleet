@@ -1,5 +1,6 @@
 using Autofac;
 using DiscussionFleet.Web.Models.Account;
+using DiscussionFleet.Web.Models.Others;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
 
 namespace DiscussionFleet.Web;
@@ -20,5 +21,6 @@ public class WebModule : Module
         // Question related
         builder.RegisterType<QuestionAskViewModel>().AsSelf();
         builder.RegisterType<QuestionDetailsViewModel>().AsSelf();
+        builder.RegisterType<QuestionCommentViewModel>().AsSelf();
     }
 }

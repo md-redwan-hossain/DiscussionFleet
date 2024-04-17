@@ -50,35 +50,11 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public DateTime? UpdatedAtUtc { get; set; }
     public int AuthorReputation { get; set; }
     public int AnswerCount { get; set; }
-    public bool CanVote { get; set; } = false;
-    public ICollection<CommentViewModel> Comments { get; set; } = [];
+
+    public bool CanUpvote { get; set; } = false;
+    public bool CanDownVote { get; set; } = false;
+    public ICollection<ReadCommentViewModel> CommentsInQuestion { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
-
-    public async Task<bool> CheckVotingAbilityAsync(string? currentUserId, Member author)
-    {
-        if (currentUserId is null)
-        {
-            return false;
-        }
-
-        var parsedUserId = Guid.Parse(currentUserId);
-
-        if (parsedUserId == author.Id)
-        {
-            return false;
-        }
-
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == parsedUserId);
-
-        if (member is null) return false;
-
-        if (member.ReputationCount < _forumRulesOptions.MinimumReputationForVote)
-        {
-            return false;
-        }
-
-        return true;
-    }
 
     public async Task<Question?> FetchQuestionAsync(Guid questionId)
     {
@@ -137,14 +113,14 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             if (ansAuthor is null) continue;
 
 
-            var commentViewModel = new CommentViewModel
+            var commentViewModel = new ReadCommentViewModel
             {
                 AuthorName = ansAuthor.FullName,
                 LastActivityUtc = comment.UpdatedAtUtc ?? comment.CreatedAtUtc
             };
 
             await comment.BuildAdapter().AdaptToAsync(commentViewModel);
-            Comments.Add(commentViewModel);
+            CommentsInQuestion.Add(commentViewModel);
         }
     }
 
@@ -196,9 +172,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     }
 
 
-    private async Task<ICollection<CommentViewModel>> LoadAnswerCommentsAsync(ICollection<AnswerComment> answerComments)
+    private async Task<ICollection<ReadCommentViewModel>> LoadAnswerCommentsAsync(ICollection<AnswerComment> answerComments)
     {
-        ICollection<CommentViewModel> cvmStorage = [];
+        ICollection<ReadCommentViewModel> cvmStorage = [];
 
         var answerCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
             filter: x => answerComments.Select(z => z.CommenterId).Contains(x.Id),
@@ -210,7 +186,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             var ansAuthor = answerCommenters.FirstOrDefault(x => x.Id == comment.CommenterId);
             if (ansAuthor is null) continue;
 
-            var commentViewModel = new CommentViewModel
+            var commentViewModel = new ReadCommentViewModel
             {
                 AuthorName = ansAuthor.FullName,
                 LastActivityUtc = comment.UpdatedAtUtc ?? comment.CreatedAtUtc

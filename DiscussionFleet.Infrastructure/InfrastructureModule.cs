@@ -17,10 +17,18 @@ public class InfrastructureModule : Module
     {
         #region Data Access
 
+        builder.RegisterType<AnswerVoteRepository>()
+            .As<IAnswerVoteRepository>()
+            .InstancePerLifetimeScope();
+
+        builder.RegisterType<QuestionVoteRepository>()
+            .As<IQuestionVoteRepository>()
+            .InstancePerLifetimeScope();
+
         builder.RegisterType<AnswerRepository>()
             .As<IAnswerRepository>()
             .InstancePerLifetimeScope();
-        
+
         builder.RegisterType<MemberRepository>()
             .As<IMemberRepository>()
             .InstancePerLifetimeScope();
