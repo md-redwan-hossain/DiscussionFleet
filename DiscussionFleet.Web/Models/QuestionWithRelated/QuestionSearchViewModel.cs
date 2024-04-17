@@ -36,6 +36,8 @@ public class QuestionSearchViewModel : IViewModelWithResolve
     public int TotalData { get; set; }
     public int CurrentPage { get; set; } = 1;
     [BindNever] public Paginator Pagination { get; set; }
+    public string SearchText { get; set; }
+    public bool LimitSearchForCurrentUser { get; set; }
     public HashSet<Guid> SelectedTags { get; set; } = [];
     public IList<SingleQuestionAtSearchResultViewModel> Questions { get; set; } = [];
 
@@ -46,11 +48,13 @@ public class QuestionSearchViewModel : IViewModelWithResolve
     }
 
 
-    public async Task FetchPostsAsync()
+    public async Task FetchPostsAsync(string? currentUserId)
     {
         if (DataPerPage < 15) DataPerPage = 15;
         var (questions, total) = await _appUnitOfWork.QuestionRepository.GetQuestions(SortBy, FilterBy,
-            SortOrder, CurrentPage, DataPerPage, SelectedTags);
+            SortOrder, CurrentPage, DataPerPage, SelectedTags, SearchText,
+            currentUserId is not null && LimitSearchForCurrentUser ? Guid.Parse(currentUserId) : null
+        );
 
         var pager = new Paginator(totalItems: total, dataPerPage: DataPerPage, currentPage: CurrentPage);
 

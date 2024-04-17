@@ -26,7 +26,10 @@ public class QuestionsController : Controller
     public async Task<IActionResult> Index([FromQuery] QuestionSearchViewModel viewModel)
     {
         viewModel.Resolve(_scope);
-        await viewModel.FetchPostsAsync();
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        await viewModel.FetchPostsAsync(currentUserId);
         return View(viewModel);
     }
 
@@ -217,12 +220,10 @@ public class QuestionsController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Search(string text)
     {
-        Console.WriteLine();
-        // if (ModelState.IsValid)
-        // {
-        //     return View(model);
-        // }
+        var viewModel = _scope.Resolve<QuestionSearchViewModel>();
 
-        return RedirectToAction(nameof(Index));
+        viewModel.SearchText = text;
+        
+        return RedirectToAction(nameof(Index), viewModel);
     }
 }

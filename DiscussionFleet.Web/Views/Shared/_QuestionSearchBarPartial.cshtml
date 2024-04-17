@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+
 <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
     <form asp-controller="Questions" asp-action="Search" autocomplete="off" asp-antiforgery="true">
         <div class="input-icon">
@@ -11,8 +12,7 @@
                     <path d="M21 21l-6 -6"/>
                 </svg>
             </span>
-            <input type="text" value="" class="form-control" placeholder="Search…"
-                   aria-label="Search in website">
+            <input type="text" value="" class="form-control" placeholder="Search…" aria-label="Search in website" name="text">
         </div>
     </form>
 </div>

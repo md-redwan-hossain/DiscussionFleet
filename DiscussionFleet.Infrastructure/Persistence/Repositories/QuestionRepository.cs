@@ -16,7 +16,9 @@ public class QuestionRepository : Repository<Question, Guid>, IQuestionRepositor
 
     public async Task<PagedData<Question>> GetQuestions(QuestionSortCriteria sortBy,
         QuestionFilterCriteria filterBy, DataSortOrder sortOrder,
-        int page, int limit, ICollection<Guid> tags)
+        int page, int limit, ICollection<Guid> tags,
+        string? searchText = null, Guid? authorId = null
+    )
     {
         var query = EntityDbSet
             .Include(q => q.Tags)
@@ -27,6 +29,15 @@ public class QuestionRepository : Repository<Question, Guid>, IQuestionRepositor
             query = query.Where(q => q.IsAnswered);
         }
 
+        if (searchText is not null)
+        {
+            query = query.Where(x => x.Title.Contains(searchText));
+        }
+
+        if (authorId is not null)
+        {
+            query = query.Where(x => x.AuthorId == authorId);
+        }
 
         if (filterBy.NoAcceptedAnswer)
         {
