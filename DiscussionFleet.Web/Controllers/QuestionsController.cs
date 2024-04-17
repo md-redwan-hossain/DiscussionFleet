@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Autofac;
-using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Web.Models.AnswerWithRelated;
@@ -97,41 +96,6 @@ public class QuestionsController : Controller
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize]
-    public async Task<IActionResult> Answer([FromRoute] Guid id, [FromForm] AnswerViewModel viewModel)
-    {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (currentUserId is null)
-        {
-            return RedirectToAction("Login", "Account");
-        }
-
-        // if (ModelState.IsValid is false)
-        // {
-        //     return View(viewModel);
-        // }
-        var parsedUserId = Guid.Parse(currentUserId);
-
-        viewModel.Resolve(_scope);
-
-        var result = await viewModel.CheckValidAuthorAsync(parsedUserId, id);
-
-        if (result is AnswerCreateValidityResult.HomogenousUser)
-        {
-            ModelState.AddModelError(string.Empty, "Question asker can't answer can't answer in own question");
-        }
-
-        if (result is AnswerCreateValidityResult.QuestionNotFound)
-        {
-            RedirectToAction(nameof(Index));
-        }
-
-        await viewModel.ConductAnswerCreationAsync(parsedUserId);
-
-        return RedirectToAction(nameof(Details), new { id });
-    }
-
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
     [HttpPost("{controller}/details/{id:guid}/up-vote")]
@@ -158,6 +122,74 @@ public class QuestionsController : Controller
 
         return RedirectToAction(nameof(Details), new { id });
     }
+
+
+    [HttpGet("{controller}/details/{id:guid}/answer")]
+    [Authorize]
+    public IActionResult Answer(Guid id)
+    {
+        var viewModel = _scope.Resolve<QuestionCommentViewModel>();
+        viewModel.Id = id;
+        return View("Comment", viewModel);
+    }
+
+
+    [HttpPost("{controller}/details/{id:guid}/answer")]
+    [ValidateAntiForgeryToken, Authorize]
+    public async Task<IActionResult> Answer([FromRoute] Guid id, [FromForm] AnswerViewModel viewModel)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (currentUserId is null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        // if (ModelState.IsValid is false)
+        // {
+        //     return View(viewModel);
+        // }
+        var parsedUserId = Guid.Parse(currentUserId);
+
+        viewModel.Resolve(_scope);
+
+        var result = await viewModel.IsQuestionExistsAsync(parsedUserId, id);
+
+        if (result is false)
+        {
+            RedirectToAction(nameof(Index));
+        }
+
+        await viewModel.ConductAnswerCreationAsync(parsedUserId);
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+
+    // [HttpPost("{controller}/details/{id:guid}/comment")]
+    // [Authorize, ValidateAntiForgeryToken]
+    // public async Task<IActionResult> QuestionComment(QuestionCommentViewModel viewModel)
+    // {
+    //     if (viewModel.Id == default)
+    //     {
+    //         return RedirectToAction(nameof(Index));
+    //     }
+    //
+    //     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    //     if (currentUserId is null)
+    //     {
+    //         return RedirectToAction("Login", "Account");
+    //     }
+    //
+    //     if (ModelState.IsValid is false)
+    //     {
+    //         return View("Comment", viewModel);
+    //     }
+    //
+    //     viewModel.Resolve(_scope);
+    //     await viewModel.ConductCommentCreateAsync(viewModel.Id, Guid.Parse(currentUserId));
+    //     return RedirectToAction(nameof(Details), new { id = viewModel.Id });
+    // }
 
 
     [HttpGet("{controller}/details/{id:guid}/comment")]
@@ -223,7 +255,7 @@ public class QuestionsController : Controller
         var viewModel = _scope.Resolve<QuestionSearchViewModel>();
 
         viewModel.SearchText = text;
-        
+
         return RedirectToAction(nameof(Index), viewModel);
     }
 }

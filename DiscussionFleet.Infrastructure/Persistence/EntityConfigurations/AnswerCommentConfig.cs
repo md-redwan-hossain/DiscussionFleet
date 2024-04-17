@@ -1,11 +1,8 @@
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.Helpers;
-using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StringMate.Enums;
-using StringMate.Generators;
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;
 

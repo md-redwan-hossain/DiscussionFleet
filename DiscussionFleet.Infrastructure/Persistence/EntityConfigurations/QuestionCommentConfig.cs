@@ -3,8 +3,6 @@ using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StringMate.Enums;
-using StringMate.Generators;
 
 
 namespace DiscussionFleet.Infrastructure.Persistence.EntityConfigurations;

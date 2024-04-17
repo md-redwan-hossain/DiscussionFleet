@@ -35,14 +35,10 @@ public class AnswerViewModel : IViewModelWithResolve
     public string Body { get; set; }
 
 
-    public async Task<AnswerCreateValidityResult> CheckValidAuthorAsync(Guid answerGiverId, Guid questionId)
+    public async Task<bool> IsQuestionExistsAsync(Guid answerGiverId, Guid questionId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(x => x.Id == questionId);
-        if (question is null) return AnswerCreateValidityResult.QuestionNotFound;
-
-        return question.AuthorId == answerGiverId
-            ? AnswerCreateValidityResult.HomogenousUser
-            : AnswerCreateValidityResult.Valid;
+        return question is not null;
     }
 
     public async Task ConductAnswerCreationAsync(Guid answerGiverId)

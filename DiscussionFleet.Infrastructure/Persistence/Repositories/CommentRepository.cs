@@ -1,6 +1,5 @@
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 

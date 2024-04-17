@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.Domain", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.EmailWorker", "DiscussionFleet.EmailWorker\DiscussionFleet.EmailWorker.csproj", "{493760B5-EE63-4AF0-91A3-2F67DD2940B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.Tests", "Tests\DiscussionFleet.Tests\DiscussionFleet.Tests.csproj", "{A3C63499-C565-4D62-BB35-FEC026D6A402}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{493760B5-EE63-4AF0-91A3-2F67DD2940B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{493760B5-EE63-4AF0-91A3-2F67DD2940B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{493760B5-EE63-4AF0-91A3-2F67DD2940B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
