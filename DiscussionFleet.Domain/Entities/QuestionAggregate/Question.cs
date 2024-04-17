@@ -14,4 +14,21 @@ public class Question : Entity<Guid>
     public AcceptedAnswer? AcceptedAnswer { get; set; }
     public ICollection<QuestionTag> Tags { get; set; }
     public ICollection<QuestionComment> Comments { get; set; }
+
+    public bool Upvote()
+    {
+        VoteCount += 1;
+        return true;
+    }
+
+    public bool DownVote()
+    {
+        if (VoteCount == 0)
+        {
+            return false;
+        }
+
+        VoteCount -= 1;
+        return true;
+    }
 }

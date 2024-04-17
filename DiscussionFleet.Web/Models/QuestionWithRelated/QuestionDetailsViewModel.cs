@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using DiscussionFleet.Application;
+using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
@@ -7,6 +8,7 @@ using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
+using Microsoft.Extensions.Options;
 
 namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 
@@ -16,21 +18,27 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     private IApplicationUnitOfWork _appUnitOfWork;
     private IMarkdownService _markdownService;
     private IMemberService _memberService;
+    private ForumRulesOptions _forumRulesOptions;
 
     public QuestionDetailsViewModel()
     {
     }
 
     public QuestionDetailsViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
-        IMarkdownService markdownService, IMemberService memberService)
+        IMarkdownService markdownService, IMemberService memberService,
+        IOptions<ForumRulesOptions> forumRulesOptions)
     {
         _appUnitOfWork = appUnitOfWork;
         _scope = scope;
         _markdownService = markdownService;
         _memberService = memberService;
+        _forumRulesOptions = forumRulesOptions.Value;
     }
 
 
+    public Guid Id { get; set; }
+
+    // public Guid QuestionAuthorId { get; set; }
     public string Title { get; set; }
     public string Body { get; set; }
     public int VoteCount { get; set; }
@@ -42,25 +50,53 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public DateTime? UpdatedAtUtc { get; set; }
     public int AuthorReputation { get; set; }
     public int AnswerCount { get; set; }
-    public bool CanVote { get; set; }
+    public bool CanVote { get; set; } = false;
     public ICollection<CommentViewModel> Comments { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
 
+    public async Task<bool> CheckVotingAbilityAsync(string? currentUserId, Member author)
+    {
+        if (currentUserId is null)
+        {
+            return false;
+        }
 
-    public async Task<bool> FetchQuestion(Guid questionId)
+        var parsedUserId = Guid.Parse(currentUserId);
+
+        if (parsedUserId == author.Id)
+        {
+            return false;
+        }
+
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == parsedUserId);
+
+        if (member is null) return false;
+
+        if (member.ReputationCount < _forumRulesOptions.MinimumReputationForVote)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<Question?> FetchQuestionAsync(Guid questionId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
             filter: x => x.Id == questionId,
             includes: [a => a.Tags, b => b.Comments, c => c.AcceptedAnswer]
         );
-
-        if (question is null) return false;
-
-        var author = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == question.AuthorId);
-
-        if (author is null) return false;
+        return question;
+    }
 
 
+    public async Task<Member?> FetchAuthorAsync(Guid authorId)
+    {
+        return await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == authorId);
+    }
+
+    public async Task<bool> FetchQuestionRelatedDataAsync(Question question, Member author)
+    {
         var data = await _memberService.GetCachedMemberInfoAsync(author.Id.ToString());
         ProfilePicUrl = data?.ProfileImageUrl;
 
@@ -195,5 +231,6 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _markdownService = _scope.Resolve<IMarkdownService>();
         _memberService = _scope.Resolve<IMemberService>();
+        _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

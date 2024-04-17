@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Autofac;
 using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
+using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Web.Models.AnswerWithRelated;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +13,12 @@ namespace DiscussionFleet.Web.Controllers;
 public class QuestionsController : Controller
 {
     private readonly ILifetimeScope _scope;
+    private readonly IVotingService _votingService;
 
-    public QuestionsController(ILifetimeScope scope)
+    public QuestionsController(ILifetimeScope scope, IVotingService votingService)
     {
         _scope = scope;
+        _votingService = votingService;
     }
 
     [HttpGet]
@@ -31,7 +34,20 @@ public class QuestionsController : Controller
     public async Task<IActionResult> Details(Guid id)
     {
         var viewModel = _scope.Resolve<QuestionDetailsViewModel>();
-        await viewModel.FetchQuestion(id);
+        var question = await viewModel.FetchQuestionAsync(id);
+        if (question is null) return NotFound();
+
+        var author = await viewModel.FetchAuthorAsync(question.AuthorId);
+        if (author is null) return NotFound();
+
+        var result = await viewModel.FetchQuestionRelatedDataAsync(question, author);
+        if (result is false) NotFound();
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var canVoteResult = await viewModel.CheckVotingAbilityAsync(currentUserId, author);
+        if (canVoteResult) viewModel.CanVote = true;
+
         return View(viewModel);
     }
 
@@ -112,33 +128,24 @@ public class QuestionsController : Controller
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
     [HttpPost("{controller}/details/{id:guid}/up-vote")]
-    public IActionResult UpVote(Guid id)
+    public async Task<IActionResult> UpVote(Guid id)
     {
-        Console.WriteLine();
-        // if (ModelState.IsValid)
-        // {
-        //     return View(model);
-        // }
+        await _votingService.QuestionUpvoteAsync(id);
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id });
     }
-    
-    
-    
+
+
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
     [HttpPost("{controller}/details/{id:guid}/down-vote")]
-    public IActionResult DownVote(Guid id)
+    public async Task<IActionResult> DownVote(Guid id)
     {
-        Console.WriteLine();
-        // if (ModelState.IsValid)
-        // {
-        //     return View(model);
-        // }
+        await _votingService.QuestionDownVoteAsync(id);
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id });
     }
-    
+
 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Search(string text)

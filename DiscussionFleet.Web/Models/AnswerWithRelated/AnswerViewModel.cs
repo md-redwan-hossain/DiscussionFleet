@@ -3,7 +3,7 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
-using DiscussionFleet.Application.MemberReputationFeatures;
+using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Microsoft.Extensions.Options;
@@ -15,7 +15,7 @@ public class AnswerViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IAnswerService _answerService;
-    private IMemberReputationService _memberReputationService;
+    private IVotingService _votingService;
     private ForumRulesOptions _forumRulesOptions;
 
     public AnswerViewModel()
@@ -24,11 +24,11 @@ public class AnswerViewModel : IViewModelWithResolve
 
 
     public AnswerViewModel(IApplicationUnitOfWork appUnitOfWork, IAnswerService answerService,
-        IMemberReputationService memberReputationService, IOptions<ForumRulesOptions> forumRulesOptions)
+        IVotingService votingService, IOptions<ForumRulesOptions> forumRulesOptions)
     {
         _appUnitOfWork = appUnitOfWork;
         _answerService = answerService;
-        _memberReputationService = memberReputationService;
+        _votingService = votingService;
         _forumRulesOptions = forumRulesOptions.Value;
     }
 
@@ -49,7 +49,7 @@ public class AnswerViewModel : IViewModelWithResolve
     {
         await _answerService.CreateAsync(new AnswerCreateRequest(Body, answerGiverId));
 
-        await _memberReputationService.UpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
+        await _votingService.MemberUpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
     }
 
     public void Resolve(ILifetimeScope scope)
@@ -59,7 +59,7 @@ public class AnswerViewModel : IViewModelWithResolve
         _scope.Resolve<IMarkdownService>();
         _scope.Resolve<IMemberService>();
         _answerService = _scope.Resolve<IAnswerService>();
-        _memberReputationService = _scope.Resolve<IMemberReputationService>();
+        _votingService = _scope.Resolve<IVotingService>();
         _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

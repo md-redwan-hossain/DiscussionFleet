@@ -1,8 +1,8 @@
 using Autofac;
 using DiscussionFleet.Application.AnswerFeatures;
-using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.Services;
 using DiscussionFleet.Application.TagFeatures;
+using DiscussionFleet.Application.VotingFeatures;
 
 namespace DiscussionFleet.Application;
 
@@ -22,8 +22,8 @@ public class ApplicationModule : Module
             .As<IAnswerService>()
             .InstancePerLifetimeScope();
 
-        builder.RegisterType<MemberReputationService>()
-            .As<IMemberReputationService>()
+        builder.RegisterType<VotingService>()
+            .As<IVotingService>()
             .InstancePerLifetimeScope();
     }
 }

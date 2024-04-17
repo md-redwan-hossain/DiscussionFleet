@@ -1,9 +1,9 @@
 ﻿using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.Common.Utils;
-using DiscussionFleet.Application.MemberReputationFeatures;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.TagFeatures;
+using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Outcomes;
 using Microsoft.Extensions.Options;
@@ -18,18 +18,18 @@ public class QuestionService : IQuestionService
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ITagService _tagService;
     private readonly ForumRulesOptions _forumRulesOptions;
-    private readonly IMemberReputationService _memberReputationService;
+    private readonly IVotingService _votingService;
 
     public QuestionService(IApplicationUnitOfWork appUnitOfWork, IGuidProvider guidProvider,
         IDateTimeProvider dateTimeProvider, IOptions<ForumRulesOptions> forumRulesOptions,
-        IMemberReputationService memberReputationService, ITagService tagService)
+        IVotingService votingService, ITagService tagService)
     {
         _appUnitOfWork = appUnitOfWork;
         _guidProvider = guidProvider;
         _dateTimeProvider = dateTimeProvider;
         _tagService = tagService;
         _forumRulesOptions = forumRulesOptions.Value;
-        _memberReputationService = memberReputationService;
+        _votingService = votingService;
     }
 
     public async Task<Question> CreateAsync(QuestionCreateRequest dto)
@@ -80,7 +80,7 @@ public class QuestionService : IQuestionService
                     var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
                     var createdQuestion = await CreateAsync(questionCreateRequest);
 
-                    await _memberReputationService.UpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
+                    await _votingService.MemberUpvoteAsync(dto.AuthorId, _forumRulesOptions.NewQuestion);
                     await trx.CommitAsync();
                     return createdQuestion;
                 }
