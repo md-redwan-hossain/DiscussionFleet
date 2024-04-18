@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Autofac;
+using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Web.Models.AnswerWithRelated;
@@ -14,11 +15,13 @@ public class QuestionsController : Controller
 {
     private readonly ILifetimeScope _scope;
     private readonly IVotingService _votingService;
+    private IAnswerService _answerService;
 
-    public QuestionsController(ILifetimeScope scope, IVotingService votingService)
+    public QuestionsController(ILifetimeScope scope, IVotingService votingService, IAnswerService answerService)
     {
         _scope = scope;
         _votingService = votingService;
+        _answerService = answerService;
     }
 
     [HttpGet]
@@ -54,6 +57,11 @@ public class QuestionsController : Controller
 
         var canVoteResult = await _votingService
             .CheckVotingAbilityAsync(currentUserId, author.Id, question.Id);
+
+        if (currentUserId is not null && Guid.Parse(currentUserId) == question.AuthorId)
+        {
+            viewModel.CanMarkAsAccepted = true;
+        }
 
         viewModel.CanUpvote = canVoteResult.upvote;
         viewModel.CanDownVote = canVoteResult.downVote;
@@ -102,7 +110,7 @@ public class QuestionsController : Controller
 
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
-    [HttpPost("{controller}/details/{id:guid}/up-vote")]
+    [HttpPost("{controller:slugify}/details/{id:guid}/up-vote")]
     public async Task<IActionResult> UpVote(Guid id)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -116,7 +124,7 @@ public class QuestionsController : Controller
 
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
-    [HttpPost("{controller}/details/{id:guid}/down-vote")]
+    [HttpPost("{controller:slugify}/details/{id:guid}/down-vote")]
     public async Task<IActionResult> DownVote(Guid id)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -128,7 +136,7 @@ public class QuestionsController : Controller
     }
 
 
-    [HttpGet("{controller}/details/{id:guid}/answer")]
+    [HttpGet("{controller:slugify}/details/{id:guid}/answer")]
     [Authorize]
     public IActionResult Answer(Guid id)
     {
@@ -138,7 +146,7 @@ public class QuestionsController : Controller
     }
 
 
-    [HttpPost("{controller}/details/{id:guid}/answer")]
+    [HttpPost("{controller:slugify}/details/{id:guid}/answer")]
     [ValidateAntiForgeryToken, Authorize]
     public async Task<IActionResult> Answer(AnswerViewModel viewModel)
     {
@@ -176,7 +184,7 @@ public class QuestionsController : Controller
     }
 
 
-    [HttpGet("{controller}/details/{id:guid}/comment")]
+    [HttpGet("{controller:slugify}/details/{id:guid}/comment")]
     [Authorize]
     public IActionResult QuestionComment(Guid id)
     {
@@ -185,7 +193,7 @@ public class QuestionsController : Controller
         return View(viewModel);
     }
 
-    [HttpPost("{controller}/details/{id:guid}/comment")]
+    [HttpPost("{controller:slugify}/details/{id:guid}/comment")]
     [Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> QuestionComment(QuestionCommentViewModel viewModel)
     {
@@ -211,7 +219,7 @@ public class QuestionsController : Controller
     }
 
 
-    [HttpGet("{controller}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
+    [HttpGet("{controller:slugify}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
     [Authorize]
     public IActionResult AnswerComment(Guid questionId, Guid answerId)
     {
@@ -221,7 +229,7 @@ public class QuestionsController : Controller
         return View("AnswerComment", viewModel);
     }
 
-    [HttpPost("{controller}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
+    [HttpPost("{controller:slugify}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
     [Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> AnswerComment(AnswerCommentViewModel viewModel)
     {
@@ -244,6 +252,16 @@ public class QuestionsController : Controller
         viewModel.Resolve(_scope);
         await viewModel.ConductCommentCreateAsync(viewModel.QuestionId, viewModel.AnswerId, Guid.Parse(currentUserId));
         return RedirectToAction(nameof(Details), new { id = viewModel.QuestionId });
+    }
+
+
+    [HttpPost("{controller:slugify}/details/{questionId:guid}/answer/{answerId:guid}/accept")]
+    [Authorize, ValidateAntiForgeryToken]
+    public async Task<IActionResult> AcceptAnswer(Guid questionId, Guid answerId)
+    {
+        var result = await _answerService.MarkAcceptedAsync(questionId, answerId);
+
+        return RedirectToAction(nameof(Details), new { id = questionId });
     }
 
 

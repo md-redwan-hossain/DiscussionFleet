@@ -117,13 +117,7 @@ public class AccountController : Controller
     }
 
     #endregion
-
-    [HttpGet]
-    public IActionResult ForgotPassword()
-    {
-        return View();
-    }
-
+    
 
     #region Confirm Account
 

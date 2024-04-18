@@ -348,6 +348,29 @@
 
                     <div class="card-actions">
                         <div class="col-auto d-flex flex-wrap gap-2">
+                            
+                            @if (Model.CanMarkAsAccepted && answer.IsAccepted is false)
+                            {
+                                <input type="hidden" value="@answer.Id"/>
+
+                                <form class="p-0" asp-controller="Questions" asp-action="AcceptAnswer"
+                                      asp-route-questionId="@Model.Id" asp-route-answerId="@answer.Id" asp-antiforgery="true">
+                                    <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Mark as accepted">
+                                        <button type="submit" class="text-green border-0 bg-transparent">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                                 stroke-linejoin="round"
+                                                 class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l5 5l10 -10"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+
+
                             @if (answer.CanUpvote)
                             {
                                 <form class="p-0" asp-controller="Questions" asp-action="UpVote" asp-route-id="@answer.Id"
@@ -503,7 +526,8 @@
                     <div class="card-body">
                         <div class="list-group">
 
-                            @if (Model.RelatedQuestionsByTag.Count == 0)
+                            @if (Model.RelatedQuestionsByTag.Count == 0
+                                 || Model.RelatedQuestionsByTag.First().Id == Model.Id)
                             {
                                 <div class="list-group-item border-0 list-group-item-action">
                                 </div>
@@ -515,8 +539,8 @@
                                     if (item.Id == Model.Id) continue;
                                     <div class="list-group-item border-0 list-group-item-action">
                                         <div class="d-flex justify-content-start align-items-center gap-2">
-                                            <div class="badge badge-outline text-muted border fw-normal d-flex">
-                                                data-bs-toggle="tooltip" data-bs-placement="left" title="Total votes">
+                                            <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                                 data-bs-toggle="tooltip" data-bs-placement="left" title="Total votes">
                                                 <span class="text-yellow">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                          height="24" viewBox="0 0 24 24" fill="currentColor"

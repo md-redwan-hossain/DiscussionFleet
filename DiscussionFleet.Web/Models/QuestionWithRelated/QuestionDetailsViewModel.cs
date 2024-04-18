@@ -59,6 +59,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public int AnswerCount { get; set; }
     public bool CanUpvote { get; set; } = false;
     public bool CanDownVote { get; set; } = false;
+    public bool CanMarkAsAccepted { get; set; } = false;
     public ICollection<ReadCommentViewModel> CommentsInQuestion { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
     public ICollection<RelatedQuestionResponse> RelatedQuestionsByTag { get; set; } = [];
@@ -140,13 +141,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
             if (url is null) continue;
             
-            var dto = new RelatedQuestionResponse(
-                item.Id,
-                item.Title,
-                item.VoteCount,
-                url,
-                item.UpdatedAtUtc ?? item.CreatedAtUtc
-            );
+            var dto = new RelatedQuestionResponse(item.Id, item.Title, item.VoteCount,
+                url, item.UpdatedAtUtc ?? item.CreatedAtUtc);
 
             storage.Add(dto);
         }
@@ -188,7 +184,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     private async Task LoadAnswersAsync(Question question, Member author)
     {
         var answers = await _appUnitOfWork.AnswerRepository.GetAllAsync(
-            filter: x => x.AnswerGiverId == author.Id && x.QuestionId == question.Id,
+            filter: x =>  x.QuestionId == question.Id,
             orderBy: x => x.Id,
             includes: [x => x.Comments],
             useSplitQuery: false
@@ -224,7 +220,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             ansInQnViewModel.AuthorName = pickedAnsAuthor.FullName;
             ansInQnViewModel.AuthorReputation = pickedAnsAuthor.ReputationCount;
 
-            var pickedAnsAuthorCache = await _memberService.GetCachedMemberInfoAsync(author.Id.ToString());
+            var pickedAnsAuthorCache = await _memberService.GetCachedMemberInfoAsync(answer.AnswerGiverId.ToString());
             if (pickedAnsAuthorCache is not null)
             {
                 ansInQnViewModel.ProfilePicUrl = pickedAnsAuthorCache.ProfileImageUrl;
