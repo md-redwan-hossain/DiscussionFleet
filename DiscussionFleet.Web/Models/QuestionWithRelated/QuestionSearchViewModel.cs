@@ -33,7 +33,6 @@ public class QuestionSearchViewModel : IViewModelWithResolve
     public QuestionFilterCriteria FilterBy { get; set; } = new();
     public QuestionSortCriteria SortBy { get; set; } = QuestionSortCriteria.Newest;
     public byte DataPerPage { get; set; } = 15;
-    // public int TotalData { get; set; }
     public int CurrentPage { get; set; } = 1;
     [BindNever] public Paginator Pagination { get; set; }
     public string SearchText { get; set; }

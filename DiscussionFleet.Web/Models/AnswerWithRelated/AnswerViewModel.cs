@@ -3,7 +3,9 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
+using DiscussionFleet.Application.ResourceNotificationFeatures;
 using DiscussionFleet.Application.VotingFeatures;
+using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Microsoft.Extensions.Options;
@@ -17,6 +19,7 @@ public class AnswerViewModel : IViewModelWithResolve
     private IAnswerService _answerService;
     private IVotingService _votingService;
     private ForumRulesOptions _forumRulesOptions;
+    private IResourceNotificationService _resourceNotificationService;
 
     public AnswerViewModel()
     {
@@ -24,11 +27,13 @@ public class AnswerViewModel : IViewModelWithResolve
 
 
     public AnswerViewModel(IApplicationUnitOfWork appUnitOfWork, IAnswerService answerService,
-        IVotingService votingService, IOptions<ForumRulesOptions> forumRulesOptions)
+        IVotingService votingService, IOptions<ForumRulesOptions> forumRulesOptions,
+        IResourceNotificationService resourceNotificationService)
     {
         _appUnitOfWork = appUnitOfWork;
         _answerService = answerService;
         _votingService = votingService;
+        _resourceNotificationService = resourceNotificationService;
         _forumRulesOptions = forumRulesOptions.Value;
     }
 
@@ -51,6 +56,19 @@ public class AnswerViewModel : IViewModelWithResolve
         await _answerService.CreateAsync(new AnswerCreateRequest(Body, questionId, answerGiverId));
 
         await _votingService.MemberReputationUpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
+
+        var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
+            filter: x => x.Id == questionId,
+            useSplitQuery: false
+        );
+
+        if (question is not null)
+        {
+            await _resourceNotificationService.NotifyQuestionAuthorAsync(
+                question.AuthorId, question.Id, question.Title,
+                ResourceNotificationType.Comment
+            );
+        }
     }
 
     public void Resolve(ILifetimeScope scope)
@@ -62,5 +80,6 @@ public class AnswerViewModel : IViewModelWithResolve
         _answerService = _scope.Resolve<IAnswerService>();
         _votingService = _scope.Resolve<IVotingService>();
         _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
+        _resourceNotificationService = _scope.Resolve<IResourceNotificationService>();
     }
 }

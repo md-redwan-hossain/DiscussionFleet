@@ -11,12 +11,8 @@
             </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <a href="#" class="dropdown-item">
+            <a asp-controller="Notifications" asp-action="Index" class="dropdown-item">
                 Notifications
-                @if (Model.HasNewNotification)
-                {
-                    <span class="status-dot status-dot-animated bg-red d-block mx-2"></span>
-                }
             </a>
             <a asp-controller="Account" asp-action="Profile" class="dropdown-item">Profile</a>
             <form asp-controller="Account" asp-action="LogOut" asp-antiforgery="true">

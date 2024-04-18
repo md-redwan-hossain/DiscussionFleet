@@ -1,7 +1,7 @@
 using DiscussionFleet.Domain.Entities.Abstracts;
 using DiscussionFleet.Domain.Entities.Enums;
 
-namespace DiscussionFleet.Domain.Entities.UnaryAggregates;
+namespace DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 
 public class ResourceNotification : Entity<Guid>
 {

@@ -1,7 +1,7 @@
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
-using DiscussionFleet.Domain.Entities.UnaryAggregates;
+using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

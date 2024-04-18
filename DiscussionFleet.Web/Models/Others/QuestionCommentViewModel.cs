@@ -2,8 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Application.ResourceNotificationFeatures;
+using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Web.Utils;
 
@@ -15,18 +18,21 @@ public class QuestionCommentViewModel : IViewModelWithResolve
     private IApplicationUnitOfWork _appUnitOfWork;
     private IDateTimeProvider _dateTimeProvider;
     private IGuidProvider _guidProvider;
+    private IResourceNotificationService _resourceNotificationService;
 
     public QuestionCommentViewModel()
     {
     }
 
     public QuestionCommentViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
-        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider)
+        IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider,
+        IResourceNotificationService resourceNotificationService)
     {
         _appUnitOfWork = appUnitOfWork;
         _scope = scope;
         _dateTimeProvider = dateTimeProvider;
         _guidProvider = guidProvider;
+        _resourceNotificationService = resourceNotificationService;
     }
 
 
@@ -75,6 +81,11 @@ public class QuestionCommentViewModel : IViewModelWithResolve
 
         await _appUnitOfWork.SaveAsync();
 
+        await _resourceNotificationService.NotifyQuestionAuthorAsync(
+            question.AuthorId, question.Id, question.Title,
+            ResourceNotificationType.Comment
+        );
+
         return true;
     }
 
@@ -85,5 +96,6 @@ public class QuestionCommentViewModel : IViewModelWithResolve
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
         _guidProvider = _scope.Resolve<IGuidProvider>();
+        _resourceNotificationService = _scope.Resolve<IResourceNotificationService>();
     }
 }
