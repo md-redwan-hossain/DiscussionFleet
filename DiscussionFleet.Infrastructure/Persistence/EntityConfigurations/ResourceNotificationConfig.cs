@@ -1,4 +1,6 @@
 using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,7 +14,25 @@ public class ResourceNotificationConfig : IEntityTypeConfiguration<ResourceNotif
         builder.ToTable(DomainEntityDbTableNames.ResourceNotification);
 
         builder
-            .Property(c => c.SourceTitle)
+            .Property(c => c.Title)
             .HasMaxLength(DomainEntityConstants.QuestionTitleMaxLength);
+
+
+        builder
+            .HasOne<Member>()
+            .WithMany()
+            .HasForeignKey(x => x.ConsumerId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+        
+        
+        builder
+            .HasOne<Question>()
+            .WithMany()
+            .HasForeignKey(x => x.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        
     }
 }

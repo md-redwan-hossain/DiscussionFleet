@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using Autofac;
+﻿using Autofac;
 using DiscussionFleet.Application;
-using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
@@ -9,12 +7,11 @@ using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.AnswerAggregate.Utils;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
-using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Options;
+
 
 namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 
@@ -24,7 +21,6 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     private IApplicationUnitOfWork _appUnitOfWork;
     private IMarkdownService _markdownService;
     private IMemberService _memberService;
-    private ForumRulesOptions _forumRulesOptions;
     private LinkGenerator _linkGenerator;
 
     private IHttpContextAccessor _httpContextAccessor;
@@ -34,8 +30,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     }
 
     public QuestionDetailsViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
-        IMarkdownService markdownService, IMemberService memberService,
-        IOptions<ForumRulesOptions> forumRulesOptions, LinkGenerator linkGenerator,
+        IMarkdownService markdownService, IMemberService memberService, LinkGenerator linkGenerator,
         IHttpContextAccessor httpContextAccessor)
     {
         _appUnitOfWork = appUnitOfWork;
@@ -44,7 +39,6 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         _memberService = memberService;
         _linkGenerator = linkGenerator;
         _httpContextAccessor = httpContextAccessor;
-        _forumRulesOptions = forumRulesOptions.Value;
     }
 
 
@@ -112,12 +106,10 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             TagNames.Add(tag.Title);
         }
 
-
         Body = await _markdownService.MarkdownToHtmlAsync(Body);
         Body = await _markdownService.SanitizeConvertedHtmlAsync(Body);
 
-
-        await LoadQuestionCommentsAsync(question.Comments);
+        CommentsInQuestion = await FetchQuestionCommentsAsync(question.Comments);
 
         return true;
     }
@@ -156,8 +148,11 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         return storage;
     }
 
-    private async Task LoadQuestionCommentsAsync(ICollection<QuestionComment> questionComments)
+    private async Task<ICollection<ReadCommentViewModel>> FetchQuestionCommentsAsync(
+        ICollection<QuestionComment> questionComments)
     {
+        ICollection<ReadCommentViewModel> storage = [];
+
         var comments = await _appUnitOfWork.CommentRepository.GetAllAsync(
             filter: x => questionComments.Select(z => z.CommentId).Contains(x.Id),
             orderBy: x => x.Id,
@@ -179,12 +174,18 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             var commentViewModel = new ReadCommentViewModel
             {
                 AuthorName = ansAuthor.FullName,
-                LastActivityUtc = comment.UpdatedAtUtc ?? comment.CreatedAtUtc
+                LastActivityUtc = comment.UpdatedAtUtc ?? comment.CreatedAtUtc,
+                Body = comment.Body
             };
 
-            await comment.BuildAdapter().AdaptToAsync(commentViewModel);
-            CommentsInQuestion.Add(commentViewModel);
+
+            commentViewModel.Body = await _markdownService.MarkdownToHtmlAsync(commentViewModel.Body);
+            commentViewModel.Body = await _markdownService.SanitizeConvertedHtmlAsync(commentViewModel.Body);
+
+            storage.Add(commentViewModel);
         }
+
+        return storage;
     }
 
     public async Task<ICollection<AnswerInQuestionViewModel>> FetchAnswersAsync(Question question, int page,
@@ -219,6 +220,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
                 CreatedAtUtc = answer.CreatedAtUtc,
                 UpdatedAtUtc = answer.UpdatedAtUtc ?? answer.CreatedAtUtc
             };
+
+            ansInQnViewModel.Body = await _markdownService.MarkdownToHtmlAsync(ansInQnViewModel.Body);
+            answer.Body = await _markdownService.SanitizeConvertedHtmlAsync(ansInQnViewModel.Body);
 
             if (question.AcceptedAnswer is not null && answer.Id == question.AcceptedAnswer.AnswerId)
             {
@@ -276,6 +280,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
             await comment.BuildAdapter().AdaptToAsync(commentViewModel);
 
+            commentViewModel.Body = await _markdownService.MarkdownToHtmlAsync(commentViewModel.Body);
+            commentViewModel.Body = await _markdownService.SanitizeConvertedHtmlAsync(commentViewModel.Body);
+
             cvmStorage.Add(commentViewModel);
         }
 
@@ -291,6 +298,5 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         _memberService = _scope.Resolve<IMemberService>();
         _linkGenerator = _scope.Resolve<LinkGenerator>();
         _httpContextAccessor = _scope.Resolve<IHttpContextAccessor>();
-        _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

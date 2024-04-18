@@ -215,7 +215,7 @@
                             <div class="row">
                                 <div class="col">
                                     <p class="text-dark">
-                                        @item.Body
+                                        @Html.Raw(item.Body)
                                         <span class="comment-meta">
                                             <span> - </span>
                                             <span class=" link fs-5">@item.AuthorName</span>
@@ -470,7 +470,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <p class="text-dark">
-                                            @item.Body
+                                            @Html.Raw(item.Body)
                                             <span class="comment-meta">
                                                 <span> - </span>
                                                 <span class=" link fs-5">@item.AuthorName</span>

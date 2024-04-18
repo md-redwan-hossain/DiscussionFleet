@@ -64,12 +64,5 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
             .HasForeignKey<Member>(x => x.ProfileImageId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
-
-        builder
-            .HasMany<ResourceNotification>()
-            .WithOne()
-            .HasForeignKey(x => x.ConsumerId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
