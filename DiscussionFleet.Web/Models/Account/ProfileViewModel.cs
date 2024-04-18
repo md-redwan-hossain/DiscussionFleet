@@ -45,7 +45,7 @@ public class ProfileViewModel : IViewModelWithResolve
 
     public async Task FetchMemberData(Guid id)
     {
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id, useSplitQuery: false);
         if (member is not null)
         {
             await member.BuildAdapter().AdaptToAsync(this);

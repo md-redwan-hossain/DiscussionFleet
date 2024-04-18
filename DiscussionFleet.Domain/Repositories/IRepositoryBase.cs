@@ -12,6 +12,7 @@ public interface IRepositoryBase<TEntity, in TKey>
 
     Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
+        bool useSplitQuery,
         ICollection<Expression<Func<TEntity, object?>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
@@ -20,6 +21,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     Task<TEntity?> GetOneAsync<TSorter>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -29,6 +31,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     Task<TResult?> GetOneAsync<TResult>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
+        bool useSplitQuery,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
@@ -38,6 +41,7 @@ public interface IRepositoryBase<TEntity, in TKey>
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -47,6 +51,7 @@ public interface IRepositoryBase<TEntity, in TKey>
 
     Task<IList<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>> filter,
+        bool useSplitQuery,
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -55,6 +60,7 @@ public interface IRepositoryBase<TEntity, in TKey>
 
 
     Task<IList<TEntity>> GetAllAsync(
+        bool useSplitQuery,
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -63,6 +69,7 @@ public interface IRepositoryBase<TEntity, in TKey>
 
     Task<IList<TEntity>> GetAllAsync<TSorter>(
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,
@@ -74,6 +81,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     Task<IList<TEntity>> GetAllAsync<TSorter>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,
@@ -85,6 +93,7 @@ public interface IRepositoryBase<TEntity, in TKey>
     Task<IList<TResult>> GetAllAsync<TResult, TSorter>(
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,
@@ -98,6 +107,7 @@ public interface IRepositoryBase<TEntity, in TKey>
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,

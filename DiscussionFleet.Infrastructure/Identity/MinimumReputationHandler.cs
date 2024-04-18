@@ -20,7 +20,11 @@ public class MinimumReputationHandler : AuthorizationHandler<MinimumReputationRe
 
         if (userId is not null)
         {
-            var member = await _applicationUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == Guid.Parse(userId));
+            var member = await _applicationUnitOfWork.MemberRepository.GetOneAsync(
+                filter: x => x.Id == Guid.Parse(userId),
+                useSplitQuery: false
+            );
+
             if (member is not null && member.ReputationCount >= requirement.MinimumReputation)
             {
                 context.Succeed(requirement);

@@ -14,7 +14,11 @@ public class MemberRepository : Repository<Member, Guid>, IMemberRepository
     {
         if (positivePoint <= 0) return false;
 
-        var entity = await GetOneAsync(x => x.Id == id);
+        var entity = await GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.Upvote(positivePoint);
@@ -26,7 +30,11 @@ public class MemberRepository : Repository<Member, Guid>, IMemberRepository
     {
         if (negativePoint >= 0) return false;
 
-        var entity = await GetOneAsync(x => x.Id == id);
+        var entity = await GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.DownVote(negativePoint);

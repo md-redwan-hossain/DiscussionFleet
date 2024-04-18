@@ -128,16 +128,21 @@ public class QuestionsController : Controller
     [Authorize]
     public IActionResult Answer(Guid id)
     {
-        var viewModel = _scope.Resolve<QuestionCommentViewModel>();
+        var viewModel = _scope.Resolve<AnswerViewModel>();
         viewModel.Id = id;
-        return View("Comment", viewModel);
+        return View("Answer", viewModel);
     }
 
 
     [HttpPost("{controller}/details/{id:guid}/answer")]
     [ValidateAntiForgeryToken, Authorize]
-    public async Task<IActionResult> Answer([FromRoute] Guid id, [FromForm] AnswerViewModel viewModel)
+    public async Task<IActionResult> Answer(AnswerViewModel viewModel)
     {
+        if (viewModel.Id == default)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (currentUserId is null)
@@ -145,51 +150,26 @@ public class QuestionsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // if (ModelState.IsValid is false)
-        // {
-        //     return View(viewModel);
-        // }
+        if (ModelState.IsValid is false)
+        {
+            return View(viewModel);
+        }
+
         var parsedUserId = Guid.Parse(currentUserId);
 
         viewModel.Resolve(_scope);
 
-        var result = await viewModel.IsQuestionExistsAsync(parsedUserId, id);
+        var result = await viewModel.IsQuestionExistsAsync(parsedUserId, viewModel.Id);
 
         if (result is false)
         {
             RedirectToAction(nameof(Index));
         }
 
-        await viewModel.ConductAnswerCreationAsync(parsedUserId);
+        await viewModel.ConductAnswerCreationAsync(viewModel.Id,parsedUserId);
 
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectToAction(nameof(Details), new { id = viewModel.Id });
     }
-
-
-    // [HttpPost("{controller}/details/{id:guid}/comment")]
-    // [Authorize, ValidateAntiForgeryToken]
-    // public async Task<IActionResult> QuestionComment(QuestionCommentViewModel viewModel)
-    // {
-    //     if (viewModel.Id == default)
-    //     {
-    //         return RedirectToAction(nameof(Index));
-    //     }
-    //
-    //     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    //     if (currentUserId is null)
-    //     {
-    //         return RedirectToAction("Login", "Account");
-    //     }
-    //
-    //     if (ModelState.IsValid is false)
-    //     {
-    //         return View("Comment", viewModel);
-    //     }
-    //
-    //     viewModel.Resolve(_scope);
-    //     await viewModel.ConductCommentCreateAsync(viewModel.Id, Guid.Parse(currentUserId));
-    //     return RedirectToAction(nameof(Details), new { id = viewModel.Id });
-    // }
 
 
     [HttpGet("{controller}/details/{id:guid}/comment")]
@@ -198,7 +178,7 @@ public class QuestionsController : Controller
     {
         var viewModel = _scope.Resolve<QuestionCommentViewModel>();
         viewModel.Id = id;
-        return View("Comment", viewModel);
+        return View(viewModel);
     }
 
     [HttpPost("{controller}/details/{id:guid}/comment")]
@@ -218,7 +198,7 @@ public class QuestionsController : Controller
 
         if (ModelState.IsValid is false)
         {
-            return View("Comment", viewModel);
+            return View(viewModel);
         }
 
         viewModel.Resolve(_scope);
@@ -227,26 +207,40 @@ public class QuestionsController : Controller
     }
 
 
-    // [HttpGet("{controller}/details/{id:guid}/comment")]
-    // public IActionResult AnswerComment(Guid id)
-    // {
-    //     var viewModel = _scope.Resolve<CreateCommentViewModel>();
-    //
-    //     return View("Comment", viewModel);
-    // }
-    //
-    //
-    // [HttpPost, ValidateAntiForgeryToken]
-    // public IActionResult AnswerComment(Guid id, CreateCommentViewModel viewModel)
-    // {
-    //     Console.WriteLine();
-    //     // if (ModelState.IsValid)
-    //     // {
-    //     //     return View(model);
-    //     // }
-    //
-    //     return RedirectToAction(nameof(Index));
-    // }
+    [HttpGet("{controller}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
+    [Authorize]
+    public IActionResult AnswerComment(Guid questionId, Guid answerId)
+    {
+        var viewModel = _scope.Resolve<AnswerCommentViewModel>();
+        viewModel.QuestionId = questionId;
+        viewModel.AnswerId = answerId;
+        return View("AnswerComment", viewModel);
+    }
+
+    [HttpPost("{controller}/details/{questionId:guid}/answer/{answerId:guid}/comment")]
+    [Authorize, ValidateAntiForgeryToken]
+    public async Task<IActionResult> AnswerComment(AnswerCommentViewModel viewModel)
+    {
+        if (viewModel.QuestionId == default || viewModel.AnswerId == default)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        if (ModelState.IsValid is false)
+        {
+            return View(viewModel);
+        }
+
+        viewModel.Resolve(_scope);
+        await viewModel.ConductCommentCreateAsync(viewModel.QuestionId, viewModel.AnswerId, Guid.Parse(currentUserId));
+        return RedirectToAction(nameof(Details), new { id = viewModel.QuestionId });
+    }
 
 
     [HttpPost, ValidateAntiForgeryToken]

@@ -24,6 +24,7 @@ public class AnswerService : IAnswerService
             Id = _guidProvider.SortableGuid(),
             Body = dto.Body,
             AnswerGiverId = dto.AnswerGiverId,
+            QuestionId = dto.QuestionId
         };
 
         ans.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);

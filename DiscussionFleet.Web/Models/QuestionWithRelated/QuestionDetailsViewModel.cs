@@ -50,25 +50,25 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public DateTime? UpdatedAtUtc { get; set; }
     public int AuthorReputation { get; set; }
     public int AnswerCount { get; set; }
-
     public bool CanUpvote { get; set; } = false;
     public bool CanDownVote { get; set; } = false;
     public ICollection<ReadCommentViewModel> CommentsInQuestion { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
+    public ICollection<(string title, string url)> RelatedQuestions { get; set; } = [];
 
     public async Task<Question?> FetchQuestionAsync(Guid questionId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
             filter: x => x.Id == questionId,
-            includes: [a => a.Tags, b => b.Comments, c => c.AcceptedAnswer]
+            includes: [a => a.Tags, b => b.Comments, c => c.AcceptedAnswer],
+            useSplitQuery: true
         );
         return question;
     }
 
-
     public async Task<Member?> FetchAuthorAsync(Guid authorId)
     {
-        return await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == authorId);
+        return await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == authorId, useSplitQuery: false);
     }
 
     public async Task<bool> FetchQuestionRelatedDataAsync(Question question, Member author)
@@ -81,13 +81,23 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         AuthorReputation = author.ReputationCount;
         UpdatedAtUtc ??= CreatedAtUtc;
 
-        var tags = await _appUnitOfWork.TagRepository.GetAllAsync<string, Guid>(
-            filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
-            subsetSelector: x => x.Title,
-            orderBy: x => x.Id
-        );
+        // var tags = await _appUnitOfWork.TagRepository.GetAllAsync<string, Guid>(
+        //     filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
+        //     subsetSelector: x => x.Title,
+        //     orderBy: x => x.Id
+        // );
 
-        TagNames = [..tags];
+        var tags = await _appUnitOfWork.TagRepository.GetAllAsync(
+            filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
+            subsetSelector: x => new { x.Title, x.Id },
+            orderBy: x => x.Id,
+            useSplitQuery: false
+        );
+        foreach (var tag in tags)
+        {
+            TagNames.Add(tag.Title);
+        }
+        // TagNames = [..tags];
 
         Body = await _markdownService.MarkdownToHtmlAsync(Body);
         Body = await _markdownService.SanitizeConvertedHtmlAsync(Body);
@@ -99,17 +109,18 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         return true;
     }
 
-
     private async Task LoadQuestionCommentsAsync(ICollection<QuestionComment> questionComments)
     {
         var comments = await _appUnitOfWork.CommentRepository.GetAllAsync(
             filter: x => questionComments.Select(z => z.CommentId).Contains(x.Id),
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
         var questionCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
             filter: x => comments.Select(z => z.CommenterId).Contains(x.Id),
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
         foreach (var comment in comments)
@@ -129,18 +140,19 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         }
     }
 
-
     private async Task LoadAnswersAsync(Question question, Member author)
     {
         var answers = await _appUnitOfWork.AnswerRepository.GetAllAsync(
-            filter: x => question.AuthorId == author.Id,
+            filter: x => x.AnswerGiverId == author.Id && x.QuestionId == question.Id,
             orderBy: x => x.Id,
-            includes: [x => x.Comments]
+            includes: [x => x.Comments],
+            useSplitQuery: false
         );
 
         var ansAuthors = await _appUnitOfWork.MemberRepository.GetAllAsync(
             filter: x => answers.Select(z => z.AnswerGiverId).Contains(x.Id),
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
 
@@ -148,6 +160,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         {
             var ansInQnViewModel = new AnswerInQuestionViewModel
             {
+                Id = answer.Id,
+                Body = answer.Body,
                 VoteCount = answer.VoteCount,
                 CommentCount = answer.CommentCount,
                 CreatedAtUtc = answer.CreatedAtUtc,
@@ -171,11 +185,10 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
                 ansInQnViewModel.ProfilePicUrl = pickedAnsAuthorCache.ProfileImageUrl;
             }
 
-            ansInQnViewModel.Comments = await LoadAnswerCommentsAsync(answer.Comments);
+            ansInQnViewModel.CommentsInAnswer = await LoadAnswerCommentsAsync(answer.Comments);
             Answers.Add(ansInQnViewModel);
         }
     }
-
 
     private async Task<ICollection<ReadCommentViewModel>> LoadAnswerCommentsAsync(
         ICollection<AnswerComment> answerComments)
@@ -185,13 +198,15 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
         var comments = await _appUnitOfWork.CommentRepository.GetAllAsync(
             filter: x => answerComments.Select(z => z.CommentId).Contains(x.Id),
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
 
         var answerCommenters = await _appUnitOfWork.MemberRepository.GetAllAsync(
             filter: x => comments.Select(z => z.CommenterId).Contains(x.Id),
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
         foreach (var comment in comments)

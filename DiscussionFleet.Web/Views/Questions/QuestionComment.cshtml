@@ -1,0 +1,138 @@
+@model DiscussionFleet.Web.Models.Others.QuestionCommentViewModel
+
+@section ExternalLibFiles
+{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/github-dark-dimmed.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.1/lib/marked.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.1.1/lib/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+    <style>
+      #preview-tab {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+      }
+    </style>
+}
+
+<input type="hidden" value="@Model.Id"/>
+
+<div class="page-wrapper">
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs nav-fill" data-bs-toggle="tabs">
+                        <li class="nav-item">
+                            <a href="#editor-tab" class="nav-link active" data-bs-toggle="tab">
+                                Editor
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#preview-tab" class="nav-link" id="md-prev-window" data-bs-toggle="tab">
+                                Preview
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active show" id="editor-tab">
+                            <div class="mb-3">
+                                <form asp-controller="Questions" asp-action="QuestionComment" asp-antiforgery="true"
+                                      asp-route-id="@Model.Id" id="md-form" class="mb-3">
+
+                                    <div>
+                                        <label asp-for="Body" class="form-label">Comment body </label>
+                                        <textarea asp-for="Body" id="md-pad"></textarea>
+                                        <span asp-validation-for="Body" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="form-footer d-flex justify-content-center">
+                                        <button type="submit" id="md-submit-btn" class="btn btn-primary w-50">Submit</button>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane p-2" id="preview-tab">
+                            <div id="md-preview-tab"> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+          const { markedHighlight } = globalThis.markedHighlight;
+    
+          const easyMDE = new EasyMDE({
+            toolbar: ["bold", "italic", "strikethrough", "|", "quote", "unordered-list", "ordered-list", "|", "link", "undo", "redo", "|", "fullscreen", "guide"],
+            element: document.getElementById('md-pad'),
+          });
+    
+    
+          const markedWithSyntaxHighlighter = new marked.Marked(
+            markedHighlight({
+              langPrefix: 'hljs language-',
+              highlight(code, lang, info) {
+                if (hljs.getLanguage(lang)) {
+                  return hljs.highlight(code, { language: lang }).value;
+                } else {
+                  return hljs.highlightAuto(code).value;
+                }
+              }
+            })
+          );
+    
+    
+          const replaceRegex = /^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/;
+          const emptyTesterRegex = /\b\w+\b/;
+          const mdForm = document.getElementById('md-form');
+          const mdPad = document.getElementById('md-pad');
+          const mdPreviewTab = document.getElementById('md-preview-tab');
+    
+    
+          let x = document.querySelector(".EasyMDEContainer");
+          let w = x.clientHeight;
+    
+          easyMDE.codemirror.on("change", () => {
+            w = x.clientHeight;
+    
+          });
+    
+    
+          document.getElementById("md-prev-window").addEventListener('focus', function (e) {
+            if (emptyTesterRegex.test(easyMDE.value())) {
+              mdPreviewTab.innerHTML =
+                DOMPurify.sanitize(markedWithSyntaxHighlighter.parse(easyMDE.value().replace(replaceRegex, "")));
+    
+              document.getElementById("preview-tab").style.minHeight = w + "px";
+            }
+            else {
+              document.getElementById("preview-tab").style.minHeight = w + "px";
+              mdPreviewTab.innerHTML = `
+              <div class="empty col" id="md-preview-empty">
+                <div class="empty-img"><img src="/tabler/dist-files/illustrations/undraw_quitting_time_dm8t.svg"
+                    height="128" alt="">
+                </div>
+                <p class="empty-title">No preview found</p>
+              </div>`;
+            }
+          });
+    
+          mdForm.addEventListener('submit', function (e) {
+            mdPad.value = easyMDE.value().replace(replaceRegex, "");
+          });
+    
+        </script>
+
+}

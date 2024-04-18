@@ -104,9 +104,13 @@ public class MemberService : IMemberService
 
     #region Update Member Profile
 
-    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, System.Guid id)
+    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id)
     {
-        var memberInDb = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == id);
+        var memberInDb = await _appUnitOfWork.MemberRepository.GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (memberInDb is null) return MemberProfileUpdateResult.EntityNotFound;
 
         var member = await dto.BuildAdapter().AdaptToAsync(memberInDb);
@@ -124,7 +128,6 @@ public class MemberService : IMemberService
     {
         return _userManager.GenerateEmailConfirmationTokenAsync(user);
     }
-    
 
     #endregion
 
@@ -212,8 +215,12 @@ public class MemberService : IMemberService
 
     public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60)
     {
-        var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == System.Guid.Parse(id),
-            subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId });
+        var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(
+            filter: x => x.Id == Guid.Parse(id),
+            subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId },
+            useSplitQuery: true
+        );
+
         if (entity is null) return null;
 
         var user = await _userManager.FindByIdAsync(id);
@@ -223,9 +230,10 @@ public class MemberService : IMemberService
         DateTime? ttlUtc = null;
         if (entity.ProfileImageId is not null)
         {
-            var img = await _appUnitOfWork
-                .MultimediaImageRepository
-                .GetOneAsync(x => x.Id == entity.ProfileImageId);
+            var img = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(
+                filter: x => x.Id == entity.ProfileImageId,
+                useSplitQuery: false
+            );
 
             imgName = img?.ImageNameResolver();
             ttlUtc = _dateTimeProvider.CurrentUtcTime.AddMinutes(ttlInMinute);
@@ -244,11 +252,18 @@ public class MemberService : IMemberService
         var result = await _fileBucketService.UploadImageAsync(dto);
         if (result is false) return false;
 
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == dto.Id);
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
+            filter: x => x.Id == dto.Id,
+            useSplitQuery: false
+        );
 
         if (member?.ProfileImageId != null)
         {
-            var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == dto.Id);
+            var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(
+                filter: x => x.Id == dto.Id,
+                useSplitQuery: false
+            );
+
             if (existingImg is not null)
             {
                 existingImg.FileExtension = dto.FileExtension;
@@ -275,9 +290,13 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<bool> RemoveMemberProfileImage(System.Guid id)
+    public async Task<bool> RemoveMemberProfileImage(Guid id)
     {
-        var entityToDelete = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(x => x.Id == id);
+        var entityToDelete = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (entityToDelete is null) return false;
 
         await _appUnitOfWork.MultimediaImageRepository.RemoveAsync(entityToDelete);
@@ -316,7 +335,8 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(ApplicationUser user)
+    public async Task<Outcome<SuccessOutcome, IResendEmailError>> ResendEmailVerificationTokenAsync(
+        ApplicationUser user)
     {
         var cachedData = await GetCachedEmailVerifyHistoryAsync(user.Id.ToString());
 
@@ -366,7 +386,11 @@ public class MemberService : IMemberService
     {
         if (user.Email is null) return VerificationEmailResult.EmailNotFound;
 
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == user.Id);
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
+            filter: x => x.Id == user.Id,
+            useSplitQuery: false
+        );
+
         if (member is null) return VerificationEmailResult.EntityNotFound;
 
         await _userManager.UpdateSecurityStampAsync(user);

@@ -43,7 +43,12 @@ public class QuestionSearchViewModel : IViewModelWithResolve
 
     public async Task<IList<Tag>> FetchTagsAsync()
     {
-        var data = await _appUnitOfWork.TagRepository.GetAllAsync(limit: 100000, orderBy: x => x.Id);
+        var data = await _appUnitOfWork.TagRepository.GetAllAsync(
+            limit: 100000,
+            orderBy: x => x.Id,
+            useSplitQuery: false
+        );
+
         return data;
     }
 
@@ -65,9 +70,14 @@ public class QuestionSearchViewModel : IViewModelWithResolve
             var tags = await _appUnitOfWork.TagRepository.GetAllAsync<string, Guid>(
                 filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
                 subsetSelector: x => x.Title,
-                orderBy: x => x.Id
+                orderBy: x => x.Id,
+                useSplitQuery: false
             );
-            var author = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == question.AuthorId);
+            var author = await _appUnitOfWork.MemberRepository.GetOneAsync(
+                filter: x => x.Id == question.AuthorId,
+                useSplitQuery: false
+            );
+
             var answerCount = await _appUnitOfWork.AnswerRepository.GetCountAsync(x => x.QuestionId == question.Id);
 
 

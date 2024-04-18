@@ -45,13 +45,18 @@ public class VotingService : IVotingService
     {
         var existingQuestionVote = await _appUnitOfWork.QuestionVoteRepository.GetOneAsync(
             filter: x => x.QuestionId == questionId && x.VoteGiverId == voterId,
-            subsetSelector: s => s.Id
+            subsetSelector: s => s.Id,
+            useSplitQuery: false
         );
 
         if (existingQuestionVote != default) return false;
 
 
-        var entity = await _appUnitOfWork.QuestionRepository.GetOneAsync(x => x.Id == questionId);
+        var entity = await _appUnitOfWork.QuestionRepository.GetOneAsync(
+            filter: x => x.Id == questionId,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.Upvote();
@@ -77,14 +82,19 @@ public class VotingService : IVotingService
 
     public async Task<bool> QuestionDownVoteAsync(Guid questionId, Guid voterId)
     {
-        var entity = await _appUnitOfWork.QuestionRepository.GetOneAsync(x => x.Id == questionId);
+        var entity = await _appUnitOfWork.QuestionRepository.GetOneAsync(
+            filter: x => x.Id == questionId,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.DownVote();
         if (result is false) return false;
 
-        var qv = await _appUnitOfWork.QuestionVoteRepository.GetOneAsync(x =>
-            x.QuestionId == questionId && x.VoteGiverId == voterId
+        var qv = await _appUnitOfWork.QuestionVoteRepository.GetOneAsync(
+            filter: x => x.QuestionId == questionId && x.VoteGiverId == voterId,
+            useSplitQuery: false
         );
 
         if (qv is null) return false;
@@ -100,7 +110,11 @@ public class VotingService : IVotingService
 
     public async Task<bool> AnswerUpvoteAsync(Guid id)
     {
-        var entity = await _appUnitOfWork.AnswerRepository.GetOneAsync(x => x.Id == id);
+        var entity = await _appUnitOfWork.AnswerRepository.GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.Upvote();
@@ -112,7 +126,11 @@ public class VotingService : IVotingService
 
     public async Task<bool> AnswerDownVoteAsync(Guid id)
     {
-        var entity = await _appUnitOfWork.AnswerRepository.GetOneAsync(x => x.Id == id);
+        var entity = await _appUnitOfWork.AnswerRepository.GetOneAsync(
+            filter: x => x.Id == id,
+            useSplitQuery: false
+        );
+
         if (entity is null) return false;
 
         var result = entity.DownVote();
@@ -151,7 +169,10 @@ public class VotingService : IVotingService
             return (false, false);
         }
 
-        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == parsedUserId);
+        var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
+            filter: x => x.Id == parsedUserId,
+            useSplitQuery: false
+        );
 
         if (member is null)
         {
@@ -165,7 +186,8 @@ public class VotingService : IVotingService
 
         var voteId = await _appUnitOfWork.QuestionVoteRepository.GetOneAsync(
             filter: x => x.QuestionId == questionId && x.VoteGiverId == member.Id,
-            subsetSelector: s => s.Id
+            subsetSelector: s => s.Id,
+            useSplitQuery: false
         );
 
 

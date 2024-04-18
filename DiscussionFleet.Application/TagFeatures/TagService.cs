@@ -25,7 +25,8 @@ public class TagService : ITagService
         var duplicateData = await _appUnitOfWork.TagRepository.GetAllAsync(
             filter: x => dto.TagTitles.Contains(x.Title),
             subsetSelector: x => x.Title,
-            orderBy: x => x.Id
+            orderBy: x => x.Id,
+            useSplitQuery: false
         );
 
         if (duplicateData.Any())

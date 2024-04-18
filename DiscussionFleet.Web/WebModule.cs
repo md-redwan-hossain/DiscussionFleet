@@ -1,5 +1,6 @@
 using Autofac;
 using DiscussionFleet.Web.Models.Account;
+using DiscussionFleet.Web.Models.AnswerWithRelated;
 using DiscussionFleet.Web.Models.Others;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
 
@@ -22,5 +23,8 @@ public class WebModule : Module
         builder.RegisterType<QuestionAskViewModel>().AsSelf();
         builder.RegisterType<QuestionDetailsViewModel>().AsSelf();
         builder.RegisterType<QuestionCommentViewModel>().AsSelf();
+        builder.RegisterType<AnswerCommentViewModel>().AsSelf();
+        builder.RegisterType<AnswerViewModel>().AsSelf();
+        
     }
 }

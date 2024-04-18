@@ -82,7 +82,12 @@ public class QuestionAskViewModel : IViewModelWithResolve
 
     public async Task<IList<Tag>> FetchTagsAsync()
     {
-        var data = await _appUnitOfWork.TagRepository.GetAllAsync(limit: 100000, orderBy: x => x.Id);
+        var data = await _appUnitOfWork.TagRepository.GetAllAsync(
+            limit: 100000,
+            orderBy: x => x.Id,
+            useSplitQuery: false
+        );
+
         return data;
     }
 

@@ -32,18 +32,23 @@ public class AnswerViewModel : IViewModelWithResolve
         _forumRulesOptions = forumRulesOptions.Value;
     }
 
+    public Guid Id { get; set; }
     public string Body { get; set; }
 
 
     public async Task<bool> IsQuestionExistsAsync(Guid answerGiverId, Guid questionId)
     {
-        var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(x => x.Id == questionId);
+        var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
+            filter: x => x.Id == questionId,
+            useSplitQuery: false
+        );
+
         return question is not null;
     }
 
-    public async Task ConductAnswerCreationAsync(Guid answerGiverId)
+    public async Task ConductAnswerCreationAsync(Guid questionId, Guid answerGiverId)
     {
-        await _answerService.CreateAsync(new AnswerCreateRequest(Body, answerGiverId));
+        await _answerService.CreateAsync(new AnswerCreateRequest(Body, questionId, answerGiverId));
 
         await _votingService.MemberReputationUpvoteAsync(answerGiverId, _forumRulesOptions.NewAnswer);
     }

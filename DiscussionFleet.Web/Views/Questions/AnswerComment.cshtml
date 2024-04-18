@@ -1,4 +1,4 @@
-@model DiscussionFleet.Web.Models.Others.QuestionCommentViewModel
+@model DiscussionFleet.Web.Models.AnswerWithRelated.AnswerCommentViewModel
 
 @section ExternalLibFiles
 {
@@ -10,9 +10,17 @@
     <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.1.1/lib/index.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+    <style>
+      #preview-tab {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+      }
+    </style>
 }
 
-<input type="hidden" value="@Model.Id"/>
+<input type="hidden" value="@Model.QuestionId"/>
+<input type="hidden" value="@Model.AnswerId"/>
 
 <div class="page-wrapper">
     <div class="page-body">
@@ -22,41 +30,23 @@
                     <ul class="nav nav-tabs card-header-tabs nav-fill" data-bs-toggle="tabs">
                         <li class="nav-item">
                             <a href="#editor-tab" class="nav-link active" data-bs-toggle="tab">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-                                     class="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/>
-                                    <path d="M13.5 6.5l4 4"/>
-                                </svg>
                                 Editor
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#preview-tab" class="nav-link" id="md-prev-window" data-bs-toggle="tab">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-                                     class="icon icon-tabler icons-tabler-outline icon-tabler-presentation">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M3 4l18 0"/>
-                                    <path d="M4 4v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-10"/>
-                                    <path d="M12 16l0 4"/>
-                                    <path d="M9 20l6 0"/>
-                                    <path d="M8 12l3 -3l2 2l3 -3"/>
-                                </svg>
                                 Preview
                             </a>
                         </li>
-
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content">
                         <div class="tab-pane active show" id="editor-tab">
                             <div class="mb-3">
-                                <form asp-controller="Questions" asp-action="QuestionComment" asp-antiforgery="true"
-
-                                      asp-route-id="@Model.Id" id="md-form" class="mb-3">
+                                <form asp-controller="Questions" asp-action="AnswerComment" asp-antiforgery="true"
+                                      asp-route-questionId="@Model.QuestionId" asp-route-answerId="@Model.AnswerId"
+                                      id="md-form" class="mb-3">
 
                                     <div>
                                         <label asp-for="Body" class="form-label">Comment body </label>
@@ -96,8 +86,11 @@
             markedHighlight({
               langPrefix: 'hljs language-',
               highlight(code, lang, info) {
-                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-                return hljs.highlight(code, { language }).value;
+                if (hljs.getLanguage(lang)) {
+                  return hljs.highlight(code, { language: lang }).value;
+                } else {
+                  return hljs.highlightAuto(code).value;
+                }
               }
             })
           );
@@ -130,7 +123,7 @@
               document.getElementById("preview-tab").style.minHeight = w + "px";
               mdPreviewTab.innerHTML = `
               <div class="empty col" id="md-preview-empty">
-                <div class="empty-img"><img src="./static/illustrations/undraw_quitting_time_dm8t.svg"
+                <div class="empty-img"><img src="/tabler/dist-files/illustrations/undraw_quitting_time_dm8t.svg"
                     height="128" alt="">
                 </div>
                 <p class="empty-title">No preview found</p>

@@ -32,6 +32,7 @@ public abstract class Repository<TEntity, TKey>
 
     public virtual async Task<TEntity?> GetOneAsync(
         Expression<Func<TEntity, bool>> filter,
+        bool useSplitQuery,
         ICollection<Expression<Func<TEntity, object?>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
@@ -43,7 +44,10 @@ public abstract class Repository<TEntity, TKey>
             data = includes.Aggregate(data, (current, include) => current.Include(include));
         }
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
+
 
         return await data.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -52,6 +56,7 @@ public abstract class Repository<TEntity, TKey>
     public virtual async Task<TEntity?> GetOneAsync<TSorter>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -69,7 +74,10 @@ public abstract class Repository<TEntity, TKey>
             data = includes.Aggregate(data, (current, include) => current.Include(include));
         }
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
+
 
         return await data.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -78,6 +86,7 @@ public abstract class Repository<TEntity, TKey>
     public virtual async Task<TResult?> GetOneAsync<TResult>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
+        bool useSplitQuery,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
         CancellationToken cancellationToken = default
@@ -88,6 +97,8 @@ public abstract class Repository<TEntity, TKey>
         {
             data = includes.Aggregate(data, (current, include) => current.Include(include));
         }
+
+        if (useSplitQuery) data = data.AsSplitQuery();
 
         if (disableTracking) data = data.AsNoTracking();
 
@@ -101,6 +112,7 @@ public abstract class Repository<TEntity, TKey>
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         bool ascendingOrder = true,
         IList<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -108,6 +120,8 @@ public abstract class Repository<TEntity, TKey>
     ) where TSorter : IComparable<TSorter>
     {
         var data = EntityDbSet.Where(filter);
+
+        if (useSplitQuery) data = data.AsSplitQuery();
 
         if (disableTracking) data = data.AsNoTracking();
 
@@ -128,6 +142,7 @@ public abstract class Repository<TEntity, TKey>
 
 
     public virtual async Task<IList<TEntity>> GetAllAsync(
+        bool useSplitQuery,
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -142,13 +157,17 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
+        
         return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
 
     public virtual async Task<IList<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>> filter,
+        bool useSplitQuery,
         uint page = 1, uint limit = 10,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
         bool disableTracking = false,
@@ -164,12 +183,16 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
+        
         return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public virtual async Task<IList<TEntity>> GetAllAsync<TSorter>(
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,
@@ -190,6 +213,8 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
 
         return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -198,6 +223,7 @@ public abstract class Repository<TEntity, TKey>
     public async Task<IList<TEntity>> GetAllAsync<TSorter>(
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1, uint limit = 10,
         bool ascendingOrder = true,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
@@ -217,6 +243,8 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
 
         return await data.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -226,6 +254,7 @@ public abstract class Repository<TEntity, TKey>
     public virtual async Task<IList<TResult>> GetAllAsync<TResult, TSorter>(
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10,
         bool ascendingOrder = true,
@@ -246,6 +275,8 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
 
         return await data.Select(subsetSelector)
@@ -257,6 +288,7 @@ public abstract class Repository<TEntity, TKey>
         Expression<Func<TEntity, bool>> filter,
         Expression<Func<TEntity, TResult>> subsetSelector,
         Expression<Func<TEntity, TSorter>> orderBy,
+        bool useSplitQuery,
         uint page = 1,
         uint limit = 10, bool ascendingOrder = true,
         ICollection<Expression<Func<TEntity, object>>>? includes = null,
@@ -275,12 +307,15 @@ public abstract class Repository<TEntity, TKey>
 
         data = data.Skip((Convert.ToInt32(page) - 1) * Convert.ToInt32(limit)).Take(Convert.ToInt32(limit));
 
+        if (useSplitQuery) data = data.AsSplitQuery();
+
         if (disableTracking) data = data.AsNoTracking();
 
         return await data.Select(subsetSelector)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
+
 
     public virtual Task UpdateAsync(TEntity entityToUpdate)
     {
