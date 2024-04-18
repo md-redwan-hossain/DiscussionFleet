@@ -1,14 +1,19 @@
-﻿using Autofac;
+﻿using System.Collections;
+using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
+using DiscussionFleet.Application.Common.Utils;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
+using DiscussionFleet.Domain.Entities.AnswerAggregate.Utils;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 
 namespace DiscussionFleet.Web.Models.QuestionWithRelated;
@@ -60,6 +65,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public bool CanUpvote { get; set; } = false;
     public bool CanDownVote { get; set; } = false;
     public bool CanMarkAsAccepted { get; set; } = false;
+
+    public int TotalAnswers { get; set; }
+    [BindNever] public Paginator Pagination { get; set; }
     public ICollection<ReadCommentViewModel> CommentsInQuestion { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
     public ICollection<RelatedQuestionResponse> RelatedQuestionsByTag { get; set; } = [];
@@ -110,11 +118,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
 
         await LoadQuestionCommentsAsync(question.Comments);
-        await LoadAnswersAsync(question, author);
 
         return true;
     }
-
 
     public async Task<ICollection<RelatedQuestionResponse>> LoadRelatedQuestionsByTag(ICollection<Guid> tags)
     {
@@ -140,7 +146,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             );
 
             if (url is null) continue;
-            
+
             var dto = new RelatedQuestionResponse(item.Id, item.Title, item.VoteCount,
                 url, item.UpdatedAtUtc ?? item.CreatedAtUtc);
 
@@ -181,21 +187,25 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         }
     }
 
-    private async Task LoadAnswersAsync(Question question, Member author)
+    public async Task<ICollection<AnswerInQuestionViewModel>> FetchAnswersAsync(Question question, int page,
+        AnswerSortCriteria sortBy)
     {
-        var answers = await _appUnitOfWork.AnswerRepository.GetAllAsync(
-            filter: x =>  x.QuestionId == question.Id,
-            orderBy: x => x.Id,
-            includes: [x => x.Comments],
-            useSplitQuery: false
-        );
+        ICollection<AnswerInQuestionViewModel> storage = [];
+
+        if (page == 0) page = 1;
+        const int defaultDataPerPage = 15;
+        var (answers, total) =
+            await _appUnitOfWork.AnswerRepository.GetAnswers(question.Id, page, defaultDataPerPage, sortBy);
+
+        var pager = new Paginator(totalItems: total, dataPerPage: defaultDataPerPage, currentPage: page);
+
+        Pagination = pager;
 
         var ansAuthors = await _appUnitOfWork.MemberRepository.GetAllAsync(
             filter: x => answers.Select(z => z.AnswerGiverId).Contains(x.Id),
             orderBy: x => x.Id,
             useSplitQuery: false
         );
-
 
         foreach (var answer in answers)
         {
@@ -228,8 +238,10 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             }
 
             ansInQnViewModel.CommentsInAnswer = await LoadAnswerCommentsAsync(answer.Comments);
-            Answers.Add(ansInQnViewModel);
+            storage.Add(ansInQnViewModel);
         }
+
+        return storage;
     }
 
     private async Task<ICollection<ReadCommentViewModel>> LoadAnswerCommentsAsync(

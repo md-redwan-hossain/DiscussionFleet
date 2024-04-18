@@ -3,6 +3,8 @@ using Autofac;
 using DiscussionFleet.Application.AnswerFeatures;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.VotingFeatures;
+using DiscussionFleet.Domain.Entities.AnswerAggregate.Utils;
+using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
 using DiscussionFleet.Web.Models.AnswerWithRelated;
 using DiscussionFleet.Web.Models.Others;
 using DiscussionFleet.Web.Models.QuestionWithRelated;
@@ -37,7 +39,8 @@ public class QuestionsController : Controller
 
 
     [HttpGet]
-    public async Task<IActionResult> Details(Guid id)
+    public async Task<IActionResult> Details(Guid id, [FromQuery] int page,
+        [FromQuery] AnswerSortCriteria sortBy = AnswerSortCriteria.HighestScore)
     {
         var viewModel = _scope.Resolve<QuestionDetailsViewModel>();
         var question = await viewModel.FetchQuestionAsync(id);
@@ -49,6 +52,10 @@ public class QuestionsController : Controller
 
         var result = await viewModel.FetchQuestionRelatedDataAsync(question, author);
         if (result is false) return RedirectToAction(nameof(Index));
+
+
+        viewModel.Answers = await viewModel.FetchAnswersAsync(question, page, sortBy);
+
 
         viewModel.RelatedQuestionsByTag =
             await viewModel.LoadRelatedQuestionsByTag(viewModel.RelatedQuestionTagIdCollection);

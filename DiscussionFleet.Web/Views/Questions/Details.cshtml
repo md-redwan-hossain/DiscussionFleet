@@ -1,4 +1,5 @@
-﻿@model DiscussionFleet.Web.Models.QuestionWithRelated.QuestionDetailsViewModel;
+﻿@using DiscussionFleet.Domain.Entities.AnswerAggregate.Utils
+@model DiscussionFleet.Web.Models.QuestionWithRelated.QuestionDetailsViewModel;
 
 
 @{
@@ -247,54 +248,53 @@
     </div>
 </div>
 
-<!-- Answer sorting area start -->
-<div class="row">
-    <div class="col d-flex justify-content-between align-items-center">
-        <div class="pt-5 pt-md-0">
-            <span class="fs-3 d-none d-md-block">25 Answers</span>
-            <span class="d-block d-md-none">25 Answers</span>
-        </div>
-        <div class="d-flex align-items-center gap-1 flex-column flex-md-row">
-            <span>Sorted by:</span>
-            <div>
-                <select type="text" class="form-select" id="select-users" value="">
-                    <option value="scoredesc" selected="selected">
-                        Highest score (default)
-                    </option>
-                    <option value="modifieddesc">
-                        Date modified (newest first)
-                    </option>
-                    <option value="createdasc">
-                        Date created (oldest first)
-                    </option>
-                </select>
+
+@if (Model.Pagination.TotalItems is not 0)
+{
+    <!-- Answer sorting area start -->
+    <div class="row">
+        <div class="col d-flex justify-content-between align-items-center">
+            <div class="pt-5 pt-md-0">
+                <span class="fs-3 d-none d-md-block">@Model.Pagination.TotalItems Answers</span>
+                <span class="d-block d-md-none">@Model.Pagination.TotalItems Answers</span>
+            </div>
+            <div class="d-flex align-items-center gap-1 flex-column flex-md-row">
+                <span>Sorted by:</span>
+                
+                <div>
+                    <select class="form-select" onchange="window.location.href='?sortBy=' + this.value">
+                        <option selected disabled>Select an option</option>
+                        <option value="@AnswerSortCriteria.HighestScore">
+                            Highest score (default)
+                        </option>
+                        <option value="@AnswerSortCriteria.Newest">
+                            Newest first
+                        </option>
+                        <option value="@AnswerSortCriteria.Oldest">
+                            Oldest first
+                        </option>
+                    </select>
+                </div>
+
+
             </div>
         </div>
     </div>
-</div>
 
-<!-- Answer pagination area start -->
-<div class="row py-3">
-    <div class="col">
-        <ul class="pagination ms-auto">
-            <li class="page-item">
-                <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-                <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="#">4</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="#">5</a>
-            </li>
-        </ul>
+    <!-- Answer pagination area start -->
+    <div class="row py-3">
+        <div class="col">
+            <ul class="pagination ms-auto">
+                @for (var i = Model.Pagination.StartPage; i <= Model.Pagination.EndPage; i++)
+                {
+                    <li class="@(i == Model.Pagination.CurrentPage ? "page-item active" : "page-item")">
+                        <a class="page-link" href="@Url.Action("Details", "Questions", new { page = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
-</div>
+}
 
 
 @foreach (var answer in Model.Answers)
