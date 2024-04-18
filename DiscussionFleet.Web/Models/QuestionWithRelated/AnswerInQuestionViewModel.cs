@@ -3,6 +3,7 @@ namespace DiscussionFleet.Web.Models.QuestionWithRelated;
 public class AnswerInQuestionViewModel
 {
     public Guid Id { get; set; }
+    public Guid AnswerGiverId { get; set; }
     public string Body { get; set; }
     public int VoteCount { get; set; }
     public int CommentCount { get; set; }

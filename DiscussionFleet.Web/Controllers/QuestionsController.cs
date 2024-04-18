@@ -15,7 +15,7 @@ public class QuestionsController : Controller
 {
     private readonly ILifetimeScope _scope;
     private readonly IVotingService _votingService;
-    private IAnswerService _answerService;
+    private readonly IAnswerService _answerService;
 
     public QuestionsController(ILifetimeScope scope, IVotingService votingService, IAnswerService answerService)
     {
@@ -55,16 +55,25 @@ public class QuestionsController : Controller
 
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var canVoteResult = await _votingService
-            .CheckVotingAbilityAsync(currentUserId, author.Id, question.Id);
+        var canVoteQuestionResult = await _votingService
+            .CheckQuestionVotingAbilityAsync(currentUserId, author.Id, question.Id);
 
         if (currentUserId is not null && Guid.Parse(currentUserId) == question.AuthorId)
         {
             viewModel.CanMarkAsAccepted = true;
         }
 
-        viewModel.CanUpvote = canVoteResult.upvote;
-        viewModel.CanDownVote = canVoteResult.downVote;
+        viewModel.CanUpvote = canVoteQuestionResult.upvote;
+        viewModel.CanDownVote = canVoteQuestionResult.downVote;
+
+        foreach (var ans in viewModel.Answers)
+        {
+            var canVoteAnswerResult = await _votingService
+                .CheckAnswerVotingAbilityAsync(currentUserId, ans.AnswerGiverId, ans.Id);
+
+            ans.CanUpvote = canVoteAnswerResult.upvote;
+            ans.CanDownVote = canVoteAnswerResult.downVote;
+        }
 
         return View(viewModel);
     }
@@ -111,7 +120,7 @@ public class QuestionsController : Controller
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
     [HttpPost("{controller:slugify}/details/{id:guid}/up-vote")]
-    public async Task<IActionResult> UpVote(Guid id)
+    public async Task<IActionResult> UpVoteQuestion(Guid id)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentUserId is null) return RedirectToAction("Login", "Account");
@@ -125,7 +134,7 @@ public class QuestionsController : Controller
     [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
     [ValidateAntiForgeryToken]
     [HttpPost("{controller:slugify}/details/{id:guid}/down-vote")]
-    public async Task<IActionResult> DownVote(Guid id)
+    public async Task<IActionResult> DownVoteQuestion(Guid id)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentUserId is null) return RedirectToAction("Login", "Account");
@@ -133,6 +142,34 @@ public class QuestionsController : Controller
         await _votingService.QuestionDownVoteAsync(id, Guid.Parse(currentUserId));
 
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+
+    [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
+    [ValidateAntiForgeryToken]
+    [HttpPost("{controller:slugify}/details/{questionId:guid}/answer/{answerId:guid}/up-vote")]
+    public async Task<IActionResult> UpVoteAnswer(Guid questionId, Guid answerId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null) return RedirectToAction("Login", "Account");
+
+        await _votingService.AnswerUpvoteAsync(answerId, Guid.Parse(currentUserId));
+
+        return RedirectToAction(nameof(Details), new { id = questionId });
+    }
+
+
+    [Authorize(Policy = nameof(ForumRulesOptions.MinimumReputationForVote))]
+    [ValidateAntiForgeryToken]
+    [HttpPost("{controller:slugify}/details/{questionId:guid}/answer/{answerId:guid}/down-vote")]
+    public async Task<IActionResult> DownVoteAnswer(Guid questionId, Guid answerId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId is null) return RedirectToAction("Login", "Account");
+
+        await _votingService.AnswerDownVoteAsync(answerId, Guid.Parse(currentUserId));
+
+        return RedirectToAction(nameof(Details), new { id = questionId });
     }
 
 
@@ -250,7 +287,9 @@ public class QuestionsController : Controller
         }
 
         viewModel.Resolve(_scope);
-        await viewModel.ConductCommentCreateAsync(viewModel.QuestionId, viewModel.AnswerId, Guid.Parse(currentUserId));
+        await viewModel.ConductCommentCreateAsync(viewModel.QuestionId,
+            viewModel.AnswerId, Guid.Parse(currentUserId));
+
         return RedirectToAction(nameof(Details), new { id = viewModel.QuestionId });
     }
 

@@ -203,6 +203,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             {
                 Id = answer.Id,
                 Body = answer.Body,
+                AnswerGiverId = answer.AnswerGiverId,
                 VoteCount = answer.VoteCount,
                 CommentCount = answer.CommentCount,
                 CreatedAtUtc = answer.CreatedAtUtc,
