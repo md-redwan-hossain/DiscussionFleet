@@ -2,6 +2,7 @@
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
+using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
@@ -19,6 +20,9 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     private IMarkdownService _markdownService;
     private IMemberService _memberService;
     private ForumRulesOptions _forumRulesOptions;
+    private LinkGenerator _linkGenerator;
+
+    private IHttpContextAccessor _httpContextAccessor;
 
     public QuestionDetailsViewModel()
     {
@@ -26,12 +30,15 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
 
     public QuestionDetailsViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
         IMarkdownService markdownService, IMemberService memberService,
-        IOptions<ForumRulesOptions> forumRulesOptions)
+        IOptions<ForumRulesOptions> forumRulesOptions, LinkGenerator linkGenerator,
+        IHttpContextAccessor httpContextAccessor)
     {
         _appUnitOfWork = appUnitOfWork;
         _scope = scope;
         _markdownService = markdownService;
         _memberService = memberService;
+        _linkGenerator = linkGenerator;
+        _httpContextAccessor = httpContextAccessor;
         _forumRulesOptions = forumRulesOptions.Value;
     }
 
@@ -54,7 +61,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public bool CanDownVote { get; set; } = false;
     public ICollection<ReadCommentViewModel> CommentsInQuestion { get; set; } = [];
     public ICollection<AnswerInQuestionViewModel> Answers { get; set; } = [];
-    public ICollection<(string title, string url)> RelatedQuestions { get; set; } = [];
+    public ICollection<RelatedQuestionResponse> RelatedQuestionsByTag { get; set; } = [];
+    public ICollection<Guid> RelatedQuestionTagIdCollection { get; set; } = [];
 
     public async Task<Question?> FetchQuestionAsync(Guid questionId)
     {
@@ -71,7 +79,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         return await _appUnitOfWork.MemberRepository.GetOneAsync(x => x.Id == authorId, useSplitQuery: false);
     }
 
-    public async Task<bool> FetchQuestionRelatedDataAsync(Question question, Member author)
+    public async Task<bool> FetchQuestionRelatedDataAsync(Question question,
+        Member author)
     {
         var data = await _memberService.GetCachedMemberInfoAsync(author.Id.ToString());
         ProfilePicUrl = data?.ProfileImageUrl;
@@ -81,23 +90,19 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         AuthorReputation = author.ReputationCount;
         UpdatedAtUtc ??= CreatedAtUtc;
 
-        // var tags = await _appUnitOfWork.TagRepository.GetAllAsync<string, Guid>(
-        //     filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
-        //     subsetSelector: x => x.Title,
-        //     orderBy: x => x.Id
-        // );
-
         var tags = await _appUnitOfWork.TagRepository.GetAllAsync(
             filter: x => question.Tags.Select(z => z.TagId).Contains(x.Id),
-            subsetSelector: x => new { x.Title, x.Id },
+            subsetSelector: x => new { x.Id, x.Title },
             orderBy: x => x.Id,
             useSplitQuery: false
         );
+
         foreach (var tag in tags)
         {
+            RelatedQuestionTagIdCollection.Add(tag.Id);
             TagNames.Add(tag.Title);
         }
-        // TagNames = [..tags];
+
 
         Body = await _markdownService.MarkdownToHtmlAsync(Body);
         Body = await _markdownService.SanitizeConvertedHtmlAsync(Body);
@@ -107,6 +112,46 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         await LoadAnswersAsync(question, author);
 
         return true;
+    }
+
+
+    public async Task<ICollection<RelatedQuestionResponse>> LoadRelatedQuestionsByTag(ICollection<Guid> tags)
+    {
+        ICollection<RelatedQuestionResponse> storage = [];
+
+        if (tags.Count == 0) return storage;
+
+        var questions = await _appUnitOfWork.QuestionRepository.GetAllAsync(
+            filter: x => x.Tags.Any(t => tags.Contains(t.TagId)),
+            orderBy: x => x.VoteCount,
+            limit: 10,
+            useSplitQuery: false
+        );
+
+        foreach (var item in questions)
+        {
+            if (_httpContextAccessor.HttpContext is null) continue;
+
+            var url = _linkGenerator.GetUriByAction(
+                _httpContextAccessor.HttpContext,
+                "Details", "Questions",
+                new { id = item.Id }
+            );
+
+            if (url is null) continue;
+            
+            var dto = new RelatedQuestionResponse(
+                item.Id,
+                item.Title,
+                item.VoteCount,
+                url,
+                item.UpdatedAtUtc ?? item.CreatedAtUtc
+            );
+
+            storage.Add(dto);
+        }
+
+        return storage;
     }
 
     private async Task LoadQuestionCommentsAsync(ICollection<QuestionComment> questionComments)
@@ -235,6 +280,8 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _markdownService = _scope.Resolve<IMarkdownService>();
         _memberService = _scope.Resolve<IMemberService>();
+        _linkGenerator = _scope.Resolve<LinkGenerator>();
+        _httpContextAccessor = _scope.Resolve<IHttpContextAccessor>();
         _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
     }
 }

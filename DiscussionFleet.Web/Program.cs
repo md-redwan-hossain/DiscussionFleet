@@ -80,7 +80,8 @@ try
     builder.Services.AddCookieAuthentication();
     builder.Services.AddAuthorizationPolicies(builder.Configuration);
 
-
+    builder.Services.AddHttpContextAccessor();
+    
     builder.Services.Configure<RouteOptions>(options =>
     {
         options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);

@@ -38,13 +38,17 @@ public class QuestionsController : Controller
     {
         var viewModel = _scope.Resolve<QuestionDetailsViewModel>();
         var question = await viewModel.FetchQuestionAsync(id);
-        if (question is null) return NotFound();
+        if (question is null) return RedirectToAction(nameof(Index));
 
         var author = await viewModel.FetchAuthorAsync(question.AuthorId);
-        if (author is null) return NotFound();
+        if (author is null) return RedirectToAction(nameof(Index));
+
 
         var result = await viewModel.FetchQuestionRelatedDataAsync(question, author);
-        if (result is false) NotFound();
+        if (result is false) return RedirectToAction(nameof(Index));
+
+        viewModel.RelatedQuestionsByTag =
+            await viewModel.LoadRelatedQuestionsByTag(viewModel.RelatedQuestionTagIdCollection);
 
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -166,7 +170,7 @@ public class QuestionsController : Controller
             RedirectToAction(nameof(Index));
         }
 
-        await viewModel.ConductAnswerCreationAsync(viewModel.Id,parsedUserId);
+        await viewModel.ConductAnswerCreationAsync(viewModel.Id, parsedUserId);
 
         return RedirectToAction(nameof(Details), new { id = viewModel.Id });
     }
