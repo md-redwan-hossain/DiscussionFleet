@@ -45,7 +45,7 @@ services:
       mssql_db_creator:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -59,36 +59,36 @@ services:
       REDIS_IO_THREADS_DO_READS: yes
       REDIS_DISABLE_COMMANDS: FLUSHDB,FLUSHALL
 
-#  web:
-#    build:
-#      context: .
-#      dockerfile: DiscussionFleet.Web/Dockerfile
-#    depends_on:
-#      redis_db:
-#        condition: service_healthy
-#    env_file:
-#      - .env
-#    restart: unless-stopped
-#    volumes:
-#      - web-app:/app
-#    ports:
-#      - "8045:8080"
-#
-#  worker:
-#    build:
-#      context: .
-#      dockerfile: DiscussionFleet.EmailWorker/Dockerfile
-#    depends_on:
-#      redis_db:
-#        condition: service_healthy
-#    env_file:
-#      - .env
-#    restart: unless-stopped
-#    volumes:
-#      - worker-app:/app
+  web:
+    build:
+      context: .
+      dockerfile: DiscussionFleet.Web/Dockerfile
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - web-app:/app
+    ports:
+      - "8045:8080"
+
+  worker:
+    build:
+      context: .
+      dockerfile: DiscussionFleet.EmailWorker/Dockerfile
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - worker-app:/app
 
 volumes:
   mssql_data:
   redis_data_discussion_fleet:
-#  web-app:
-#  worker-app:
+  web-app:
+  worker-app:
