@@ -66,7 +66,7 @@ public class AnswerViewModel : IViewModelWithResolve
         {
             await _resourceNotificationService.NotifyQuestionAuthorAsync(
                 question.AuthorId, question.Id, question.Title,
-                ResourceNotificationType.Comment
+                ResourceNotificationType.Answer
             );
         }
     }

@@ -123,31 +123,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ResourceNotifications",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConsumerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationType = table.Column<byte>(type: "tinyint", nullable: false),
-                    DestinationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SourceTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    IsMarkedAsRead = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ResourceNotifications", x => x.Id);
-                    table.CheckConstraint("CK_ResourceNotifications_NotificationType_Enum", "[NotificationType] BETWEEN CAST(1 AS tinyint) AND CAST(3 AS tinyint)");
-                    table.ForeignKey(
-                        name: "FK_ResourceNotifications_Members_ConsumerId",
-                        column: x => x.ConsumerId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Answers",
                 columns: table => new
                 {
@@ -248,6 +223,35 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_QuestionVotes_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ResourceNotifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConsumerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotificationType = table.Column<byte>(type: "tinyint", nullable: false),
+                    QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceNotifications", x => x.Id);
+                    table.CheckConstraint("CK_ResourceNotifications_NotificationType_Enum", "[NotificationType] IN (CAST(1 AS tinyint), CAST(2 AS tinyint))");
+                    table.ForeignKey(
+                        name: "FK_ResourceNotifications_Members_ConsumerId",
+                        column: x => x.ConsumerId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ResourceNotifications_Questions_QuestionId",
                         column: x => x.QuestionId,
                         principalTable: "Questions",
                         principalColumn: "Id",
@@ -456,6 +460,11 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                 name: "IX_ResourceNotifications_ConsumerId",
                 table: "ResourceNotifications",
                 column: "ConsumerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceNotifications_QuestionId",
+                table: "ResourceNotifications",
+                column: "QuestionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SavedAnswers_MemberId",

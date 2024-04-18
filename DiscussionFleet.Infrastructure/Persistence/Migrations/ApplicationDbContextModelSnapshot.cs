@@ -298,6 +298,44 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                     b.ToTable("QuestionTags", (string)null);
                 });
 
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.ResourceNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ConsumerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte>("NotificationType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsumerId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("ResourceNotifications", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ResourceNotifications_NotificationType_Enum", "[NotificationType] IN (CAST(1 AS tinyint), CAST(2 AS tinyint))");
+                        });
+                });
+
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.AnswerVote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -415,45 +453,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("QuestionVotes", (string)null);
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ConsumerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DestinationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsMarkedAsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<byte>("NotificationType")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("SourceTitle")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConsumerId");
-
-                    b.ToTable("ResourceNotifications", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_ResourceNotifications_NotificationType_Enum", "[NotificationType] BETWEEN CAST(1 AS tinyint) AND CAST(3 AS tinyint)");
-                        });
                 });
 
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.Tag", b =>
@@ -828,6 +827,21 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.ResourceNotification", b =>
+                {
+                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
+                        .WithMany()
+                        .HasForeignKey("ConsumerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DiscussionFleet.Domain.Entities.QuestionAggregate.Question", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.AnswerVote", b =>
                 {
                     b.HasOne("DiscussionFleet.Domain.Entities.AnswerAggregate.Answer", null)
@@ -855,15 +869,6 @@ namespace DiscussionFleet.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("VoteGiverId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DiscussionFleet.Domain.Entities.UnaryAggregates.ResourceNotification", b =>
-                {
-                    b.HasOne("DiscussionFleet.Domain.Entities.MemberAggregate.Member", null)
-                        .WithMany()
-                        .HasForeignKey("ConsumerId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

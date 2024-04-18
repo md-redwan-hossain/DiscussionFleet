@@ -51,23 +51,7 @@
             <div class="row g-4">
                 <div class="col-md-3 d-none d-md-block" id="filter-area">
                     <form asp-controller="Notifications" method="get" asp-action="Index" autocomplete="off">
-                        <div class="form-label"> Filter by</div>
-                        <div class="mb-4">
-                            <label class="form-check">
-                                <input asp-for="FilterBy.AnswerOnly" type="checkbox" value="true" class="form-check-input">
-                                <span class="form-check-label">Answer only</span>
-                            </label>
-                            <label class="form-check">
-                                <input asp-for="FilterBy.CommentOnly" type="checkbox" value="true" class="form-check-input">
-                                <span class="form-check-label">Comment only</span>
-                            </label>
 
-                            <label class="form-check">
-                                <input asp-for="FilterBy.Both" type="checkbox" value="true" class="form-check-input">
-                                <span class="form-check-label">Both</span>
-                            </label>
-
-                        </div>
                         <div class="form-label">Sort by</div>
                         <div class="mb-4">
                             <label class="form-check">
@@ -134,7 +118,10 @@
                                                     <div class="col">
                                                         <div class="mt-3 list-inline  mb-0 text-muted">
                                                             <div class="list-inline-item">
-                                                                <span href="#" class="badge bg-blue">@notification.NotificationType.ToString()</span>
+                                                                <a asp-controller="Questions" asp-action="Details" asp-route-id="@notification.QuestionId"
+                                                                   class="badge bg-blue">
+                                                                    @notification.NotificationType.ToString()
+                                                                </a>
                                                             </div>
                                                             <div class="list-inline-item">
 

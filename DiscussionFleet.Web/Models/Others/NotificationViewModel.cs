@@ -28,12 +28,27 @@ public class NotificationViewModel : IViewModelWithResolve
     public byte DataPerPage { get; set; } = 15;
     public int CurrentPage { get; set; } = 1;
     public DataSortOrder SortOrder { get; set; } = DataSortOrder.Asc;
-    public NotificationFilterCriteria FilterBy { get; set; } = new();
     public NotificationSortCriteria SortBy { get; set; } = NotificationSortCriteria.Newest;
     [BindNever] public Paginator Pagination { get; set; }
-
     public ICollection<ResourceNotification> Data { get; set; }
-    
+
+
+    public async Task FetchData(Guid userId)
+    {
+        var filterBy = new NotificationFilterCriteria { Both = true };
+
+        if (DataPerPage < 15) DataPerPage = 15;
+        var (questions, total) = await _appUnitOfWork.ResourceNotificationRepository.GetResourceNotifications(SortBy,
+            filterBy, SortOrder, CurrentPage, DataPerPage, userId
+        );
+
+        var pager = new Paginator(totalItems: total, dataPerPage: DataPerPage, currentPage: CurrentPage);
+
+        Pagination = pager;
+
+        Data = questions;
+    }
+
 
     public void Resolve(ILifetimeScope scope)
     {
