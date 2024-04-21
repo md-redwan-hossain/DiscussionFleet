@@ -5,7 +5,7 @@ using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.ResourceNotificationFeatures;
 using DiscussionFleet.Application.VotingFeatures;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Microsoft.Extensions.Options;

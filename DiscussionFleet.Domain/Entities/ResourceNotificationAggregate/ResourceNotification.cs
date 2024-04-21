@@ -1,9 +1,8 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Common;
 
 namespace DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 
-public class ResourceNotification : Entity<Guid>
+public class ResourceNotification : Entity<ResourceNotificationId>
 {
     public Guid ConsumerId { get; set; }
     public ResourceNotificationType NotificationType { get; set; }

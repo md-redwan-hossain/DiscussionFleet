@@ -1,8 +1,8 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
+using DiscussionFleet.Domain.Common;
 
 namespace DiscussionFleet.Domain.Entities.QuestionAggregate;
 
-public class Question : Entity<Guid>
+public class Question : Entity<QuestionId>
 {
     public string Title { get; set; }
     public string Body { get; set; }

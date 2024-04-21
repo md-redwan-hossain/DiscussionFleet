@@ -1,6 +1,8 @@
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using EntityFramework.Exceptions.SqlServer;

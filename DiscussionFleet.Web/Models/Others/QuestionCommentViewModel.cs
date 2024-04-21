@@ -3,11 +3,11 @@ using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.Common.Providers;
 using DiscussionFleet.Application.ResourceNotificationFeatures;
-using DiscussionFleet.Domain.Entities.Enums;
-using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.CommentAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
+using DiscussionFleet.Domain.Helpers;
 using DiscussionFleet.Web.Utils;
 
 namespace DiscussionFleet.Web.Models.Others;

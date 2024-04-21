@@ -1,9 +1,8 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Common;
 
-namespace DiscussionFleet.Domain.Entities.UnaryAggregates;
+namespace DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 
-public class MultimediaImage : Entity<Guid>
+public class MultimediaImage : Entity<MultimediaImageId>
 {
     public string? Caption { get; set; }
     public ImagePurpose Purpose { get; set; }

@@ -1,4 +1,4 @@
-﻿using DiscussionFleet.Domain.Entities.Enums;
+﻿using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 
 namespace DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 

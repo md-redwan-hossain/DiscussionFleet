@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.Abstracts;
+namespace DiscussionFleet.Domain.Common;
 
 public abstract class Timestamp
 {

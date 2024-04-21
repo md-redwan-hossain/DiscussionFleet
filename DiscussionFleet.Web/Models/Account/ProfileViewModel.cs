@@ -2,7 +2,7 @@ using Autofac;
 using DiscussionFleet.Application;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 using DiscussionFleet.Infrastructure.Identity.Services;
 using DiscussionFleet.Web.Utils;
 using Mapster;

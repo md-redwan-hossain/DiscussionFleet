@@ -1,8 +1,9 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
+using DiscussionFleet.Domain.Common;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 
 namespace DiscussionFleet.Domain.Entities.MemberAggregate;
 
-public class Member : Entity<Guid>
+public class Member : Entity<MemberId>
 {
     public int ReputationCount { get; set; } = 1;
     public string FullName { get; set; }
@@ -11,7 +12,7 @@ public class Member : Entity<Guid>
     public string? PersonalWebsiteUrl { get; set; }
     public string? TwitterHandle { get; set; }
     public string? GithubHandle { get; set; }
-    public Guid? ProfileImageId { get; set; }
+    public MultimediaImageId? ProfileImageId { get; set; }
     public ICollection<SavedQuestion> SavedQuestions { get; set; }
     public ICollection<SavedAnswer> SavedAnswers { get; set; }
 

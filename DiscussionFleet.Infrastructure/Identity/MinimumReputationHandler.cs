@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using DiscussionFleet.Application;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DiscussionFleet.Infrastructure.Identity;
@@ -21,7 +22,7 @@ public class MinimumReputationHandler : AuthorizationHandler<MinimumReputationRe
         if (userId is not null)
         {
             var member = await _applicationUnitOfWork.MemberRepository.GetOneAsync(
-                filter: x => x.Id == Guid.Parse(userId),
+                filter: x => x.Id == new MemberId(Guid.Parse(userId)),
                 useSplitQuery: false
             );
 

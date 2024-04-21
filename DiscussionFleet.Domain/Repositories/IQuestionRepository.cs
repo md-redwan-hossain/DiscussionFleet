@@ -4,7 +4,7 @@ using DiscussionFleet.Domain.Utils;
 
 namespace DiscussionFleet.Domain.Repositories;
 
-public interface IQuestionRepository : IRepositoryBase<Question, Guid>
+public interface IQuestionRepository : IRepositoryBase<Question, QuestionId>
 {
     Task<PagedData<Question>> GetQuestions(QuestionSortCriteria sortBy, QuestionFilterCriteria filterBy,
         DataSortOrder sortOrder, int page, int limit, ICollection<Guid> tags, string? searchText = null,

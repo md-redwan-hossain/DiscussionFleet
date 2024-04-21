@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using DiscussionFleet.Domain.Entities.Contracts;
+using DiscussionFleet.Domain.Common;
 using DiscussionFleet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 

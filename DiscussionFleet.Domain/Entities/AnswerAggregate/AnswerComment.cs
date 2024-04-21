@@ -1,10 +1,10 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
+using DiscussionFleet.Domain.Common;
+using DiscussionFleet.Domain.Entities.CommentAggregate;
 
 namespace DiscussionFleet.Domain.Entities.AnswerAggregate;
 
 public class AnswerComment : Timestamp
 {
-    public Guid AnswerId { get; set; }
-    public Guid CommentId { get; set; }
- 
+    public AnswerId AnswerId { get; set; }
+    public CommentId CommentId { get; set; }
 }

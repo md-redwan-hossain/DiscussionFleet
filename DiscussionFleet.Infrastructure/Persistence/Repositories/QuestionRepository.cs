@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
-public class QuestionRepository : Repository<Question, Guid>, IQuestionRepository
+public class QuestionRepository : Repository<Question, QuestionId>, IQuestionRepository
 {
     public QuestionRepository(ApplicationDbContext context) : base(context)
     {

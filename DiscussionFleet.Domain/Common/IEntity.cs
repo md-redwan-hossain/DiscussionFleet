@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.Contracts;
+namespace DiscussionFleet.Domain.Common;
 
 public interface IEntity<TKey> where TKey : IEquatable<TKey>
 {

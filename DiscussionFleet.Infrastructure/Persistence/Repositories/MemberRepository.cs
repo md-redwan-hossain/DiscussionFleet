@@ -3,14 +3,14 @@ using DiscussionFleet.Domain.Repositories;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
-public class MemberRepository : Repository<Member, Guid>, IMemberRepository
+public class MemberRepository : Repository<Member, MemberId>, IMemberRepository
 {
     public MemberRepository(ApplicationDbContext context) : base(context)
     {
     }
 
 
-    public async Task<bool> ReputationUpvoteAsync(Guid id, int positivePoint)
+    public async Task<bool> ReputationUpvoteAsync(MemberId id, int positivePoint)
     {
         if (positivePoint <= 0) return false;
 
@@ -26,7 +26,7 @@ public class MemberRepository : Repository<Member, Guid>, IMemberRepository
     }
 
 
-    public async Task<bool> ReputationDownVoteAsync(Guid id, int negativePoint)
+    public async Task<bool> ReputationDownVoteAsync(MemberId id, int negativePoint)
     {
         if (negativePoint >= 0) return false;
 

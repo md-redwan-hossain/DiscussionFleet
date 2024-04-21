@@ -1,5 +1,4 @@
 using DiscussionFleet.Application.Common.Providers;
-using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 
 namespace DiscussionFleet.Application.ResourceNotificationFeatures;

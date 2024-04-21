@@ -1,6 +1,6 @@
-using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -14,6 +14,12 @@ public class QuestionConfig : IEntityTypeConfiguration<Question>
     {
         builder.ToTable(DomainEntityDbTableNames.Question);
 
+        builder.Property(e => e.Id)
+            .HasConversion(
+                convertToProviderExpression: value => value.Data,
+                convertFromProviderExpression: value => new QuestionId(value)
+            );
+        
         builder
             .Property(c => c.Title)
             .HasMaxLength(DomainEntityConstants.QuestionTitleMaxLength);

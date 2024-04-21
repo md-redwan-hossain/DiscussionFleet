@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.Enums;
+namespace DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 
 public enum ResourceNotificationType : byte
 {

@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.Helpers;
+namespace DiscussionFleet.Domain.Helpers;
 
 public static class DomainEntityConstants
 {

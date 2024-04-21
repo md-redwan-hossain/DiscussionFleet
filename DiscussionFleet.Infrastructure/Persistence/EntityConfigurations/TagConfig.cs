@@ -1,5 +1,6 @@
-using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
+using DiscussionFleet.Domain.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Enums;
@@ -12,9 +13,16 @@ public class TagConfig : IEntityTypeConfiguration<Tag>
     public void Configure(EntityTypeBuilder<Tag> builder)
     {
         builder.ToTable(DomainEntityDbTableNames.Tag);
-        
+
+
+        builder.Property(e => e.Id)
+            .HasConversion(
+                convertToProviderExpression: value => value.Data,
+                convertFromProviderExpression: value => new TagId(value)
+            );
+
         builder.HasIndex(x => x.Title).IsUnique();
-        
+
         builder
             .Property(c => c.Title)
             .HasMaxLength(DomainEntityConstants.TagTitleMaxLength);

@@ -1,4 +1,4 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
+using DiscussionFleet.Domain.Common;
 
 namespace DiscussionFleet.Domain.Entities.UnaryAggregates;
 

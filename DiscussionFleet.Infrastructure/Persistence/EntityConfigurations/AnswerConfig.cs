@@ -1,7 +1,7 @@
 using DiscussionFleet.Domain.Entities.AnswerAggregate;
-using DiscussionFleet.Domain.Entities.Helpers;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StringMate.Generators;
@@ -14,6 +14,12 @@ public class AnswerConfig : IEntityTypeConfiguration<Answer>
     public void Configure(EntityTypeBuilder<Answer> builder)
     {
         builder.ToTable(DomainEntityDbTableNames.Answer);
+        
+        builder.Property(e => e.Id)
+            .HasConversion(
+                convertToProviderExpression: value => value.Data,
+                convertFromProviderExpression: value => new AnswerId(value)
+            );
 
         builder
             .Property(c => c.Body)

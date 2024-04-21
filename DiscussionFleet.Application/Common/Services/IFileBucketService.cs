@@ -1,5 +1,5 @@
 ﻿using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 
 namespace DiscussionFleet.Application.Common.Services;
 

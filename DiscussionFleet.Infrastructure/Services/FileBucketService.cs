@@ -5,7 +5,7 @@ using Amazon.S3.Util;
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Services;
 using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
-using DiscussionFleet.Domain.Entities.Enums;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 using Microsoft.Extensions.Options;
 
 namespace DiscussionFleet.Infrastructure.Services;

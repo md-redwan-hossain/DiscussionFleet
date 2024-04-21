@@ -1,9 +1,10 @@
-using DiscussionFleet.Domain.Entities.Abstracts;
+using DiscussionFleet.Domain.Common;
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
 
 namespace DiscussionFleet.Domain.Entities.MemberAggregate;
 
 public class SavedAnswer : Timestamp
 {
-    public Guid AnswerId { get; set; }
-    public Guid MemberId { get; set; }
+    public AnswerId AnswerId { get; set; }
+    public MemberId MemberId { get; set; }
 }

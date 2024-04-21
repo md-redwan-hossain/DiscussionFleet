@@ -1,5 +1,4 @@
 using DiscussionFleet.Application.Common.Extensions;
-using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
 using DiscussionFleet.Domain.Repositories;
@@ -8,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiscussionFleet.Infrastructure.Persistence.Repositories;
 
-public class ResourceNotificationRepository : Repository<ResourceNotification, Guid>, IResourceNotificationRepository
+public class ResourceNotificationRepository : Repository<ResourceNotification, ResourceNotificationId>,
+    IResourceNotificationRepository
 {
     public ResourceNotificationRepository(ApplicationDbContext context) : base(context)
     {

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using DiscussionFleet.Domain.Entities.Contracts;
+using DiscussionFleet.Domain.Common;
 
 namespace DiscussionFleet.Domain.Repositories;
 

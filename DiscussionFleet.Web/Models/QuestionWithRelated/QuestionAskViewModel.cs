@@ -4,8 +4,9 @@ using DiscussionFleet.Application;
 using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.QuestionFeatures.Services;
 using DiscussionFleet.Application.TagFeatures.DataTransferObjects;
-using DiscussionFleet.Domain.Entities.Helpers;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
+using DiscussionFleet.Domain.Helpers;
 using DiscussionFleet.Web.Utils;
 using SharpOutcome;
 

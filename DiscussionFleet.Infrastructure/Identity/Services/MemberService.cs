@@ -6,8 +6,8 @@ using DiscussionFleet.Application.MembershipFeatures.DataTransferObjects;
 using DiscussionFleet.Application.MembershipFeatures.Enums;
 using DiscussionFleet.Application.MembershipFeatures.Interfaces;
 using DiscussionFleet.Application.MembershipFeatures.Utils;
-using DiscussionFleet.Domain.Entities.Enums;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
@@ -83,7 +83,7 @@ public class MemberService : IMemberService
                 return new MembershipError(BadOutcomeTag.Failure, errors);
             }
 
-            var member = new Member { Id = applicationUser.Id, FullName = dto.FullName };
+            var member = new Member { Id = new MemberId(applicationUser.Id), FullName = dto.FullName };
             member.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
 
             await _appUnitOfWork.MemberRepository.CreateAsync(member);
