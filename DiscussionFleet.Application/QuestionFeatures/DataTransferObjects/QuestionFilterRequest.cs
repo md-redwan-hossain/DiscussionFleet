@@ -1,4 +1,4 @@
-﻿using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
+﻿using DiscussionFleet.Domain.Entities.QuestionAggregate.Shared;
 using DiscussionFleet.Domain.Utils;
 
 namespace DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;

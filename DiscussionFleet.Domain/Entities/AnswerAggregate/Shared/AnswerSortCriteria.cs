@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.AnswerAggregate.Utils;
+namespace DiscussionFleet.Domain.Entities.AnswerAggregate.Shared;
 
 public enum AnswerSortCriteria : byte
 {

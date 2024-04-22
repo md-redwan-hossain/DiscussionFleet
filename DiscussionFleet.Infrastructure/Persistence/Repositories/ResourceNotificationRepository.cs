@@ -1,7 +1,7 @@
 using DiscussionFleet.Application.Common.Extensions;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
-using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
+using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Shared;
 using DiscussionFleet.Domain.Repositories;
 using DiscussionFleet.Domain.Utils;
 using Microsoft.EntityFrameworkCore;

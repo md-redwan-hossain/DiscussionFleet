@@ -1,6 +1,6 @@
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
-using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
+using DiscussionFleet.Domain.Entities.QuestionAggregate.Shared;
 using DiscussionFleet.Domain.Entities.TagAggregate;
 using DiscussionFleet.Domain.Utils;
 

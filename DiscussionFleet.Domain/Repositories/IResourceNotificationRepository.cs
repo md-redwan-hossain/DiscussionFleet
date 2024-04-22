@@ -1,6 +1,6 @@
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
-using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
+using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Shared;
 using DiscussionFleet.Domain.Utils;
 
 namespace DiscussionFleet.Domain.Repositories;

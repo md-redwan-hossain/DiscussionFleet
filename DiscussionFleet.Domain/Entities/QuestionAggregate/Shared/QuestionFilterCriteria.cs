@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
+namespace DiscussionFleet.Domain.Entities.QuestionAggregate.Shared;
 
 public class QuestionFilterCriteria
 {

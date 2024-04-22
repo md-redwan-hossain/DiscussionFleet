@@ -1,4 +1,4 @@
-namespace DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
+namespace DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Shared;
 
 public class NotificationFilterCriteria
 {
