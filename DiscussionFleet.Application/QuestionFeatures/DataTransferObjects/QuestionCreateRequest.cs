@@ -1,4 +1,7 @@
-﻿namespace DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
+﻿using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 
-public record QuestionCreateRequest(Guid AuthorId, string Title, string Body, ICollection<Guid> ExistingTags);
+namespace DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
+
+public record QuestionCreateRequest(MemberId AuthorId, string Title, string Body, ICollection<TagId> ExistingTags);
 

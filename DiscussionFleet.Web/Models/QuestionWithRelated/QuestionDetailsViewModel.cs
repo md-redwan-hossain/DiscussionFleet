@@ -20,7 +20,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
     private IMarkdownService _markdownService;
-    private IMemberService _memberService;
+    private IMemberIdentityService _memberIdentityService;
     private LinkGenerator _linkGenerator;
 
     private IHttpContextAccessor _httpContextAccessor;
@@ -30,13 +30,13 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     }
 
     public QuestionDetailsViewModel(IApplicationUnitOfWork appUnitOfWork, ILifetimeScope scope,
-        IMarkdownService markdownService, IMemberService memberService, LinkGenerator linkGenerator,
+        IMarkdownService markdownService, IMemberIdentityService memberIdentityService, LinkGenerator linkGenerator,
         IHttpContextAccessor httpContextAccessor)
     {
         _appUnitOfWork = appUnitOfWork;
         _scope = scope;
         _markdownService = markdownService;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
         _linkGenerator = linkGenerator;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -85,7 +85,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
     public async Task<bool> FetchQuestionRelatedDataAsync(Question question,
         Member author)
     {
-        var data = await _memberService.GetCachedMemberInfoAsync(author.Id.ToString());
+        var data = await _memberIdentityService.GetCachedMemberInfoAsync(author.Id.ToString());
         ProfilePicUrl = data?.ProfileImageUrl;
 
         await question.BuildAdapter().AdaptToAsync(this);
@@ -235,7 +235,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
             ansInQnViewModel.AuthorName = pickedAnsAuthor.FullName;
             ansInQnViewModel.AuthorReputation = pickedAnsAuthor.ReputationCount;
 
-            var pickedAnsAuthorCache = await _memberService.GetCachedMemberInfoAsync(answer.AnswerGiverId.ToString());
+            var pickedAnsAuthorCache = await _memberIdentityService.GetCachedMemberInfoAsync(answer.AnswerGiverId.ToString());
             if (pickedAnsAuthorCache is not null)
             {
                 ansInQnViewModel.ProfilePicUrl = pickedAnsAuthorCache.ProfileImageUrl;
@@ -295,7 +295,7 @@ public class QuestionDetailsViewModel : IViewModelWithResolve
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _markdownService = _scope.Resolve<IMarkdownService>();
-        _memberService = _scope.Resolve<IMemberService>();
+        _memberIdentityService = _scope.Resolve<IMemberIdentityService>();
         _linkGenerator = _scope.Resolve<LinkGenerator>();
         _httpContextAccessor = _scope.Resolve<IHttpContextAccessor>();
     }

@@ -1,5 +1,8 @@
 using DiscussionFleet.Application.Common.Options;
 using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using Microsoft.Extensions.Options;
 
@@ -21,7 +24,7 @@ public class VotingService : IVotingService
         _forumRulesOptions = forumRulesOptions.Value;
     }
 
-    public async Task<bool> MemberReputationUpvoteAsync(Guid id, int positivePoint)
+    public async Task<bool> MemberReputationUpvoteAsync(MemberId id, int positivePoint)
     {
         var result = await _appUnitOfWork.MemberRepository.ReputationUpvoteAsync(id, positivePoint);
 
@@ -31,7 +34,7 @@ public class VotingService : IVotingService
         return true;
     }
 
-    public async Task<bool> MemberReputationDownVoteAsync(Guid id, int negativePoint)
+    public async Task<bool> MemberReputationDownVoteAsync(MemberId id, int negativePoint)
     {
         var result = await _appUnitOfWork.MemberRepository.ReputationDownVoteAsync(id, negativePoint);
 
@@ -41,7 +44,7 @@ public class VotingService : IVotingService
         return true;
     }
 
-    public async Task<bool> QuestionUpvoteAsync(Guid questionId, Guid voterId)
+    public async Task<bool> QuestionUpvoteAsync(QuestionId questionId, MemberId voterId)
     {
         var existingQuestionVote = await _appUnitOfWork.QuestionVoteRepository.GetOneAsync(
             filter: x => x.QuestionId == questionId && x.VoteGiverId == voterId,
@@ -80,7 +83,7 @@ public class VotingService : IVotingService
         return true;
     }
 
-    public async Task<bool> QuestionDownVoteAsync(Guid questionId, Guid voterId)
+    public async Task<bool> QuestionDownVoteAsync(QuestionId questionId, MemberId voterId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
             filter: x => x.Id == questionId,
@@ -108,7 +111,7 @@ public class VotingService : IVotingService
         return true;
     }
 
-    public async Task<bool> AnswerUpvoteAsync(Guid answerId, Guid voterId)
+    public async Task<bool> AnswerUpvoteAsync(AnswerId answerId, MemberId voterId)
     {
         var existingAnswerVote = await _appUnitOfWork.AnswerVoteRepository.GetOneAsync(
             filter: x => x.AnswerId == answerId && x.VoteGiverId == voterId,
@@ -146,7 +149,7 @@ public class VotingService : IVotingService
         return true;
     }
 
-    public async Task<bool> AnswerDownVoteAsync(Guid answerId, Guid voterId)
+    public async Task<bool> AnswerDownVoteAsync(AnswerId answerId, MemberId voterId)
     {
         var answer = await _appUnitOfWork.AnswerRepository.GetOneAsync(
             filter: x => x.Id == answerId,
@@ -176,7 +179,7 @@ public class VotingService : IVotingService
 
 
     public async Task<(bool upvote, bool downVote)> CheckQuestionVotingAbilityAsync(string? currentUserId,
-        Guid memberId, Guid questionId)
+        MemberId memberId, QuestionId questionId)
     {
         if (currentUserId is null)
         {
@@ -185,13 +188,13 @@ public class VotingService : IVotingService
 
         var parsedUserId = Guid.Parse(currentUserId);
 
-        if (parsedUserId == memberId)
+        if (parsedUserId == memberId.Data)
         {
             return (false, false);
         }
 
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
-            filter: x => x.Id == parsedUserId,
+            filter: x => x.Id == new MemberId(parsedUserId),
             useSplitQuery: false
         );
 
@@ -227,7 +230,7 @@ public class VotingService : IVotingService
 
 
     public async Task<(bool upvote, bool downVote)> CheckAnswerVotingAbilityAsync(string? currentUserId,
-        Guid memberId, Guid answerId)
+        MemberId memberId, AnswerId answerId)
     {
         if (currentUserId is null)
         {
@@ -236,13 +239,13 @@ public class VotingService : IVotingService
 
         var parsedUserId = Guid.Parse(currentUserId);
 
-        if (parsedUserId == memberId)
+        if (parsedUserId == memberId.Data)
         {
             return (false, false);
         }
 
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
-            filter: x => x.Id == parsedUserId,
+            filter: x => x.Id == new MemberId(parsedUserId),
             useSplitQuery: false
         );
 

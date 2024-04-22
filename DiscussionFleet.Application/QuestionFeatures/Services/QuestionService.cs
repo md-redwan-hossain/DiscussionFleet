@@ -5,6 +5,7 @@ using DiscussionFleet.Application.QuestionFeatures.DataTransferObjects;
 using DiscussionFleet.Application.TagFeatures;
 using DiscussionFleet.Application.VotingFeatures;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 using Microsoft.Extensions.Options;
 using SharpOutcome;
 
@@ -38,14 +39,14 @@ public class QuestionService : IQuestionService
         ICollection<QuestionTag> tags = [];
         foreach (var dtoTagId in dto.ExistingTags)
         {
-            var questionTag = new QuestionTag { TagId = dtoTagId, QuestionId = id };
+            var questionTag = new QuestionTag { TagId = dtoTagId, QuestionId = new QuestionId(id) };
             questionTag.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
             tags.Add(questionTag);
         }
 
         var entity = new Question
         {
-            Id = id,
+            Id = new QuestionId(id),
             AuthorId = dto.AuthorId,
             Title = dto.Title,
             Body = dto.Body,
@@ -75,7 +76,7 @@ public class QuestionService : IQuestionService
 
                 if (outcome.TryPickGoodOutcome(out var data))
                 {
-                    ICollection<Guid> tags = [..dto.ExistingTags, ..data.Select(x => x.Id)];
+                    ICollection<TagId> tags = [..dto.ExistingTags, ..data.Select(x => x.Id)];
                     var questionCreateRequest = new QuestionCreateRequest(dto.AuthorId, dto.Title, dto.Body, tags);
                     var createdQuestion = await CreateAsync(questionCreateRequest);
 
@@ -96,5 +97,4 @@ public class QuestionService : IQuestionService
 
         return new BadOutcome(BadOutcomeTag.Unknown);
     }
-    
 }

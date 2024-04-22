@@ -18,7 +18,7 @@ using StackExchange.Redis;
 
 namespace DiscussionFleet.Infrastructure.Identity.Services;
 
-public class MemberService : IMemberService
+public class MemberIdentityService : IMemberIdentityService
 {
     private readonly IApplicationUnitOfWork _appUnitOfWork;
     private readonly ApplicationUserManager _userManager;
@@ -31,7 +31,7 @@ public class MemberService : IMemberService
     private readonly IFileBucketService _fileBucketService;
 
 
-    public MemberService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
+    public MemberIdentityService(IApplicationUnitOfWork appUnitOfWork, ApplicationUserManager userManager,
         IDateTimeProvider dateTimeProvider, IGuidProvider guidProvider, IConnectionMultiplexer redis,
         IJsonSerializationService jsonSerializationService, IPasswordHasher<ApplicationUser> passwordHasher,
         IFileBucketService fileBucketService, ICloudQueueService cloudQueueService)
@@ -97,14 +97,14 @@ public class MemberService : IMemberService
             await trx.RollbackAsync();
         }
 
-        return new MembershipError(BadOutcomeTag.Unknown);
+        return new MembershipError(BadOutcomeTag.Unknown, []);
     }
 
     #endregion
 
     #region Update Member Profile
 
-    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, Guid id)
+    public async Task<MemberProfileUpdateResult> UpdateAsync(MemberUpdateRequest dto, MemberId id)
     {
         var memberInDb = await _appUnitOfWork.MemberRepository.GetOneAsync(
             filter: x => x.Id == id,
@@ -200,11 +200,13 @@ public class MemberService : IMemberService
         return true;
     }
 
-    public async Task<bool> CacheMemberInfoAsync(string id, MemberCachedInformation memberInfo)
+    public async Task<bool> CacheMemberInfoAsync(MemberId id, MemberCachedInformation memberInfo)
     {
         var cache = _redis.GetDatabase();
         var json = _jsonSerializationService.Serialize(memberInfo);
-        return await cache.HashSetAsync(RedisConstants.MemberInformationHashStore, id, json).ConfigureAwait(false);
+        return await cache
+            .HashSetAsync(RedisConstants.MemberInformationHashStore, id.Data.ToString(), json)
+            .ConfigureAwait(false);
     }
 
     public async Task<bool> FlushMemberInfoCacheAsync(string id)
@@ -213,17 +215,17 @@ public class MemberService : IMemberService
         return await cache.HashDeleteAsync(RedisConstants.MemberInformationHashStore, id);
     }
 
-    public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(string id, uint ttlInMinute = 60)
+    public async Task<MemberCachedInformation?> RefreshMemberInfoCacheAsync(MemberId id, uint ttlInMinute = 60)
     {
         var entity = await _appUnitOfWork.MemberRepository.GetOneAsync(
-            filter: x => x.Id == Guid.Parse(id),
+            filter: x => x.Id == id,
             subsetSelector: x => new { x.Id, x.FullName, x.ProfileImageId },
             useSplitQuery: true
         );
 
         if (entity is null) return null;
 
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id.Data.ToString());
         if (user is null) return null;
 
         string? imgName = null;
@@ -257,10 +259,10 @@ public class MemberService : IMemberService
             useSplitQuery: false
         );
 
-        if (member?.ProfileImageId != null)
+        if (member?.ProfileImageId is not null)
         {
             var existingImg = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(
-                filter: x => x.Id == dto.Id,
+                filter: x => x.Id == new MultimediaImageId(dto.Id.Data),
                 useSplitQuery: false
             );
 
@@ -276,7 +278,7 @@ public class MemberService : IMemberService
         {
             var entityImage = new MultimediaImage
             {
-                Id = dto.Id,
+                Id = new MultimediaImageId(dto.Id.Data),
                 Purpose = ImagePurpose.UserProfile,
                 FileExtension = dto.FileExtension
             };
@@ -290,7 +292,7 @@ public class MemberService : IMemberService
     }
 
 
-    public async Task<bool> RemoveMemberProfileImage(Guid id)
+    public async Task<bool> RemoveMemberProfileImage(MultimediaImageId id)
     {
         var entityToDelete = await _appUnitOfWork.MultimediaImageRepository.GetOneAsync(
             filter: x => x.Id == id,
@@ -308,13 +310,13 @@ public class MemberService : IMemberService
         return true;
     }
 
-    public async Task<bool> UpdateMemberProfileUrlCacheAsync(string id, uint ttlInMinute = 60)
+    public async Task<bool> UpdateMemberProfileUrlCacheAsync(MemberId id, uint ttlInMinute = 60)
     {
         var data = await GetCachedMemberInfoAsync(id);
         if (data is null) return false;
-        if (data.ProfileImageName is not null)
+        if (data.ProfileImageKey is not null)
         {
-            var url = await _fileBucketService.GetImageUrlAsync(data.ProfileImageName);
+            var url = await _fileBucketService.GetImageUrlAsync(data.ProfileImageKey);
             var updatedMemberData = data with
             {
                 ProfileImageUrl = url,
@@ -326,10 +328,14 @@ public class MemberService : IMemberService
         return true;
     }
 
-    public async Task<MemberCachedInformation?> GetCachedMemberInfoAsync(string id)
+    public async Task<MemberCachedInformation?> GetCachedMemberInfoAsync(MemberId id)
     {
         var cache = _redis.GetDatabase();
-        var json = await cache.HashGetAsync(RedisConstants.MemberInformationHashStore, id).ConfigureAwait(false);
+
+        var json = await cache
+            .HashGetAsync(RedisConstants.MemberInformationHashStore, id.Data.ToString())
+            .ConfigureAwait(false);
+
         if (json.IsNullOrEmpty) return null;
         return _jsonSerializationService.DeSerialize<MemberCachedInformation>(json.ToString());
     }
@@ -387,7 +393,7 @@ public class MemberService : IMemberService
         if (user.Email is null) return VerificationEmailResult.EmailNotFound;
 
         var member = await _appUnitOfWork.MemberRepository.GetOneAsync(
-            filter: x => x.Id == user.Id,
+            filter: x => x.Id == new MemberId(user.Id),
             useSplitQuery: false
         );
 

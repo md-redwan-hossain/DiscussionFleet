@@ -1,6 +1,8 @@
 using DiscussionFleet.Application.Common.Extensions;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.QuestionAggregate.Utils;
+using DiscussionFleet.Domain.Entities.TagAggregate;
 using DiscussionFleet.Domain.Repositories;
 using DiscussionFleet.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +18,8 @@ public class QuestionRepository : Repository<Question, QuestionId>, IQuestionRep
 
     public async Task<PagedData<Question>> GetQuestions(QuestionSortCriteria sortBy,
         QuestionFilterCriteria filterBy, DataSortOrder sortOrder,
-        int page, int limit, ICollection<Guid> tags,
-        string? searchText = null, Guid? authorId = null
+        int page, int limit, ICollection<TagId> tags,
+        string? searchText = null, MemberId? authorId = null
     )
     {
         var query = EntityDbSet

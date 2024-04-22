@@ -7,11 +7,10 @@ public class MembershipError : IMembershipError
 {
     public BadOutcomeTag Reason { get; }
     public ICollection<KeyValuePair<string, string>> Errors { get; }
-
-#nullable disable
-    public MembershipError(BadOutcomeTag reason, ICollection<KeyValuePair<string, string>> errors = null)
+    
+    public MembershipError(BadOutcomeTag reason, ICollection<KeyValuePair<string, string>> errors)
     {
         Reason = reason;
-        Errors = errors ?? new List<KeyValuePair<string, string>>();
+        Errors = errors;
     }
 }

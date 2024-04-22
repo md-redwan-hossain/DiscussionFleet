@@ -39,7 +39,7 @@ public class TagService : ITagService
 
         foreach (var dtoTagTitle in dto.TagTitles)
         {
-            var tag = new Tag { Id = _guidProvider.SortableGuid(), Title = dtoTagTitle };
+            var tag = new Tag { Id = new TagId(_guidProvider.SortableGuid()), Title = dtoTagTitle };
             tag.SetCreatedAtUtc(_dateTimeProvider.CurrentUtcTime);
             tags.Add(tag);
         }

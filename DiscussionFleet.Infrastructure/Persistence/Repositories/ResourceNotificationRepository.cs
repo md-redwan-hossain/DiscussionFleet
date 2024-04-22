@@ -1,4 +1,5 @@
 using DiscussionFleet.Application.Common.Extensions;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
 using DiscussionFleet.Domain.Repositories;
@@ -16,7 +17,7 @@ public class ResourceNotificationRepository : Repository<ResourceNotification, R
 
     public async Task<PagedData<ResourceNotification>> GetResourceNotifications(
         NotificationSortCriteria sortBy, NotificationFilterCriteria filterBy,
-        DataSortOrder sortOrder, int page, int limit, Guid memberId)
+        DataSortOrder sortOrder, int page, int limit, MemberId memberId)
     {
         var query = EntityDbSet.Where(q => q.ConsumerId == memberId);
 

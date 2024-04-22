@@ -19,7 +19,7 @@ public class RegistrationViewModel : IViewModelWithResolve
     private ILifetimeScope _scope;
     private ICloudQueueService _cloudQueueService;
     private IJsonSerializationService _jsonSerializationService;
-    private IMemberService _memberService;
+    private IMemberIdentityService _memberIdentityService;
     private IDateTimeProvider _dateTimeProvider;
 
     #endregion
@@ -30,11 +30,11 @@ public class RegistrationViewModel : IViewModelWithResolve
     {
     }
 
-    public RegistrationViewModel(ILifetimeScope scope, IMemberService memberService,
+    public RegistrationViewModel(ILifetimeScope scope, IMemberIdentityService memberIdentityService,
         IDateTimeProvider dateTimeProvider, ICloudQueueService cloudQueueService)
     {
         _scope = scope;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
         _dateTimeProvider = dateTimeProvider;
         _cloudQueueService = cloudQueueService;
     }
@@ -79,15 +79,15 @@ public class RegistrationViewModel : IViewModelWithResolve
     public async Task<Outcome<Guid, IMembershipError>> ConductRegistrationAsync()
     {
         var dto = new MemberRegistrationRequest(FullName, Email, Password);
-        var result = await _memberService.CreateAsync(dto);
+        var result = await _memberIdentityService.CreateAsync(dto);
         if (result.TryPickBadOutcome(out var err)) return (MembershipError)err;
 
         result.TryPickGoodOutcome(out var userData);
-        var token = await _memberService.IssueVerificationMailTokenAsync(userData.applicationUser);
+        var token = await _memberIdentityService.IssueVerificationMailTokenAsync(userData.applicationUser);
 
         if (userData.applicationUser.Email is null)
         {
-            return new MembershipError(BadOutcomeTag.NotFound);
+            return new MembershipError(BadOutcomeTag.NotFound, []);
         }
 
         var confirmationEmail = new MemberConfirmationEmail(
@@ -101,7 +101,7 @@ public class RegistrationViewModel : IViewModelWithResolve
         await _cloudQueueService.EnqueueAsync(json, userData.applicationUser.Id.ToString());
 
         var tokenRateLimiter = new EmailTokenRateLimiter(tokenIssueTimeUtc: _dateTimeProvider.CurrentUtcTime);
-        await _memberService.CacheEmailVerifyHistoryAsync(userData.member.Id.ToString(), tokenRateLimiter);
+        await _memberIdentityService.CacheEmailVerifyHistoryAsync(userData.member.Id.ToString(), tokenRateLimiter);
 
         return userData.applicationUser.Id;
     }
@@ -109,7 +109,7 @@ public class RegistrationViewModel : IViewModelWithResolve
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
-        _memberService = scope.Resolve<IMemberService>();
+        _memberIdentityService = scope.Resolve<IMemberIdentityService>();
         _dateTimeProvider = _scope.Resolve<IDateTimeProvider>();
         _jsonSerializationService = _scope.Resolve<IJsonSerializationService>();
         _cloudQueueService = _scope.Resolve<ICloudQueueService>();

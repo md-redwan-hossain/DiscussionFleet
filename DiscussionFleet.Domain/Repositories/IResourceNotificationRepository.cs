@@ -1,3 +1,4 @@
+using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate.Utils;
 using DiscussionFleet.Domain.Utils;
@@ -8,5 +9,5 @@ public interface IResourceNotificationRepository : IRepositoryBase<ResourceNotif
 {
     Task<PagedData<ResourceNotification>> GetResourceNotifications(
         NotificationSortCriteria sortBy, NotificationFilterCriteria filterBy,
-        DataSortOrder sortOrder, int page, int limit, Guid memberId);
+        DataSortOrder sortOrder, int page, int limit, MemberId memberId);
 }

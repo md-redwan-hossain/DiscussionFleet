@@ -61,8 +61,8 @@ public class InfrastructureModule : Module
 
         #region Services
 
-        builder.RegisterType<MemberService>()
-            .As<IMemberService>()
+        builder.RegisterType<MemberIdentityService>()
+            .As<IMemberIdentityService>()
             .InstancePerLifetimeScope();
 
         builder.RegisterType<HtmlEmailService>()

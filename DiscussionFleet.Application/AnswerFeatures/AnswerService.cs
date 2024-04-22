@@ -18,7 +18,7 @@ public class AnswerService : IAnswerService
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<bool> MarkAcceptedAsync(Guid questionId, Guid answerId)
+    public async Task<bool> MarkAcceptedAsync(QuestionId questionId, AnswerId answerId)
     {
         var question = await _appUnitOfWork.QuestionRepository.GetOneAsync(
             filter: x => x.Id == questionId,
@@ -31,8 +31,8 @@ public class AnswerService : IAnswerService
         {
             question.AcceptedAnswer = new AcceptedAnswer
             {
-                QuestionId = question.Id,
-                AnswerId = answerId
+                QuestionId = question.Id.Data,
+                AnswerId = answerId.Data
             };
 
             await _appUnitOfWork.SaveAsync();
@@ -44,8 +44,8 @@ public class AnswerService : IAnswerService
         {
             question.AcceptedAnswer = new AcceptedAnswer
             {
-                QuestionId = question.Id,
-                AnswerId = answerId
+                QuestionId = question.Id.Data,
+                AnswerId = answerId.Data
             };
 
             await _appUnitOfWork.SaveAsync();
@@ -59,7 +59,7 @@ public class AnswerService : IAnswerService
     {
         var ans = new Answer
         {
-            Id = _guidProvider.SortableGuid(),
+            Id = new AnswerId(_guidProvider.SortableGuid()),
             Body = dto.Body,
             AnswerGiverId = dto.AnswerGiverId,
             QuestionId = dto.QuestionId

@@ -15,7 +15,7 @@ namespace DiscussionFleet.Tests.Web
     {
         private AutoMock _mock;
         private ConfirmAccountViewModel _viewModel;
-        private Mock<IMemberService> _memberServiceMock;
+        private Mock<IMemberIdentityService> _memberServiceMock;
         private Mock<UserManager<ApplicationUser>> _userManagerMock;
 
         [TearDown]
@@ -28,7 +28,7 @@ namespace DiscussionFleet.Tests.Web
         public void SetUp()
         {
             _mock = AutoMock.GetLoose();
-            _memberServiceMock = _mock.Mock<IMemberService>();
+            _memberServiceMock = _mock.Mock<IMemberIdentityService>();
 
             var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
             var optionsMock = new Mock<IOptions<IdentityOptions>>();

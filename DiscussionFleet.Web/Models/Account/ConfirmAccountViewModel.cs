@@ -10,7 +10,7 @@ namespace DiscussionFleet.Web.Models.Account;
 public class ConfirmAccountViewModel : IViewModelWithResolve
 {
     private ILifetimeScope _scope;
-    private IMemberService _memberService;
+    private IMemberIdentityService _memberIdentityService;
     private ApplicationUserManager _userManager;
     [Required] public string Code { get; set; }
     [Required] public Guid UserId { get; set; }
@@ -20,11 +20,11 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
     {
     }
 
-    public ConfirmAccountViewModel(ILifetimeScope scope, IMemberService memberService,
+    public ConfirmAccountViewModel(ILifetimeScope scope, IMemberIdentityService memberIdentityService,
         ApplicationUserManager userManager)
     {
         _scope = scope;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
         _userManager = userManager;
     }
 
@@ -35,7 +35,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
 
         if (user.EmailConfirmed) return new BadOutcome(BadOutcomeTag.Repetitive, "Already verified.");
 
-        var result = await _memberService.ConfirmEmailAsync(user, code);
+        var result = await _memberIdentityService.ConfirmEmailAsync(user, code);
         if (result is false) return new BadOutcome(BadOutcomeTag.Invalid, "Invalid verification code.");
 
         return user;
@@ -44,7 +44,7 @@ public class ConfirmAccountViewModel : IViewModelWithResolve
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
-        _memberService = _scope.Resolve<IMemberService>();
+        _memberIdentityService = _scope.Resolve<IMemberIdentityService>();
         _userManager = _scope.Resolve<ApplicationUserManager>();
     }
 }

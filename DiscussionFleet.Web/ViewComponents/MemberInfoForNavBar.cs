@@ -10,15 +10,15 @@ public class MemberInfoForNavBar : ViewComponent
 {
     private readonly ApplicationUserManager _userManager;
     private readonly ApplicationSignInManager _signInManager;
-    private readonly IMemberService _memberService;
+    private readonly IMemberIdentityService _memberIdentityService;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public MemberInfoForNavBar(ApplicationUserManager userManager,
-        IMemberService memberService, IDateTimeProvider dateTimeProvider,
+        IMemberIdentityService memberIdentityService, IDateTimeProvider dateTimeProvider,
         ApplicationSignInManager signInManager)
     {
         _userManager = userManager;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
         _dateTimeProvider = dateTimeProvider;
         _signInManager = signInManager;
     }
@@ -33,11 +33,11 @@ public class MemberInfoForNavBar : ViewComponent
             return View(new NavbarUserInfoViewModel());
         }
 
-        var cache = await _memberService.GetCachedMemberInfoAsync(id);
+        var cache = await _memberIdentityService.GetCachedMemberInfoAsync(id);
 
         if (cache is null)
         {
-            var data = await _memberService.RefreshMemberInfoCacheAsync(id);
+            var data = await _memberIdentityService.RefreshMemberInfoCacheAsync(id);
             if (data is null)
             {
                 await _signInManager.SignOutAsync();
@@ -50,7 +50,7 @@ public class MemberInfoForNavBar : ViewComponent
 
         if (IsProfileImgUrlExpired(cache.ProfileImageUrlExpirationUtc))
         {
-            await _memberService.UpdateMemberProfileUrlCacheAsync(id);
+            await _memberIdentityService.UpdateMemberProfileUrlCacheAsync(id);
         }
 
         var dataFromCache = new NavbarUserInfoViewModel

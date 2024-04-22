@@ -1,17 +1,21 @@
+using DiscussionFleet.Domain.Entities.AnswerAggregate;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
+
 namespace DiscussionFleet.Application.VotingFeatures;
 
 public interface IVotingService
 {
-    Task<bool> MemberReputationUpvoteAsync(Guid id, int positivePoint);
-    Task<bool> MemberReputationDownVoteAsync(Guid id, int negativePoint);
-    Task<bool> QuestionUpvoteAsync(Guid questionId, Guid voterId);
-    Task<bool> QuestionDownVoteAsync(Guid questionId, Guid voterId);
-    Task<bool> AnswerUpvoteAsync(Guid answerId, Guid voterId);
-    Task<bool> AnswerDownVoteAsync(Guid answerId, Guid voterId);
+    Task<bool> MemberReputationUpvoteAsync(MemberId id, int positivePoint);
+    Task<bool> MemberReputationDownVoteAsync(MemberId id, int negativePoint);
+    Task<bool> QuestionUpvoteAsync(QuestionId questionId, MemberId voterId);
+    Task<bool> QuestionDownVoteAsync(QuestionId questionId, MemberId voterId);
+    Task<bool> AnswerUpvoteAsync(AnswerId answerId, MemberId voterId);
+    Task<bool> AnswerDownVoteAsync(AnswerId answerId, MemberId voterId);
 
     Task<(bool upvote, bool downVote)> CheckQuestionVotingAbilityAsync(string? currentUserId,
-        Guid memberId, Guid questionId);
+        MemberId memberId, QuestionId questionId);
 
     Task<(bool upvote, bool downVote)> CheckAnswerVotingAbilityAsync(string? currentUserId,
-        Guid memberId, Guid answerId);
+        MemberId memberId, AnswerId answerId);
 }

@@ -13,7 +13,7 @@ public class ProfileViewModel : IViewModelWithResolve
 {
     private ILifetimeScope _scope;
     private IApplicationUnitOfWork _appUnitOfWork;
-    private IMemberService _memberService;
+    private IMemberIdentityService _memberIdentityService;
 
     #region Properties
 
@@ -35,11 +35,11 @@ public class ProfileViewModel : IViewModelWithResolve
     }
 
 
-    public ProfileViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork, IMemberService memberService)
+    public ProfileViewModel(ILifetimeScope scope, IApplicationUnitOfWork appUnitOfWork, IMemberIdentityService memberIdentityService)
     {
         _scope = scope;
         _appUnitOfWork = appUnitOfWork;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
     }
 
 
@@ -49,7 +49,7 @@ public class ProfileViewModel : IViewModelWithResolve
         if (member is not null)
         {
             await member.BuildAdapter().AdaptToAsync(this);
-            var data = await _memberService.GetCachedMemberInfoAsync(id.ToString());
+            var data = await _memberIdentityService.GetCachedMemberInfoAsync(id.ToString());
             ProfileImageUrl = data?.ProfileImageUrl;
         }
     }
@@ -57,7 +57,7 @@ public class ProfileViewModel : IViewModelWithResolve
     public async Task<MemberProfileUpdateResult> UpdateMemberData(Guid id)
     {
         var dto = await this.BuildAdapter().AdaptToTypeAsync<MemberUpdateRequest>();
-        var result = await _memberService.UpdateAsync(dto, id);
+        var result = await _memberIdentityService.UpdateAsync(dto, id);
         return result;
     }
 
@@ -66,23 +66,23 @@ public class ProfileViewModel : IViewModelWithResolve
         var dto = new ImageUploadRequest(formFile.OpenReadStream(), formFile.ContentType,
             Path.GetExtension(formFile.FileName), id, ImagePurpose.UserProfile);
 
-        await _memberService.UpsertMemberProfileImage(dto);
+        await _memberIdentityService.UpsertMemberProfileImage(dto);
     }
 
     public async Task RemoveProfileImage(Guid id)
     {
-        await _memberService.RemoveMemberProfileImage(id);
+        await _memberIdentityService.RemoveMemberProfileImage(id);
     }
 
     public async Task RefreshCacheAsync(string id)
     {
-        await _memberService.RefreshMemberInfoCacheAsync(id);
+        await _memberIdentityService.RefreshMemberInfoCacheAsync(id);
     }
 
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
-        _memberService = _scope.Resolve<IMemberService>();
+        _memberIdentityService = _scope.Resolve<IMemberIdentityService>();
     }
 }

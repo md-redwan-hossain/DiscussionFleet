@@ -11,7 +11,7 @@ public class ResendVerificationCodeViewModel : IViewModelWithResolve
 {
 
     private ILifetimeScope _scope;
-    private IMemberService _memberService;
+    private IMemberIdentityService _memberIdentityService;
 
 
     public ResendVerificationCodeViewModel()
@@ -19,10 +19,10 @@ public class ResendVerificationCodeViewModel : IViewModelWithResolve
 
     }
 
-    public ResendVerificationCodeViewModel(ILifetimeScope scope, IMemberService memberService)
+    public ResendVerificationCodeViewModel(ILifetimeScope scope, IMemberIdentityService memberIdentityService)
     {
         _scope = scope;
-        _memberService = memberService;
+        _memberIdentityService = memberIdentityService;
     }
 
 
@@ -45,11 +45,11 @@ public class ResendVerificationCodeViewModel : IViewModelWithResolve
 
     public async Task<Outcome<Guid, string>> ConductResendVerificationCode()
     {
-        var userOutcome = await _memberService.RequestEmailConfirmationAsync(Email, Password);
+        var userOutcome = await _memberIdentityService.RequestEmailConfirmationAsync(Email, Password);
 
         if (userOutcome.TryPickGoodOutcome(out var user))
         {
-            var outcome = await _memberService.ResendEmailVerificationTokenAsync(user);
+            var outcome = await _memberIdentityService.ResendEmailVerificationTokenAsync(user);
 
             if (outcome.IsGoodOutcome)
             {
@@ -71,6 +71,6 @@ public class ResendVerificationCodeViewModel : IViewModelWithResolve
     public void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
-        _memberService = _scope.Resolve<IMemberService>();
+        _memberIdentityService = _scope.Resolve<IMemberIdentityService>();
     }
 }

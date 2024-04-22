@@ -1,4 +1,6 @@
 using DiscussionFleet.Application.Common.Providers;
+using DiscussionFleet.Domain.Entities.MemberAggregate;
+using DiscussionFleet.Domain.Entities.QuestionAggregate;
 using DiscussionFleet.Domain.Entities.ResourceNotificationAggregate;
 
 namespace DiscussionFleet.Application.ResourceNotificationFeatures;
@@ -18,12 +20,12 @@ public class ResourceNotificationService : IResourceNotificationService
         _guidProvider = guidProvider;
     }
 
-    public async Task<bool> NotifyQuestionAuthorAsync(Guid questionAuthorId, Guid questionId, string title,
+    public async Task<bool> NotifyQuestionAuthorAsync(MemberId questionAuthorId, QuestionId questionId, string title,
         ResourceNotificationType notificationType)
     {
         var resourceNotification = new ResourceNotification
         {
-            Id = _guidProvider.SortableGuid(),
+            Id = new ResourceNotificationId(_guidProvider.SortableGuid()),
             ConsumerId = questionAuthorId,
             QuestionId = questionId,
             Title = title,

@@ -50,16 +50,18 @@ public class FileBucketService : IFileBucketService
         return url;
     }
 
+    
 
-    public async Task<string> GetImageUrlAsync(Guid id, ImagePurpose purpose, string fileExtension,
+    public async Task<string> GetImageUrlAsync(MultimediaImageId id, ImagePurpose purpose, string fileExtension,
         uint ttlInMinute = 60)
     {
         var request = new GetPreSignedUrlRequest
         {
             BucketName = _fileBucketOptions.BucketName,
-            Key = $"{purpose.ToString()}_{id}{fileExtension}",
+            Key = $"{purpose.ToString()}_{id.Data.ToString()}{fileExtension}",
             Expires = DateTime.UtcNow.AddHours(ttlInMinute)
         };
+        
         var url = await _s3Client.GetPreSignedURLAsync(request);
         return url;
     }
@@ -83,7 +85,7 @@ public class FileBucketService : IFileBucketService
     }
 
 
-    public async Task<bool> DeleteImageAsync(Guid id, ImagePurpose purpose, string fileExtension)
+    public async Task<bool> DeleteImageAsync(MultimediaImageId id, ImagePurpose purpose, string fileExtension)
     {
         if (await DoesBucketExistAsync(_fileBucketOptions.BucketName) is false)
         {
@@ -93,7 +95,7 @@ public class FileBucketService : IFileBucketService
         var deleteObjectRequest = new DeleteObjectRequest
         {
             BucketName = _fileBucketOptions.BucketName,
-            Key = $"{purpose.ToString()}_{id}{fileExtension}",
+            Key = $"{purpose.ToString()}_{id.Data.ToString()}{fileExtension}",
         };
 
         var response = await _s3Client.DeleteObjectAsync(deleteObjectRequest);

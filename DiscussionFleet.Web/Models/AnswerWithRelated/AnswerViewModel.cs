@@ -76,7 +76,7 @@ public class AnswerViewModel : IViewModelWithResolve
         _scope = scope;
         _appUnitOfWork = _scope.Resolve<IApplicationUnitOfWork>();
         _scope.Resolve<IMarkdownService>();
-        _scope.Resolve<IMemberService>();
+        _scope.Resolve<IMemberIdentityService>();
         _answerService = _scope.Resolve<IAnswerService>();
         _votingService = _scope.Resolve<IVotingService>();
         _forumRulesOptions = _scope.Resolve<IOptions<ForumRulesOptions>>().Value;
