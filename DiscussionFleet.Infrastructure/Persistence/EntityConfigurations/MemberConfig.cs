@@ -1,6 +1,5 @@
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
-using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Helpers;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Microsoft.EntityFrameworkCore;

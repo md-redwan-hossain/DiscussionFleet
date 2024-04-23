@@ -1,5 +1,4 @@
 using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
-using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

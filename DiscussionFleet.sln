@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.EmailWorker
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.Tests", "Tests\DiscussionFleet.Tests\DiscussionFleet.Tests.csproj", "{A3C63499-C565-4D62-BB35-FEC026D6A402}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscussionFleet.HttpApi", "DiscussionFleet.HttpApi\DiscussionFleet.HttpApi.csproj", "{8E487AB8-2778-4FDD-B9EF-B546317F622E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3C63499-C565-4D62-BB35-FEC026D6A402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E487AB8-2778-4FDD-B9EF-B546317F622E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E487AB8-2778-4FDD-B9EF-B546317F622E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E487AB8-2778-4FDD-B9EF-B546317F622E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E487AB8-2778-4FDD-B9EF-B546317F622E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

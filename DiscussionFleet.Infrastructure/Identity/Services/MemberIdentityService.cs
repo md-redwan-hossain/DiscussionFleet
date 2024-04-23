@@ -8,7 +8,6 @@ using DiscussionFleet.Application.MembershipFeatures.Interfaces;
 using DiscussionFleet.Application.MembershipFeatures.Utils;
 using DiscussionFleet.Domain.Entities.MemberAggregate;
 using DiscussionFleet.Domain.Entities.MultimediaImageAggregate;
-using DiscussionFleet.Domain.Entities.UnaryAggregates;
 using DiscussionFleet.Domain.Outcomes;
 using DiscussionFleet.Infrastructure.Identity.Managers;
 using Mapster;

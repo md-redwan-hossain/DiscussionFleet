@@ -1,3 +1,3 @@
 namespace DiscussionFleet.Domain.Entities.CommentAggregate;
 
-public readonly record struct CommentId(Guid Data);
+public record CommentId(Guid Data);

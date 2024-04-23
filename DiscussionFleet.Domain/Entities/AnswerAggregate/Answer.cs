@@ -6,9 +6,9 @@ namespace DiscussionFleet.Domain.Entities.AnswerAggregate;
 
 public class Answer : Entity<AnswerId>
 {
-    public QuestionId QuestionId { get; set; }
-    public MemberId AnswerGiverId { get; set; }
-    public string Body { get; set; }
+    public required QuestionId QuestionId { get; set; }
+    public required MemberId AnswerGiverId { get; set; }
+    public required string Body { get; set; }
     public int VoteCount { get; set; }
     public int CommentCount { get; set; }
     public ICollection<AnswerComment> Comments { get; set; }

@@ -1,3 +1,3 @@
 namespace DiscussionFleet.Domain.Entities.AnswerAggregate;
 
-public readonly record struct AnswerId(Guid Data);
+public record AnswerId(Guid Data);
