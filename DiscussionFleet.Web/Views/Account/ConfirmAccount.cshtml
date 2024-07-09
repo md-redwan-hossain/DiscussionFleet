@@ -1,0 +1,79 @@
+@using DiscussionFleet.Infrastructure.Utils
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AspNetCore.ReCaptcha
+@model DiscussionFleet.Web.Models.Account.ConfirmAccountViewModel;
+
+@{
+    ViewData["Title"] = "Account Confirmation";
+}
+
+
+<div class="container container-tight py-4">
+    <form asp-controller="Account" asp-action="ConfirmAccount" asp-antiforgery="true"
+          class="card card-md" autocomplete="off">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Confirm Account</h2>
+
+            @if (Model.HasError)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            @if (TempData.Peek(WebConstants.ResendEmailTokenErr) is not null)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div class="text-danger" role="alert">
+                                    <ul class="mb-0">
+                                        <li>@TempData[WebConstants.ResendEmailTokenErr]</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <p class="text-muted mb-4">Enter the code which was sent to your email address.</p>
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label required">Verification Code</label>
+                <input asp-for="Code" type="text" class="form-control" placeholder="Enter code">
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+
+            <input type="hidden" asp-for="UserId"/>
+            <recaptcha/>
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </div>
+        </div>
+    </form>
+
+
+    @{
+        TempData.TryAdd(WebConstants.AppUserId, Model.UserId);
+    }
+
+    <div class="text-center text-muted mt-3">
+        <a asp-controller="Account" asp-action="ResendVerificationCode">Resend</a> code.
+    </div>
+
+
+</div>
+
+@section Scripts {
+    <partial name="_AuthPageJsInjectorPartial"/>
+}

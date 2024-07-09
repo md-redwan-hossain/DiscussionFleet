@@ -1,0 +1,601 @@
+﻿@using DiscussionFleet.Domain.Entities.AnswerAggregate.Utils
+@model DiscussionFleet.Web.Models.QuestionWithRelated.QuestionDetailsViewModel;
+
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+
+@section ExternalLibFiles
+{
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/github-dark-dimmed.min.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+}
+
+<input type="hidden" value="@Model.Id"/>
+
+<div class="page-wrapper">
+<div class="page-header">
+    <div class="container">
+        <div class="row g-2 align-items-center">
+            <div class="col mx-2 mx-md-1 mx-lg-0">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="col-lg-9">
+                        <h3 class="text-wrap">
+                            @Model.Title
+                        </h3>
+                    </div>
+                    <div class="col-lg-3 text-end">
+                        <a asp-controller="Questions" asp-action="Ask" class="btn btn-primary d-none d-lg-inline-block">Ask Question</a>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <div class="d-flex gap-2 flex-column flex-lg-row flex-wrap">
+
+                        <div class="badge badge-outline text-muted border fw-normal badge-pill">
+                            <div class="d-block d-md-none">
+                                <span class="text-muted fs-6">Asked</span>
+                                <span class="text-dark fs-6 utc-datetime" data-time="@Model.CreatedAtUtc.ToString("o")"></span>
+                            </div>
+                            <div class="d-none d-md-block">
+                                <span class="text-muted">Asked</span>
+                                <span class="text-dark utc-datetime" data-time="@Model.CreatedAtUtc.ToString("o")"></span>
+                            </div>
+                        </div>
+
+                        <div class="badge badge-outline text-muted border fw-normal badge-pill">
+                            <div class="d-block d-md-none">
+                                <span class="text-muted fs-6">Modified</span>
+                                <span class="text-dark fs-6 utc-datetime" data-time="@Model.UpdatedAtUtc?.ToString("o")"></span>
+                            </div>
+                            <div class="d-none d-md-block">
+                                <span class="text-muted">Modified</span>
+                                <span class="text-dark utc-datetime" data-time="@Model.UpdatedAtUtc?.ToString("o")"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row d-block d-lg-none mb-3">
+                        <a asp-controller="Questions" asp-action="Ask" class="btn btn-primary fs-6">Ask Question</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<div class="container">
+<div class="row">
+<div class="col-lg-8 mb-sm-2 mb-lg-0">
+<div class="row pb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="avatar rounded-circle"
+                                  style="background-image: url('@Url.Content(Model.ProfilePicUrl)')">
+                            </span>
+                        </div>
+
+
+                        <div class="col">
+                            <div class="fs-4 d-block d-md-none">@Model.AuthorName</div>
+                            <div class="fs-4 text-muted d-inline-block d-md-none">
+                                <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                    <span class="text-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-badge">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17v-13l-5 3l-5 -3v13l5 3z"/>
+                                        </svg>
+                                    </span>
+                                    <span class="text-dark">@Model.AuthorReputation</span>
+                                </div>
+                            </div>
+
+                            <div class="card-title d-none d-md-block">@Model.AuthorName</div>
+                            <div class="card-subtitle d-none d-md-inline-block">
+                                <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                    <span class="text-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-badge">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17v-13l-5 3l-5 -3v13l5 3z"/>
+                                        </svg>
+                                    </span>
+                                    <span class="text-dark">@Model.AuthorReputation</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="card-actions">
+                    <div class="col-auto d-flex flex-wrap gap-2">
+                        @if (Model.CanUpvote)
+                        {
+                            <form class="p-0" asp-controller="Questions" asp-action="UpVoteQuestion" asp-route-id="@Model.Id"
+                                  asp-antiforgery="true">
+                                <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Upvote">
+                                    <button type="submit" class="text-green border-0 bg-transparent">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                             fill="currentColor"
+                                             class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path
+                                                d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="badge badge-outline text-green border fw-normal" data-bs-toggle="tooltip"
+                                 data-bs-placement="top" title="Upvote is disabled">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                </svg>
+                            </div>
+                        }
+
+
+                        <div class="badge badge-outline text-muted border fw-normal d-flex" data-bs-toggle="tooltip"
+                             data-bs-placement="top" title="Total votes">
+                            <span class="text-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                     viewBox="0 0 24 24" fill="currentColor"
+                                     class="icon icon-tabler icons-tabler-filled icon-tabler-rosette">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M12.01 2.011a3.2 3.2 0 0 1 2.113 .797l.154 .145l.698 .698a1.2 1.2 0 0 0 .71 .341l.135 .008h1a3.2 3.2 0 0 1 3.195 3.018l.005 .182v1c0 .27 .092 .533 .258 .743l.09 .1l.697 .698a3.2 3.2 0 0 1 .147 4.382l-.145 .154l-.698 .698a1.2 1.2 0 0 0 -.341 .71l-.008 .135v1a3.2 3.2 0 0 1 -3.018 3.195l-.182 .005h-1a1.2 1.2 0 0 0 -.743 .258l-.1 .09l-.698 .697a3.2 3.2 0 0 1 -4.382 .147l-.154 -.145l-.698 -.698a1.2 1.2 0 0 0 -.71 -.341l-.135 -.008h-1a3.2 3.2 0 0 1 -3.195 -3.018l-.005 -.182v-1a1.2 1.2 0 0 0 -.258 -.743l-.09 -.1l-.697 -.698a3.2 3.2 0 0 1 -.147 -4.382l.145 -.154l.698 -.698a1.2 1.2 0 0 0 .341 -.71l.008 -.135v-1l.005 -.182a3.2 3.2 0 0 1 3.013 -3.013l.182 -.005h1a1.2 1.2 0 0 0 .743 -.258l.1 -.09l.698 -.697a3.2 3.2 0 0 1 2.269 -.944z"/>
+                                </svg>
+                            </span>
+                            <span class="text-dark">@Model.VoteCount</span>
+                        </div>
+
+
+                        @if (Model.CanDownVote)
+                        {
+                            <form class="p-0" method="post" asp-controller="Questions" asp-action="DownVoteQuestion" asp-route-id="@Model.Id"
+                                  asp-antiforgery="true">
+                                <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Down Vote">
+                                    <button type="submit" class="text-red border-0 bg-transparent">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                             fill="currentColor"
+                                             class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path
+                                                d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div href="#" class="badge badge-outline text-red border fw-normal" data-bs-toggle="tooltip"
+                                 data-bs-placement="top" title="Down vote is disabled">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
+                                </svg>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+                <div id="question-body" class="markdown">
+                    @Html.Raw(Model.Body)
+                </div>
+
+                <div class="hr-text text-primary">Comments</div>
+
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.CommentsInQuestion)
+                    {
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col">
+                                    <p class="text-dark">
+                                        @Html.Raw(item.Body)
+                                        <span class="comment-meta">
+                                            <span> - </span>
+                                            <span class=" link fs-5">@item.AuthorName</span>
+                                            <span class="text-muted fs-5 utc-datetime" data-time="@item.LastActivityUtc.ToString("o")"> </span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+
+                <div class="d-flex justify-content-end">
+                    <a asp-controller="Questions" asp-action="QuestionComment" asp-route-id="@Model.Id"
+                       class="link-secondary link-offset-2 fs-5">
+                        Add a comment
+                    </a>
+                </div>
+
+            </div>
+            <div class="card-footer">
+                <div class=" d-flex flex-wrap gap-1">
+                    @foreach (var item in Model.TagNames)
+                    {
+                        <span class="badge bg-blue-lt">@item</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (Model.Pagination.TotalItems is not 0)
+{
+    <!-- Answer sorting area start -->
+    <div class="row">
+        <div class="col d-flex justify-content-between align-items-center">
+            <div class="pt-5 pt-md-0">
+                <span class="fs-3 d-none d-md-block">@Model.Pagination.TotalItems Answers</span>
+                <span class="d-block d-md-none">@Model.Pagination.TotalItems Answers</span>
+            </div>
+            <div class="d-flex align-items-center gap-1 flex-column flex-md-row">
+                <span>Sorted by:</span>
+                
+                <div>
+                    <select class="form-select" onchange="window.location.href='?sortBy=' + this.value">
+                        <option selected disabled>Select an option</option>
+                        <option value="@AnswerSortCriteria.HighestScore">
+                            Highest score (default)
+                        </option>
+                        <option value="@AnswerSortCriteria.Newest">
+                            Newest first
+                        </option>
+                        <option value="@AnswerSortCriteria.Oldest">
+                            Oldest first
+                        </option>
+                    </select>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer pagination area start -->
+    <div class="row py-3">
+        <div class="col">
+            <ul class="pagination ms-auto">
+                @for (var i = Model.Pagination.StartPage; i <= Model.Pagination.EndPage; i++)
+                {
+                    <li class="@(i == Model.Pagination.CurrentPage ? "page-item active" : "page-item")">
+                        <a class="page-link" href="@Url.Action("Details", "Questions", new { page = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+
+@foreach (var answer in Model.Answers)
+{
+    <!-- answer area start -->
+    <div class="row pb-3">
+        <div class="col">
+            <div class="card">
+                @if (answer.IsAccepted)
+                {
+                    <div class="card-status-top bg-green"></div>
+                }
+                <div class="card-header">
+                    <div>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span class="avatar rounded-circle"
+                                      style="background-image: url('@Url.Content(answer.ProfilePicUrl)')">
+                                </span>
+                            </div>
+                            <div class="col">
+                                <div class="fs-5 d-block d-md-none">@answer.AuthorName</div>
+                                <div class="fs-4 text-muted d-inline-block d-md-none">
+                                    <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                        <span class="text-yellow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-badge">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17v-13l-5 3l-5 -3v13l5 3z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="text-dark">@answer.AuthorReputation</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-title d-none d-md-block">@answer.AuthorName</div>
+                                <div class="card-subtitle d-none d-md-inline-block">
+                                    <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="Reputation">
+                                        <span class="text-yellow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-badge">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17v-13l-5 3l-5 -3v13l5 3z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="text-dark">@answer.AuthorReputation</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card-actions">
+                        <div class="col-auto d-flex flex-wrap gap-2">
+
+                            @if (Model.CanMarkAsAccepted && answer.IsAccepted is false)
+                            {
+                                <input type="hidden" value="@answer.Id"/>
+
+                                <form class="p-0" asp-controller="Questions" asp-action="AcceptAnswer"
+                                      asp-route-questionId="@Model.Id" asp-route-answerId="@answer.Id" asp-antiforgery="true">
+                                    <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Mark as accepted">
+                                        <button type="submit" class="text-green border-0 bg-transparent">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                                 stroke-linejoin="round"
+                                                 class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l5 5l10 -10"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+
+
+                            @if (answer.CanUpvote)
+                            {
+                                <form class="p-0" asp-controller="Questions" asp-action="UpVoteAnswer"
+                                      asp-route-questionId="@Model.Id" asp-route-answerId="@answer.Id"
+                                      asp-antiforgery="true">
+                                    <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Upvote">
+                                        <button type="submit" class="text-green border-0 bg-transparent">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="currentColor"
+                                                 class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path
+                                                    d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="badge badge-outline text-green border fw-normal" data-bs-toggle="tooltip"
+                                     data-bs-placement="top" title="Upvote is disabled">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-up">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path
+                                            d="M11.293 7.293a1 1 0 0 1 1.32 -.083l.094 .083l6 6l.083 .094l.054 .077l.054 .096l.017 .036l.027 .067l.032 .108l.01 .053l.01 .06l.004 .057l.002 .059l-.002 .059l-.005 .058l-.009 .06l-.01 .052l-.032 .108l-.027 .067l-.07 .132l-.065 .09l-.073 .081l-.094 .083l-.077 .054l-.096 .054l-.036 .017l-.067 .027l-.108 .032l-.053 .01l-.06 .01l-.057 .004l-.059 .002h-12c-.852 0 -1.297 -.986 -.783 -1.623l.076 -.084l6 -6z"/>
+                                    </svg>
+                                </div>
+                            }
+
+
+                            <div class="badge badge-outline text-muted border fw-normal d-flex" data-bs-toggle="tooltip"
+                                 data-bs-placement="top" title="Total votes">
+                                <span class="text-yellow">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                         viewBox="0 0 24 24" fill="currentColor"
+                                         class="icon icon-tabler icons-tabler-filled icon-tabler-rosette">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path
+                                            d="M12.01 2.011a3.2 3.2 0 0 1 2.113 .797l.154 .145l.698 .698a1.2 1.2 0 0 0 .71 .341l.135 .008h1a3.2 3.2 0 0 1 3.195 3.018l.005 .182v1c0 .27 .092 .533 .258 .743l.09 .1l.697 .698a3.2 3.2 0 0 1 .147 4.382l-.145 .154l-.698 .698a1.2 1.2 0 0 0 -.341 .71l-.008 .135v1a3.2 3.2 0 0 1 -3.018 3.195l-.182 .005h-1a1.2 1.2 0 0 0 -.743 .258l-.1 .09l-.698 .697a3.2 3.2 0 0 1 -4.382 .147l-.154 -.145l-.698 -.698a1.2 1.2 0 0 0 -.71 -.341l-.135 -.008h-1a3.2 3.2 0 0 1 -3.195 -3.018l-.005 -.182v-1a1.2 1.2 0 0 0 -.258 -.743l-.09 -.1l-.697 -.698a3.2 3.2 0 0 1 -.147 -4.382l.145 -.154l.698 -.698a1.2 1.2 0 0 0 .341 -.71l.008 -.135v-1l.005 -.182a3.2 3.2 0 0 1 3.013 -3.013l.182 -.005h1a1.2 1.2 0 0 0 .743 -.258l.1 -.09l.698 -.697a3.2 3.2 0 0 1 2.269 -.944z"/>
+                                    </svg>
+                                </span>
+                                <span class="text-dark">@answer.VoteCount</span>
+                            </div>
+
+
+                            @if (answer.CanDownVote)
+                            {
+                                <form class="p-0" method="post" asp-controller="Questions" asp-action="DownVoteAnswer"
+                                      asp-route-questionId="@Model.Id" asp-route-answerId="@answer.Id"
+                                      asp-antiforgery="true">
+                                    <div class="badge px-0 badge-outline text-muted border fw-normal d-flex"
+                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Down Vote">
+                                        <button type="submit" class="text-red border-0 bg-transparent">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="currentColor"
+                                                 class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path
+                                                    d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                            else
+                            {
+                                <div href="#" class="badge badge-outline text-red border fw-normal" data-bs-toggle="tooltip"
+                                     data-bs-placement="top" title="Down vote is disabled">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-caret-down">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path
+                                            d="M18 9c.852 0 1.297 .986 .783 1.623l-.076 .084l-6 6a1 1 0 0 1 -1.32 .083l-.094 -.083l-6 -6l-.083 -.094l-.054 -.077l-.054 -.096l-.017 -.036l-.027 -.067l-.032 -.108l-.01 -.053l-.01 -.06l-.004 -.057v-.118l.005 -.058l.009 -.06l.01 -.052l.032 -.108l.027 -.067l.07 -.132l.065 -.09l.073 -.081l.094 -.083l.077 -.054l.096 -.054l.036 -.017l.067 -.027l.108 -.032l.053 -.01l.06 -.01l.057 -.004l12.059 -.002z"/>
+                                    </svg>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="card-body">
+
+                    <div class="markdown answer-body">
+                        @Html.Raw(answer.Body)
+                    </div>
+
+                    <div class="hr-text text-primary">Comments</div>
+
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in answer.CommentsInAnswer)
+                        {
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="text-dark">
+                                            @Html.Raw(item.Body)
+                                            <span class="comment-meta">
+                                                <span> - </span>
+                                                <span class=" link fs-5">@item.AuthorName</span>
+                                                <span class="text-muted fs-5 utc-datetime" data-time="@item.LastActivityUtc.ToString("o")"> </span>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+
+
+                    <div class="d-flex justify-content-end">
+                        <a asp-controller="Questions" asp-action="AnswerComment"
+                           asp-route-questionId="@Model.Id" asp-route-answerId="@answer.Id"
+                           class="link-secondary link-offset-2 fs-5">
+                            Add a comment
+                        </a>
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="badge badge-outline text-muted border fw-normal badge-pill">
+                            <span class="text-muted">Answered</span>
+                            <span class="text-dark utc-datetime" data-time="@answer.CreatedAtUtc.ToString("o")"></span>
+                        </div>
+                        <div class="badge badge-outline text-muted border fw-normal badge-pill">
+                            <span class="text-muted">Modified</span>
+                            <span class="text-dark utc-datetime" data-time="@answer.UpdatedAtUtc?.ToString("o")"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="mb-3 mb-md-0 d-flex justify-content-center">
+    <a asp-controller="Questions" asp-action="Answer" asp-route-id="@Model.Id"
+       class="btn btn-primary w-100">
+        Write an answer
+    </a>
+</div>
+
+</div>
+<div class="col-lg-4">
+    <div class="col sticky-lg-top">
+        <div class="row pb-2">
+            <div class="col">
+                <div class="card">
+                    <div class="ribbon bg-teal">Related</div>
+                    <div class="card-body">
+                        <div class="list-group">
+
+                            @if (Model.RelatedQuestionsByTag.Count == 0
+                                 || Model.RelatedQuestionsByTag.First().Id == Model.Id)
+                            {
+                                <div class="list-group-item border-0 list-group-item-action">
+                                </div>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model.RelatedQuestionsByTag)
+                                {
+                                    if (item.Id == Model.Id) continue;
+                                    <div class="list-group-item border-0 list-group-item-action">
+                                        <div class="d-flex justify-content-start align-items-center gap-2">
+                                            <div class="badge badge-outline text-muted border fw-normal d-flex"
+                                                 data-bs-toggle="tooltip" data-bs-placement="left" title="Total votes">
+                                                <span class="text-yellow">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                         height="24" viewBox="0 0 24 24" fill="currentColor"
+                                                         class="icon icon-tabler icons-tabler-filled icon-tabler-rosette">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                        <path
+                                                            d="M12.01 2.011a3.2 3.2 0 0 1 2.113 .797l.154 .145l.698 .698a1.2 1.2 0 0 0 .71 .341l.135 .008h1a3.2 3.2 0 0 1 3.195 3.018l.005 .182v1c0 .27 .092 .533 .258 .743l.09 .1l.697 .698a3.2 3.2 0 0 1 .147 4.382l-.145 .154l-.698 .698a1.2 1.2 0 0 0 -.341 .71l-.008 .135v1a3.2 3.2 0 0 1 -3.018 3.195l-.182 .005h-1a1.2 1.2 0 0 0 -.743 .258l-.1 .09l-.698 .697a3.2 3.2 0 0 1 -4.382 .147l-.154 -.145l-.698 -.698a1.2 1.2 0 0 0 -.71 -.341l-.135 -.008h-1a3.2 3.2 0 0 1 -3.195 -3.018l-.005 -.182v-1a1.2 1.2 0 0 0 -.258 -.743l-.09 -.1l-.697 -.698a3.2 3.2 0 0 1 -.147 -4.382l.145 -.154l.698 -.698a1.2 1.2 0 0 0 .341 -.71l.008 -.135v-1l.005 -.182a3.2 3.2 0 0 1 3.013 -3.013l.182 -.005h1a1.2 1.2 0 0 0 .743 -.258l.1 -.09l.698 -.697a3.2 3.2 0 0 1 2.269 -.944z"/>
+                                                    </svg>
+                                                </span>
+                                                <span class="text-dark">@item.VoteCount</span>
+                                            </div>
+                                            <div class="col d-flex flex-column pe-5">
+                                                <h5 class="mb-1">
+                                                    <a href="@item.Url">@item.Title</a>
+                                                </h5>
+                                                <small class="text-dark fs-6 utc-datetime"
+                                                       data-time="@item.LastActivity.ToString("o")">
+                                                </small>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+@section Scripts
+{
+    <script>hljs.highlightAll();</script>
+
+    <script>
+            window.onload = function() {
+                const lastActivityDivs = document.getElementsByClassName('utc-datetime');
+                for (let i = 0; i < lastActivityDivs.length; i++) {
+                    const utcDateTime = lastActivityDivs[i].getAttribute('data-time');
+                    const date = new Date(utcDateTime);
+                    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+                    const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                    lastActivityDivs[i].textContent = localDate.toLocaleString(undefined, options);
+                }
+            };
+    </script>
+
+}

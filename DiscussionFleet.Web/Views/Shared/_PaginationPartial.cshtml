@@ -1,0 +1,16 @@
+@model DiscussionFleet.Web.Models.Others.PaginationViewModel;
+
+@if (Model.TotalData is not 0)
+{
+    <div class="d-flex mt-4">
+        <ul class="pagination ms-auto">
+
+            @for (var i = Model.StartPage; i <= Model.EndPage; i++)
+            {
+                <li class="@(i == Model.CurrentPage ? "page-item active" : "page-item")">
+                    <a class="page-link" href="@Url.Action(Model.ActionName, new { page = i, limit = Model.DataPerPage })">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
+}

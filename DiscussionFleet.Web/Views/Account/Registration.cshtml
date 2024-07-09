@@ -1,0 +1,100 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AspNetCore.ReCaptcha
+@model DiscussionFleet.Web.Models.Account.RegistrationViewModel;
+
+@{
+    ViewData["Title"] = "Registration";
+}
+
+
+<div class="container container-tight py-4">
+    <form class="card card-md" asp-controller="Account" asp-action="Registration" asp-antiforgery="true" autocomplete="off">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Create new account</h2>
+
+            @if (Model.HasError)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label required">Full Name</label>
+                <input asp-for="FullName" type="text" class="form-control" placeholder="Enter full name">
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label required">Email address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="Enter email">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label required">Password</label>
+                <div class="input-group input-group-flat">
+                    <input asp-for="Password" id="passwordInput" type="password" class="form-control" placeholder="Your password" autocomplete="off">
+                    <span class="input-group-text">
+                        <button id="togglePasswordVisibility" style="background: none; border: none; padding: 0; cursor: pointer;">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                </svg>
+                            </span>
+                        </button>
+                    </span>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label required">Confirm Password</label>
+                <div class="input-group input-group-flat">
+                    <input asp-for="ConfirmPassword" id="confirmPasswordInput" type="password" class="form-control" placeholder="Repeat the password" autocomplete="off">
+                    <span class="input-group-text">
+                        <button id="toggleConfirmPasswordVisibility" style="background: none; border: none; padding: 0; cursor: pointer;">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                </svg>
+                            </span>
+                        </button>
+                    </span>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <recaptcha/>
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Create new account</button>
+            </div>
+        </div>
+    </form>
+    <div class="text-center text-muted mt-3">
+        Already have account? <a asp-controller="Account" asp-action="Login" tabindex="-1">Sign in</a>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_AuthPageJsInjectorPartial"/>
+
+    <script>
+         addTogglePasswordVisibilityHandler('togglePasswordVisibility', 'passwordInput');     
+         addTogglePasswordVisibilityHandler('toggleConfirmPasswordVisibility', 'confirmPasswordInput');     
+    </script>
+
+}

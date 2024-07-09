@@ -1,0 +1,23 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model DiscussionFleet.Web.Models.Others.NavbarUserInfoViewModel;
+
+<div class="navbar-nav flex-row order-md-last">
+    <div class="nav-item dropdown">
+        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+           aria-label="Open user menu">
+            <span class="avatar avatar-sm" style="background-image: url('@Url.Content(Model.ProfilePictureUrl)');"></span>
+            <div class="d-none d-xl-block ps-2">
+                <div>@Model.Name</div>
+            </div>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+            <a asp-controller="Notifications" asp-action="Index" class="dropdown-item">
+                Notifications
+            </a>
+            <a asp-controller="Account" asp-action="Profile" class="dropdown-item">Profile</a>
+            <form asp-controller="Account" asp-action="LogOut" asp-antiforgery="true">
+                <input type="submit" value="Logout" class="dropdown-item"/>
+            </form>
+        </div>
+    </div>
+</div>

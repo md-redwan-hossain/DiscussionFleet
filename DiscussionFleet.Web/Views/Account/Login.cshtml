@@ -1,0 +1,106 @@
+@using DiscussionFleet.Infrastructure.Utils
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AspNetCore.ReCaptcha
+@model DiscussionFleet.Web.Models.Account.LoginViewModel;
+
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+
+<div class="container container-tight py-4">
+    <div class="card card-md">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Login to your account</h2>
+
+            @if (Model.HasError)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-danger"></div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            @if (TempData.Peek(WebConstants.AccountConfirmed) is not null)
+            {
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-status-top bg-success"></div>
+                            <div class="card-body">
+                                <div class="text-success " role="alert">
+                                    <ul class="mb-0 list-unstyled">
+                                        <li>@TempData[WebConstants.AccountConfirmed]</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            <form asp-controller="Account" asp-action="Login" asp-antiforgery="true" autocomplete="off">
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label required">Email address</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-2">
+                    <label asp-for="Password" class="form-label required">
+                        Password
+                    </label>
+                    <div class="input-group input-group-flat">
+                        <input asp-for="Password" id="passwordInput" type="password" class="form-control" placeholder="Your password" autocomplete="off">
+                        <span class="input-group-text">
+                            <button id="togglePasswordVisibility" style="background: none; border: none; padding: 0; cursor: pointer;">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </span>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-2">
+                    <label class="form-check">
+                        <input asp-for="RememberMe" type="checkbox" class="form-check-input"/>
+                        <span class="form-check-label">Remember me</span>
+                    </label>
+                </div>
+                <input type="hidden" asp-for="ReturnUrl"/>
+                <recaptcha/>
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center text-muted mt-3">
+        Don't have account yet? <a asp-controller="Account" asp-action="Registration" tabindex="-1">Sign up</a>
+    </div>
+</div>
+
+
+@section Scripts{
+    <partial name="_AuthPageJsInjectorPartial"/>
+
+    <script>
+         addTogglePasswordVisibilityHandler('togglePasswordVisibility', 'passwordInput');     
+    </script>
+
+}
